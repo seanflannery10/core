@@ -1,10 +1,14 @@
 version: "2"
 sql:
   - engine: "postgresql"
-    queries: "db/queries"
-    schema: "db/migrations"
+    queries: "sql/queries"
+    schema: "sql/migrations"
     gen:
       go:
         package: "data"
-        out: "internal/data/"
-        sql_package: "pgx/v4"
+        out: "internal/data"
+        sql_package: "pgx/v5"
+        emit_json_tags: true
+        overrides:
+          - db_type: "citext"
+            go_type: "string"
