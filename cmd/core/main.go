@@ -7,12 +7,13 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"runtime"
+	"sync"
+	"time"
 
 	"github.com/seanflannery10/core/internal/data"
-	"github.com/seanflannery10/core/internal/database"
 	"github.com/seanflannery10/core/internal/helpers"
 	"github.com/seanflannery10/core/internal/mailer"
-	"github.com/seanflannery10/core/internal/server"
 	"github.com/sethvargo/go-envconfig"
 )
 
@@ -37,7 +38,7 @@ type application struct {
 	config  Config
 	mailer  mailer.Mailer
 	queries *data.Queries
-	server  *server.Server
+	wg      sync.WaitGroup
 }
 
 func main() {
@@ -61,12 +62,21 @@ func main() {
 		log.Fatal(err, nil)
 	}
 
-	dbpool, err := database.New(cfg.DB.DSN)
+	dbpool, err := helpers.NewDBPool(cfg.DB.DSN)
 	if err != nil {
 		log.Fatal(err, nil)
 	}
 
-	helpers.PublishCommonMetrics()
+	expvar.NewString("version").Set(helpers.GetVersion())
+
+	expvar.Publish("goroutines", expvar.Func(func() any {
+		return runtime.NumGoroutine()
+	}))
+
+	expvar.Publish("timestamp", expvar.Func(func() any {
+		return time.Now().Unix()
+	}))
+
 	expvar.Publish("database", expvar.Func(func() any {
 		return dbpool.Stat()
 	}))
@@ -79,9 +89,7 @@ func main() {
 		queries: queries,
 	}
 
-	app.server = server.New(app.config.Connection.Port, app.routes())
-
-	err = app.server.Run()
+	err = app.serve()
 	if err != nil {
 		log.Fatal(err)
 	}

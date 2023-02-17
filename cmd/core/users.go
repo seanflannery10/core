@@ -81,7 +81,7 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	app.server.Background(func() {
+	app.background(func() {
 		input := map[string]any{
 			"activationToken": token.Plaintext,
 		}

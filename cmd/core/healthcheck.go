@@ -1,4 +1,4 @@
-package handlers
+package main
 
 import (
 	"net/http"
@@ -7,7 +7,7 @@ import (
 	"github.com/seanflannery10/core/internal/httperrors"
 )
 
-func Healthcheck(w http.ResponseWriter, r *http.Request) {
+func (app *application) healthCheckHandler(w http.ResponseWriter, r *http.Request) {
 	env := map[string]any{
 		"status": "available",
 		"system_info": map[string]string{

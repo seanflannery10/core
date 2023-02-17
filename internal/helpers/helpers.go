@@ -1,21 +1,22 @@
 package helpers
 
 import (
-	"encoding/json"
+	"context"
 	"errors"
-	"expvar"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
-	"runtime"
 	"runtime/debug"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/goccy/go-json"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/seanflannery10/core/internal/validator"
+	"golang.org/x/exp/slog"
 )
 
 var (
@@ -88,7 +89,7 @@ func WriteJSON(w http.ResponseWriter, status int, data any) error {
 }
 
 func WriteJSONWithHeaders(w http.ResponseWriter, status int, data any, headers http.Header) error {
-	js, err := json.MarshalIndent(data, "", "\t")
+	js, err := json.Marshal(data)
 	if err != nil {
 		return err
 	}
@@ -186,14 +187,17 @@ func GetVersion() string {
 	return revision
 }
 
-func PublishCommonMetrics() {
-	expvar.NewString("version").Set(GetVersion())
+func NewDBPool(dsn string) (*pgxpool.Pool, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
-	expvar.Publish("goroutines", expvar.Func(func() any {
-		return runtime.NumGoroutine()
-	}))
+	dbpool, err := pgxpool.New(ctx, dsn)
+	if err != nil {
+		return nil, err
+	}
+	defer dbpool.Close()
 
-	expvar.Publish("timestamp", expvar.Func(func() any {
-		return time.Now().Unix()
-	}))
+	slog.Info("database connection pool established")
+
+	return dbpool, nil
 }

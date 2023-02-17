@@ -113,7 +113,7 @@ func (app *application) createPasswordResetTokenHandler(w http.ResponseWriter, r
 		return
 	}
 
-	app.server.Background(func() {
+	app.background(func() {
 		input := map[string]any{
 			"passwordResetToken": token.Plaintext,
 		}
@@ -175,7 +175,7 @@ func (app *application) createActivationTokenHandler(w http.ResponseWriter, r *h
 		return
 	}
 
-	app.server.Background(func() {
+	app.background(func() {
 		input := map[string]any{
 			"activationToken": token.Plaintext,
 		}

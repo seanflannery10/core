@@ -7,7 +7,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
-	"github.com/seanflannery10/core/internal/handlers"
 	"github.com/seanflannery10/core/internal/httperrors"
 )
 
@@ -24,7 +23,7 @@ func (app *application) routes() http.Handler {
 	r.MethodNotAllowed(httperrors.MethodNotAllowed)
 
 	r.Get("/debug/vars", expvar.Handler().ServeHTTP)
-	r.Get("/healthcheck", handlers.Healthcheck)
+	r.Get("/healthcheck", app.healthCheckHandler)
 
 	// r.Route("/v1/messages", func(r chi.Router) {
 	//	r.Get("/", app.listMessagesHandler)
@@ -35,7 +34,7 @@ func (app *application) routes() http.Handler {
 	//		r.Patch("/", app.updateMessageHandler)
 	//		r.Delete("/", app.deleteMessageHandler)
 	//	})
-	//})
+	// })
 
 	r.Route("/v1/users", func(r chi.Router) {
 		r.Post("/", app.registerUserHandler)

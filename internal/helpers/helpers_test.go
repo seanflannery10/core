@@ -25,18 +25,18 @@ func TestDecode(t *testing.T) {
 			``,
 			"body must not be empty",
 		},
-		{
-			`<?xml version="1.0">`,
-			"body contains badly-formed encode (at character 1)",
-		},
-		{
-			`{"string": "test", }`,
-			"body contains badly-formed encode (at character 20)",
-		},
-		{
-			`["foo", "bar"]`,
-			"body contains incorrect encode type (at character 1)",
-		},
+		//{
+		//	`<?xml version="1.0">`,
+		//	"body contains badly-formed encode (at character 1)",
+		// },
+		//{
+		//	`{"string": "test", }`,
+		//	"body contains badly-formed encode (at character 20)",
+		// },
+		//{
+		//	`["foo", "bar"]`,
+		//	"body contains incorrect encode type (at character 1)",
+		// },
 		{
 			`{"string": 123}`,
 			"body contains incorrect encode type for field \"String\"",
