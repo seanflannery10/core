@@ -40,7 +40,7 @@ func (q *Queries) AddPermissionsForUser(ctx context.Context, arg AddPermissionsF
 	return items, nil
 }
 
-const getAllPermissionsForUser = `-- name: GetAllPermissionsForUser :one
+const getAllPermissionsForUser = `-- name: GetAllPermissionsForUser :many
 SELECT permissions.code
 FROM permissions
          INNER JOIN users_permissions ON users_permissions.permission_id = permissions.id
@@ -48,9 +48,22 @@ FROM permissions
 WHERE users.id = $1
 `
 
-func (q *Queries) GetAllPermissionsForUser(ctx context.Context, id int64) (string, error) {
-	row := q.db.QueryRow(ctx, getAllPermissionsForUser, id)
-	var code string
-	err := row.Scan(&code)
-	return code, err
+func (q *Queries) GetAllPermissionsForUser(ctx context.Context, id int64) ([]string, error) {
+	rows, err := q.db.Query(ctx, getAllPermissionsForUser, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []string
+	for rows.Next() {
+		var code string
+		if err := rows.Scan(&code); err != nil {
+			return nil, err
+		}
+		items = append(items, code)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

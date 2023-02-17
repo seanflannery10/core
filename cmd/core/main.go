@@ -43,6 +43,14 @@ type application struct {
 }
 
 func main() {
+	displayVersion := flag.Bool("version", false, "Display version and exit")
+	flag.Parse()
+
+	if *displayVersion {
+		fmt.Printf("Version:\t%s\n", helpers.GetVersion())
+		os.Exit(0)
+	}
+
 	slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stdout)))
 
 	cfg := Config{}
@@ -52,44 +60,25 @@ func main() {
 		log.Fatal(err)
 	}
 
-	displayVersion := flag.Bool("version", false, "Display version and exit")
-	flag.Parse()
-
-	if *displayVersion {
-		fmt.Printf("Version:\t%s\n", helpers.GetVersion())
-		os.Exit(0)
+	dbpool, err := helpers.NewDBPool(cfg.DB.DSN)
+	if err != nil {
+		log.Fatal(err)
 	}
+
+	expvar.NewString("version").Set(helpers.GetVersion())
+	expvar.Publish("goroutines", expvar.Func(func() any { return runtime.NumGoroutine() }))
+	expvar.Publish("timestamp", expvar.Func(func() any { return time.Now().Unix() }))
+	expvar.Publish("database", expvar.Func(func() any { return dbpool.Stat() }))
 
 	m, err := mailer.New(cfg.SMTP.Host, cfg.SMTP.Port, cfg.SMTP.Username, cfg.SMTP.Password, cfg.SMTP.Sender)
 	if err != nil {
 		log.Fatal(err, nil)
 	}
 
-	dbpool, err := helpers.NewDBPool(cfg.DB.DSN)
-	if err != nil {
-		log.Fatal(err, nil)
-	}
-
-	expvar.NewString("version").Set(helpers.GetVersion())
-
-	expvar.Publish("goroutines", expvar.Func(func() any {
-		return runtime.NumGoroutine()
-	}))
-
-	expvar.Publish("timestamp", expvar.Func(func() any {
-		return time.Now().Unix()
-	}))
-
-	expvar.Publish("database", expvar.Func(func() any {
-		return dbpool.Stat()
-	}))
-
-	queries := data.New(dbpool)
-
 	app := &application{
 		config:  cfg,
 		mailer:  m,
-		queries: queries,
+		queries: data.New(dbpool),
 	}
 
 	err = app.serve()

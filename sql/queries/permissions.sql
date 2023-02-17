@@ -1,4 +1,4 @@
--- name: GetAllPermissionsForUser :one
+-- name: GetAllPermissionsForUser :many
 SELECT permissions.code
 FROM permissions
          INNER JOIN users_permissions ON users_permissions.permission_id = permissions.id
