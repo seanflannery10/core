@@ -1,4 +1,4 @@
-package middleware
+package main
 
 import (
 	"context"
@@ -7,7 +7,8 @@ import (
 	"testing"
 
 	"github.com/seanflannery10/core/internal/assert"
-	"github.com/seanflannery10/core/internal/auth"
+	"github.com/seanflannery10/core/internal/data"
+	"github.com/seanflannery10/core/internal/helpers"
 )
 
 var (
@@ -22,21 +23,27 @@ var (
 
 func TestMiddleware_RequireAuthenticatedUser(t *testing.T) {
 	t.Run("Bad Auth", func(t *testing.T) {
+		app := application{}
+
 		rr := httptest.NewRecorder()
 		r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/", nil)
 
-		RequireAuthenticatedUser(next).ServeHTTP(rr, r)
+		r = helpers.ContextSetUser(r, data.AnonymousUser)
+
+		app.requireAuthenticatedUser(next).ServeHTTP(rr, r)
 
 		assert.Contains(t, rr.Body.String(), "you must be authenticated to access this resource")
 		assert.Equal(t, rr.Code, http.StatusUnauthorized)
 	})
 
 	t.Run("Good Auth", func(t *testing.T) {
+		app := application{}
+
 		rr := httptest.NewRecorder()
 		r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/", nil)
-		r = auth.SetUser(r, "Test")
+		r = helpers.ContextSetUser(r, &data.User{})
 
-		RequireAuthenticatedUser(next).ServeHTTP(rr, r)
+		app.requireAuthenticatedUser(next).ServeHTTP(rr, r)
 
 		assert.Equal(t, rr.Body.String(), "OK")
 		assert.Equal(t, rr.Code, http.StatusOK)
@@ -44,31 +51,37 @@ func TestMiddleware_RequireAuthenticatedUser(t *testing.T) {
 }
 
 func TestMiddleware_Metrics(t *testing.T) {
+	app := application{}
+
 	rr := httptest.NewRecorder()
 	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/", nil)
 
-	Metrics(next).ServeHTTP(rr, r)
+	app.metrics(next).ServeHTTP(rr, r)
 
 	assert.Equal(t, rr.Body.String(), "OK")
 }
 
 func TestMiddleware_RecoverPanic(t *testing.T) {
 	t.Run("No Panic", func(t *testing.T) {
+		app := application{}
+
 		rr := httptest.NewRecorder()
 		r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/", nil)
 
-		RecoverPanic(next).ServeHTTP(rr, r)
+		app.recoverPanic(next).ServeHTTP(rr, r)
 
 		assert.Equal(t, rr.Body.String(), "OK")
 	})
 
 	t.Run("Panic", func(t *testing.T) {
+		app := application{}
+
 		rr := httptest.NewRecorder()
 		r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/", nil)
 
 		homeHandler := http.HandlerFunc(func(http.ResponseWriter, *http.Request) { panic("test error") })
 
-		RecoverPanic(homeHandler).ServeHTTP(rr, r)
+		app.recoverPanic(homeHandler).ServeHTTP(rr, r)
 
 		assert.Contains(t, rr.Body.String(), "the server encountered a problem and could not process your json")
 	})

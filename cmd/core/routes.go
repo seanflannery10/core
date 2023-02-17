@@ -5,19 +5,20 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/seanflannery10/core/internal/httperrors"
 )
 
 func (app *application) routes() http.Handler {
 	r := chi.NewRouter()
+	r.Use(app.metrics)
+	r.Use(app.recoverPanic)
 
-	r.Use(middleware.RealIP)
-	r.Use(middleware.Recoverer)
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins: []string{"https://*", "http://*"},
 	}))
+
+	r.Use(app.authenticate)
 
 	r.NotFound(httperrors.NotFound)
 	r.MethodNotAllowed(httperrors.MethodNotAllowed)

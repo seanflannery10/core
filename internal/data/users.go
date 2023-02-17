@@ -8,6 +8,12 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+var AnonymousUser = &User{}
+
+func (u *User) IsAnonymous() bool {
+	return u == AnonymousUser
+}
+
 func GetPasswordHash(plaintextPassword string) ([]byte, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(plaintextPassword), 14)
 	if err != nil {

@@ -15,6 +15,7 @@ import (
 	"github.com/seanflannery10/core/internal/helpers"
 	"github.com/seanflannery10/core/internal/mailer"
 	"github.com/sethvargo/go-envconfig"
+	"golang.org/x/exp/slog"
 )
 
 type Config struct {
@@ -42,6 +43,8 @@ type application struct {
 }
 
 func main() {
+	slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stdout)))
+
 	cfg := Config{}
 
 	err := envconfig.Process(context.Background(), &cfg)

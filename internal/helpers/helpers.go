@@ -15,6 +15,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/goccy/go-json"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/seanflannery10/core/internal/data"
 	"github.com/seanflannery10/core/internal/validator"
 	"golang.org/x/exp/slog"
 )
@@ -28,6 +29,24 @@ var (
 	errToManyValues       = errors.New("body must only contain a single encode value")
 	errInvalidIDParameter = errors.New("invalid id parameter")
 )
+
+type contextKey string
+
+const userContextKey = contextKey("user")
+
+func ContextSetUser(r *http.Request, user *data.User) *http.Request {
+	ctx := context.WithValue(r.Context(), userContextKey, user)
+	return r.WithContext(ctx)
+}
+
+func ContextGetUser(r *http.Request) *data.User {
+	user, ok := r.Context().Value(userContextKey).(*data.User)
+	if !ok {
+		panic("missing user value in request context")
+	}
+
+	return user
+}
 
 func ReadJSON(w http.ResponseWriter, r *http.Request, dst interface{}) error {
 	maxBytes := 1_048_576
