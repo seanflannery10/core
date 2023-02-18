@@ -26,16 +26,16 @@ func (app *application) routes() http.Handler {
 	r.Get("/debug/vars", expvar.Handler().ServeHTTP)
 	r.Get("/healthcheck", app.healthCheckHandler)
 
-	// r.Route("/v1/messages", func(r chi.Router) {
-	//	r.Get("/", app.listMessagesHandler)
-	//	r.Post("/", app.createMessageHandler)
-	//
-	//	r.Route("/{id}", func(r chi.Router) {
-	//		r.Get("/", app.showMessageHandler)
-	//		r.Patch("/", app.updateMessageHandler)
-	//		r.Delete("/", app.deleteMessageHandler)
-	//	})
-	// })
+	r.With(app.requireAuthenticatedUser).Route("/v1/messages", func(r chi.Router) {
+		r.Get("/", app.listMessagesHandler)
+		r.Post("/", app.createMessageHandler)
+
+		r.Route("/{id}", func(r chi.Router) {
+			r.Get("/", app.showMessageHandler)
+			r.Patch("/", app.updateMessageHandler)
+			r.Delete("/", app.deleteMessageHandler)
+		})
+	})
 
 	r.Route("/v1/users", func(r chi.Router) {
 		r.Post("/", app.registerUserHandler)

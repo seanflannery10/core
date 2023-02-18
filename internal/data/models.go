@@ -8,30 +8,28 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-type Permission struct {
-	ID   int64  `json:"id"`
-	Code string `json:"code"`
+type Message struct {
+	ID        int64
+	CreatedAt pgtype.Timestamptz
+	Message   string
+	UserID    int64
+	Version   int32
 }
 
 type Token struct {
-	Plaintext string             `json:"plaintext"`
-	Hash      []byte             `json:"hash"`
-	UserID    int64              `json:"user_id"`
-	Expiry    pgtype.Timestamptz `json:"expiry"`
-	Scope     string             `json:"scope"`
+	Plaintext string
+	Hash      []byte
+	UserID    int64
+	Expiry    pgtype.Timestamptz
+	Scope     string
 }
 
 type User struct {
-	ID           int64              `json:"id"`
-	CreatedAt    pgtype.Timestamptz `json:"created_at"`
-	Name         string             `json:"name"`
-	Email        string             `json:"email"`
-	PasswordHash []byte             `json:"password_hash"`
-	Activated    bool               `json:"activated"`
-	Version      int32              `json:"version"`
-}
-
-type UsersPermission struct {
-	UserID       int64 `json:"user_id"`
-	PermissionID int64 `json:"permission_id"`
+	ID           int64
+	CreatedAt    pgtype.Timestamptz
+	Name         string
+	Email        string
+	PasswordHash []byte
+	Activated    bool
+	Version      int32
 }

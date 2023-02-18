@@ -81,27 +81,6 @@ func (app *application) requireAuthenticatedUser(next http.Handler) http.Handler
 	})
 }
 
-// func (app *application) requirePermission(code string, next http.HandlerFunc) http.HandlerFunc {
-//	fn := func(w http.ResponseWriter, r *http.Request) {
-//		user := helpers.ContextGetUser(r)
-//
-//		permissions, err := app.models.Permissions.GetAllForUser(user.ID)
-//		if err != nil {
-//			app.serverErrorResponse(w, r, err)
-//			return
-//		}
-//
-//		if !permissions.Include(code) {
-//			app.notPermittedResponse(w, r)
-//			return
-//		}
-//
-//		next.ServeHTTP(w, r)
-//	}
-//
-//	return app.requireActivatedUser(fn)
-//}
-
 func (app *application) metrics(next http.Handler) http.Handler {
 	totalRequestsReceived := expvar.NewInt("total_requests_received")
 	totalResponsesSent := expvar.NewInt("total_responses_sent")

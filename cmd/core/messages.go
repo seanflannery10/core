@@ -1,0 +1,190 @@
+package main
+
+import (
+	"errors"
+	"fmt"
+	"net/http"
+	"strconv"
+
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/seanflannery10/core/internal/data"
+	"github.com/seanflannery10/core/internal/helpers"
+	"github.com/seanflannery10/core/internal/httperrors"
+	"github.com/seanflannery10/core/internal/validator"
+)
+
+func (app *application) createMessageHandler(w http.ResponseWriter, r *http.Request) {
+	var input struct {
+		Message string `json:"message"`
+	}
+
+	err := helpers.ReadJSON(w, r, &input)
+	if err != nil {
+		httperrors.BadRequest(w, r, err)
+		return
+	}
+
+	user := helpers.ContextGetUser(r)
+
+	params := data.CreateMessageParams{
+		Message: input.Message,
+		UserID:  user.ID,
+	}
+
+	v := validator.New()
+
+	if data.ValidateMessage(v, params.Message); v.HasErrors() {
+		httperrors.FailedValidation(w, r, v)
+		return
+	}
+
+	message, err := app.queries.CreateMessage(r.Context(), params)
+	if err != nil {
+		httperrors.ServerError(w, r, err)
+		return
+	}
+
+	headers := make(http.Header)
+	headers.Set("Location", fmt.Sprintf("/v1/messages/%d", message.ID))
+
+	err = helpers.WriteJSONWithHeaders(w, http.StatusCreated, map[string]any{"message": message}, headers)
+	if err != nil {
+		httperrors.ServerError(w, r, err)
+	}
+}
+
+func (app *application) showMessageHandler(w http.ResponseWriter, r *http.Request) {
+	id, err := helpers.ReadIDParam(r)
+	if err != nil {
+		httperrors.NotFound(w, r)
+		return
+	}
+
+	movie, err := app.queries.GetMessage(r.Context(), id)
+	if err != nil {
+		switch {
+		case errors.Is(err, pgx.ErrNoRows):
+			httperrors.NotFound(w, r)
+		default:
+			httperrors.ServerError(w, r, err)
+		}
+
+		return
+	}
+
+	err = helpers.WriteJSON(w, http.StatusOK, map[string]any{"movie": movie})
+	if err != nil {
+		httperrors.ServerError(w, r, err)
+	}
+}
+
+func (app *application) updateMessageHandler(w http.ResponseWriter, r *http.Request) {
+	var input struct {
+		Message string `json:"message"`
+	}
+
+	err := helpers.ReadJSON(w, r, &input)
+	if err != nil {
+		httperrors.BadRequest(w, r, err)
+		return
+	}
+
+	id, err := helpers.ReadIDParam(r)
+	if err != nil {
+		httperrors.NotFound(w, r)
+		return
+	}
+
+	params := data.UpdateMessageParams{Message: input.Message, ID: id}
+
+	v := validator.New()
+
+	if data.ValidateMessage(v, params.Message); v.HasErrors() {
+		httperrors.FailedValidation(w, r, v)
+		return
+	}
+
+	movie, err := app.queries.UpdateMessage(r.Context(), params)
+	if err != nil {
+		switch {
+		case errors.Is(err, pgx.ErrNoRows):
+			httperrors.NotFound(w, r)
+		default:
+			httperrors.ServerError(w, r, err)
+		}
+
+		return
+	}
+
+	if r.Header.Get("X-Expected-Version") != "" {
+		if strconv.FormatInt(int64(movie.Version), 32) != r.Header.Get("X-Expected-Version") {
+			httperrors.EditConflict(w, r)
+			return
+		}
+	}
+
+	err = helpers.WriteJSON(w, http.StatusOK, map[string]any{"movie": movie})
+	if err != nil {
+		httperrors.ServerError(w, r, err)
+	}
+}
+
+func (app *application) deleteMessageHandler(w http.ResponseWriter, r *http.Request) {
+	id, err := helpers.ReadIDParam(r)
+	if err != nil {
+		httperrors.NotFound(w, r)
+		return
+	}
+
+	err = app.queries.DeleteMessage(r.Context(), id)
+	if err != nil {
+		switch {
+		case errors.Is(err, pgx.ErrNoRows):
+			httperrors.NotFound(w, r)
+		default:
+			httperrors.ServerError(w, r, err)
+		}
+
+		return
+	}
+
+	err = helpers.WriteJSON(w, http.StatusOK, map[string]any{"message": "movie successfully deleted"})
+	if err != nil {
+		httperrors.ServerError(w, r, err)
+	}
+}
+
+func (app *application) listMessagesHandler(w http.ResponseWriter, r *http.Request) {
+	var input struct {
+		Title  string
+		Genres pgtype.Array[string]
+	}
+
+	qs := r.URL.Query()
+
+	input.Title = helpers.ReadStringParam(qs, "title", "")
+	input.Genres = pgtype.Array[string]{Elements: helpers.ReadCSVParam(qs, "genres", []string{})}
+
+	// input.Filters.Page = helpers.ReadIntParam(qs, "page", 1, v)
+	// input.Filters.PageSize = helpers.ReadIntParam(qs, "page_size", 20, v)
+	//
+	// input.Filters.Sort = helpers.ReadStringParam(qs, "sort", "id")
+	// input.Filters.SortSafelist = []string{"id", "title", "year", "runtime", "-id", "-title", "-year", "-runtime"}
+	//
+	// if data.ValidateFilters(v, input.Filters); v.HasErrors() {
+	//	httperrors.FailedValidation(w, r, v)
+	//	return
+	//}
+	//
+	// movies, metadata, err := app.queries.GetAllMessageWithMetadata(r.Context(), input.Title, input.Genres, input.Filters)
+	// if err != nil {
+	//	httperrors.ServerError(w, r, err)
+	//	return
+	//}
+	//
+	// err := helpers.WriteJSON(w, http.StatusOK, map[string]any{"movies": movies, "metadata": metadata})
+	// if err != nil {
+	//	httperrors.ServerError(w, r, err)
+	//}
+}

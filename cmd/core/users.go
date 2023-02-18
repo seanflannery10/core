@@ -66,15 +66,6 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	_, err = app.queries.AddPermissionsForUser(r.Context(), data.AddPermissionsForUserParams{
-		UserID: user.ID,
-		Code:   "movies:read",
-	})
-	if err != nil {
-		httperrors.ServerError(w, r, err)
-		return
-	}
-
 	token, err := app.queries.NewToken(r.Context(), user.ID, 3*24*time.Hour, data.ScopeActivation)
 	if err != nil {
 		httperrors.ServerError(w, r, err)
