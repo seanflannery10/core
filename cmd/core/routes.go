@@ -30,7 +30,7 @@ func (app *application) routes() http.Handler {
 	r.Route("/v1/messages", func(r chi.Router) {
 		r.Use(app.requireAuthenticatedUser)
 
-		r.Get("/", app.listMessagesHandler)
+		r.Get("/", app.listUserMessagesHandler)
 		r.Post("/", app.createMessageHandler)
 
 		r.Route("/{id}", func(r chi.Router) {

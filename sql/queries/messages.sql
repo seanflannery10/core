@@ -13,17 +13,18 @@ SELECT id, created_at, message, user_id, version
 FROM messages
 WHERE id = $1;
 
--- name: GetAllMessages :many
+-- name: GetUserMessages :many
 SELECT id,
        created_at,
        message,
        user_id,
        version
 FROM messages
-WHERE id = $1
-ORDER BY created_at;
+WHERE user_id = $1
+ORDER BY created_at
+OFFSET $2 LIMIT $3;
 
--- name: GetMessageCount :one
+-- name: GetUserMessageCount :one
 SELECT count(*)
 FROM messages
 WHERE id = $1;

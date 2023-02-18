@@ -7,7 +7,6 @@ import (
 	"strconv"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/seanflannery10/core/internal/data"
 	"github.com/seanflannery10/core/internal/helpers"
 	"github.com/seanflannery10/core/internal/httperrors"
@@ -155,36 +154,39 @@ func (app *application) deleteMessageHandler(w http.ResponseWriter, r *http.Requ
 	}
 }
 
-func (app *application) listMessagesHandler(w http.ResponseWriter, r *http.Request) {
-	var input struct {
-		Title  string
-		Genres pgtype.Array[string]
-	}
-
+func (app *application) listUserMessagesHandler(w http.ResponseWriter, r *http.Request) {
+	v := validator.New()
 	qs := r.URL.Query()
 
-	input.Title = helpers.ReadStringParam(qs, "title", "")
-	input.Genres = pgtype.Array[string]{Elements: helpers.ReadCSVParam(qs, "genres", []string{})}
+	filters := data.Filters{
+		Page:     helpers.ReadIntParam(qs, "page", 1, v),
+		PageSize: helpers.ReadIntParam(qs, "page_size", 20, v),
+	}
 
-	// input.Filters.Page = helpers.ReadIntParam(qs, "page", 1, v)
-	// input.Filters.PageSize = helpers.ReadIntParam(qs, "page_size", 20, v)
-	//
-	// input.Filters.Sort = helpers.ReadStringParam(qs, "sort", "id")
-	// input.Filters.SortSafelist = []string{"id", "title", "year", "runtime", "-id", "-title", "-year", "-runtime"}
-	//
-	// if data.ValidateFilters(v, input.Filters); v.HasErrors() {
-	//	httperrors.FailedValidation(w, r, v)
-	//	return
-	//}
-	//
-	// messages, metadata, err := app.queries.GetAllMessageWithMetadata(r.Context(), input.Title, input.Genres, input.Filters)
-	// if err != nil {
-	//	httperrors.ServerError(w, r, err)
-	//	return
-	//}
-	//
-	// err := helpers.WriteJSON(w, http.StatusOK, map[string]any{"messages": messages, "metadata": metadata})
-	// if err != nil {
-	//	httperrors.ServerError(w, r, err)
-	//}
+	user := helpers.ContextGetUser(r)
+
+	params := data.GetUserMessagesParams{
+		UserID: user.ID,
+		Offset: filters.Offset(),
+		Limit:  filters.Limit(),
+	}
+
+	messages, err := app.queries.GetUserMessages(r.Context(), params)
+	if err != nil {
+		httperrors.ServerError(w, r, err)
+		return
+	}
+
+	count, err := app.queries.GetUserMessageCount(r.Context(), user.ID)
+	if err != nil {
+		httperrors.ServerError(w, r, err)
+		return
+	}
+
+	metadata := data.CalculateMetadata(count, filters.Page, filters.PageSize)
+
+	err = helpers.WriteJSON(w, http.StatusOK, map[string]any{"messages": messages, "metadata": metadata})
+	if err != nil {
+		httperrors.ServerError(w, r, err)
+	}
 }

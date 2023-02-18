@@ -44,19 +44,58 @@ func (q *Queries) DeleteMessage(ctx context.Context, id int64) error {
 	return err
 }
 
-const getAllMessages = `-- name: GetAllMessages :many
+const getMessage = `-- name: GetMessage :one
+SELECT id, created_at, message, user_id, version
+FROM messages
+WHERE id = $1
+`
+
+func (q *Queries) GetMessage(ctx context.Context, id int64) (Message, error) {
+	row := q.db.QueryRow(ctx, getMessage, id)
+	var i Message
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.Message,
+		&i.UserID,
+		&i.Version,
+	)
+	return i, err
+}
+
+const getUserMessageCount = `-- name: GetUserMessageCount :one
+SELECT count(*)
+FROM messages
+WHERE id = $1
+`
+
+func (q *Queries) GetUserMessageCount(ctx context.Context, id int64) (int64, error) {
+	row := q.db.QueryRow(ctx, getUserMessageCount, id)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const getUserMessages = `-- name: GetUserMessages :many
 SELECT id,
        created_at,
        message,
        user_id,
        version
 FROM messages
-WHERE id = $1
+WHERE user_id = $1
 ORDER BY created_at
+OFFSET $2 LIMIT $3
 `
 
-func (q *Queries) GetAllMessages(ctx context.Context, id int64) ([]Message, error) {
-	rows, err := q.db.Query(ctx, getAllMessages, id)
+type GetUserMessagesParams struct {
+	UserID int64
+	Offset int32
+	Limit  int32
+}
+
+func (q *Queries) GetUserMessages(ctx context.Context, arg GetUserMessagesParams) ([]Message, error) {
+	rows, err := q.db.Query(ctx, getUserMessages, arg.UserID, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
@@ -79,38 +118,6 @@ func (q *Queries) GetAllMessages(ctx context.Context, id int64) ([]Message, erro
 		return nil, err
 	}
 	return items, nil
-}
-
-const getMessage = `-- name: GetMessage :one
-SELECT id, created_at, message, user_id, version
-FROM messages
-WHERE id = $1
-`
-
-func (q *Queries) GetMessage(ctx context.Context, id int64) (Message, error) {
-	row := q.db.QueryRow(ctx, getMessage, id)
-	var i Message
-	err := row.Scan(
-		&i.ID,
-		&i.CreatedAt,
-		&i.Message,
-		&i.UserID,
-		&i.Version,
-	)
-	return i, err
-}
-
-const getMessageCount = `-- name: GetMessageCount :one
-SELECT count(*)
-FROM messages
-WHERE id = $1
-`
-
-func (q *Queries) GetMessageCount(ctx context.Context, id int64) (int64, error) {
-	row := q.db.QueryRow(ctx, getMessageCount, id)
-	var count int64
-	err := row.Scan(&count)
-	return count, err
 }
 
 const updateMessage = `-- name: UpdateMessage :one
