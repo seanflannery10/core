@@ -11,6 +11,10 @@ import (
 
 func (app *application) routes() http.Handler {
 	r := chi.NewRouter()
+
+	r.NotFound(httperrors.NotFound)
+	r.MethodNotAllowed(httperrors.MethodNotAllowed)
+
 	r.Use(app.metrics)
 	r.Use(app.recoverPanic)
 
@@ -20,13 +24,12 @@ func (app *application) routes() http.Handler {
 
 	r.Use(app.authenticate)
 
-	r.NotFound(httperrors.NotFound)
-	r.MethodNotAllowed(httperrors.MethodNotAllowed)
-
 	r.Get("/debug/vars", expvar.Handler().ServeHTTP)
 	r.Get("/healthcheck", app.healthCheckHandler)
 
-	r.With(app.requireAuthenticatedUser).Route("/v1/messages", func(r chi.Router) {
+	r.Route("/v1/messages", func(r chi.Router) {
+		r.Use(app.requireAuthenticatedUser)
+
 		r.Get("/", app.listMessagesHandler)
 		r.Post("/", app.createMessageHandler)
 

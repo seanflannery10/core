@@ -61,7 +61,7 @@ func (app *application) showMessageHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	movie, err := app.queries.GetMessage(r.Context(), id)
+	message, err := app.queries.GetMessage(r.Context(), id)
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
@@ -73,7 +73,7 @@ func (app *application) showMessageHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	err = helpers.WriteJSON(w, http.StatusOK, map[string]any{"movie": movie})
+	err = helpers.WriteJSON(w, http.StatusOK, map[string]any{"message": message})
 	if err != nil {
 		httperrors.ServerError(w, r, err)
 	}
@@ -105,7 +105,7 @@ func (app *application) updateMessageHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	movie, err := app.queries.UpdateMessage(r.Context(), params)
+	message, err := app.queries.UpdateMessage(r.Context(), params)
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
@@ -118,13 +118,13 @@ func (app *application) updateMessageHandler(w http.ResponseWriter, r *http.Requ
 	}
 
 	if r.Header.Get("X-Expected-Version") != "" {
-		if strconv.FormatInt(int64(movie.Version), 32) != r.Header.Get("X-Expected-Version") {
+		if strconv.FormatInt(int64(message.Version), 32) != r.Header.Get("X-Expected-Version") {
 			httperrors.EditConflict(w, r)
 			return
 		}
 	}
 
-	err = helpers.WriteJSON(w, http.StatusOK, map[string]any{"movie": movie})
+	err = helpers.WriteJSON(w, http.StatusOK, map[string]any{"message": message})
 	if err != nil {
 		httperrors.ServerError(w, r, err)
 	}
@@ -149,7 +149,7 @@ func (app *application) deleteMessageHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	err = helpers.WriteJSON(w, http.StatusOK, map[string]any{"message": "movie successfully deleted"})
+	err = helpers.WriteJSON(w, http.StatusOK, map[string]any{"message": "message successfully deleted"})
 	if err != nil {
 		httperrors.ServerError(w, r, err)
 	}
@@ -177,13 +177,13 @@ func (app *application) listMessagesHandler(w http.ResponseWriter, r *http.Reque
 	//	return
 	//}
 	//
-	// movies, metadata, err := app.queries.GetAllMessageWithMetadata(r.Context(), input.Title, input.Genres, input.Filters)
+	// messages, metadata, err := app.queries.GetAllMessageWithMetadata(r.Context(), input.Title, input.Genres, input.Filters)
 	// if err != nil {
 	//	httperrors.ServerError(w, r, err)
 	//	return
 	//}
 	//
-	// err := helpers.WriteJSON(w, http.StatusOK, map[string]any{"movies": movies, "metadata": metadata})
+	// err := helpers.WriteJSON(w, http.StatusOK, map[string]any{"messages": messages, "metadata": metadata})
 	// if err != nil {
 	//	httperrors.ServerError(w, r, err)
 	//}
