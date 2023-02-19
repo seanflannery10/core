@@ -185,7 +185,7 @@ func (app *application) listUserMessagesHandler(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	metadata := pagination.CalculateMetadata(count, filters.Page, filters.PageSize)
+	metadata := filters.CalculateMetadata(count)
 
 	err = helpers.WriteJSON(w, http.StatusOK, map[string]any{"messages": messages, "metadata": metadata})
 	if err != nil {
