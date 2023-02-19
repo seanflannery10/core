@@ -10,6 +10,7 @@ import (
 	"github.com/seanflannery10/core/internal/data"
 	"github.com/seanflannery10/core/internal/helpers"
 	"github.com/seanflannery10/core/internal/httperrors"
+	"github.com/seanflannery10/core/internal/pagination"
 	"github.com/seanflannery10/core/internal/validator"
 )
 
@@ -156,11 +157,12 @@ func (app *application) deleteMessageHandler(w http.ResponseWriter, r *http.Requ
 
 func (app *application) listUserMessagesHandler(w http.ResponseWriter, r *http.Request) {
 	v := validator.New()
-	qs := r.URL.Query()
 
-	filters := data.Filters{
-		Page:     helpers.ReadIntParam(qs, "page", 1, v),
-		PageSize: helpers.ReadIntParam(qs, "page_size", 20, v),
+	filters := pagination.New(r, v)
+
+	if pagination.ValidateFilters(v, filters); v.HasErrors() {
+		httperrors.FailedValidation(w, r, v)
+		return
 	}
 
 	user := helpers.ContextGetUser(r)
@@ -183,7 +185,7 @@ func (app *application) listUserMessagesHandler(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	metadata := data.CalculateMetadata(count, filters.Page, filters.PageSize)
+	metadata := pagination.CalculateMetadata(count, filters.Page, filters.PageSize)
 
 	err = helpers.WriteJSON(w, http.StatusOK, map[string]any{"messages": messages, "metadata": metadata})
 	if err != nil {

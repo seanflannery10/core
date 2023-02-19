@@ -10,4 +10,7 @@ sql:
         sql_package: "pgx/v5"
         overrides:
           - db_type: "citext"
+            go_type: "github.com/jackc/pgx/v5/pgtype.Text"
+            nullable: true
+          - db_type: "citext"
             go_type: "string"

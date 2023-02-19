@@ -203,7 +203,7 @@ func (app *application) updateUserPasswordHandler(w http.ResponseWriter, r *http
 		return
 	}
 
-	hash, err := data.GetPasswordHash(input.Password)
+	err = user.SetPassword(input.Password)
 	if err != nil {
 		httperrors.ServerError(w, r, err)
 		return
@@ -212,7 +212,7 @@ func (app *application) updateUserPasswordHandler(w http.ResponseWriter, r *http
 	_, err = app.queries.UpdateUser(r.Context(), data.UpdateUserParams{
 		Name:         user.Name,
 		Email:        user.Email,
-		PasswordHash: hash,
+		PasswordHash: user.PasswordHash,
 		Activated:    user.Activated,
 		ID:           user.ID,
 		Version:      user.Version,

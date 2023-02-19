@@ -47,7 +47,7 @@ func (app *application) createAuthenticationTokenHandler(w http.ResponseWriter, 
 		return
 	}
 
-	match, err := data.ComparePasswords(input.Password, user.PasswordHash)
+	match, err := user.ComparePasswords(input.Password)
 	if err != nil {
 		httperrors.ServerError(w, r, err)
 		return

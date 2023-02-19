@@ -1,10 +1,19 @@
-package data
+package pagination
 
 import (
 	"math"
+	"net/http"
 
+	"github.com/seanflannery10/core/internal/helpers"
 	"github.com/seanflannery10/core/internal/validator"
 )
+
+func New(r *http.Request, v *validator.Validator) Filters {
+	return Filters{
+		Page:     helpers.ReadIntParam(r.URL.Query(), "page", 1, v),
+		PageSize: helpers.ReadIntParam(r.URL.Query(), "page_size", 20, v),
+	}
+}
 
 type Filters struct {
 	Page     int

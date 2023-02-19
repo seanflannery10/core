@@ -14,17 +14,19 @@ func (u *User) IsAnonymous() bool {
 	return u == AnonymousUser
 }
 
-func GetPasswordHash(plaintextPassword string) ([]byte, error) {
-	hash, err := bcrypt.GenerateFromPassword([]byte(plaintextPassword), 14)
+func (u *User) SetPassword(plaintextPassword string) error {
+	hash, err := GetPasswordHash(plaintextPassword)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return hash, nil
+	u.PasswordHash = hash
+
+	return nil
 }
 
-func ComparePasswords(plaintextPassword string, hash []byte) (bool, error) {
-	err := bcrypt.CompareHashAndPassword(hash, []byte(plaintextPassword))
+func (u *User) ComparePasswords(plaintextPassword string) (bool, error) {
+	err := bcrypt.CompareHashAndPassword(u.PasswordHash, []byte(plaintextPassword))
 	if err != nil {
 		switch {
 		case errors.Is(err, bcrypt.ErrMismatchedHashAndPassword):
@@ -35,6 +37,15 @@ func ComparePasswords(plaintextPassword string, hash []byte) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func GetPasswordHash(plaintextPassword string) ([]byte, error) {
+	hash, err := bcrypt.GenerateFromPassword([]byte(plaintextPassword), 14)
+	if err != nil {
+		return nil, err
+	}
+
+	return hash, nil
 }
 
 func ValidateEmail(v *validator.Validator, email string) {
