@@ -8,7 +8,7 @@ import (
 	"github.com/seanflannery10/core/internal/validator"
 )
 
-type Filters struct {
+type Pagination struct {
 	Page     int
 	PageSize int
 }
@@ -21,22 +21,22 @@ type Metadata struct {
 	TotalRecords int `json:"total_records"`
 }
 
-func New(r *http.Request, v *validator.Validator) Filters {
-	return Filters{
+func New(r *http.Request, v *validator.Validator) Pagination {
+	return Pagination{
 		Page:     helpers.ReadIntParam(r.URL.Query(), "page", 1, v),
 		PageSize: helpers.ReadIntParam(r.URL.Query(), "page_size", 20, v),
 	}
 }
 
-func (f *Filters) Limit() int32 {
+func (f *Pagination) Limit() int32 {
 	return int32(f.PageSize)
 }
 
-func (f *Filters) Offset() int32 {
+func (f *Pagination) Offset() int32 {
 	return int32((f.Page - 1) * f.PageSize)
 }
 
-func (f *Filters) CalculateMetadata(totalRecords int64) Metadata {
+func (f *Pagination) CalculateMetadata(totalRecords int64) Metadata {
 	if totalRecords == 0 {
 		return Metadata{}
 	}
@@ -50,9 +50,9 @@ func (f *Filters) CalculateMetadata(totalRecords int64) Metadata {
 	}
 }
 
-func ValidateFilters(v *validator.Validator, f Filters) {
-	v.Check(f.Page > 0, "page", "must be greater than zero")
-	v.Check(f.Page <= 10_000_000, "page", "must be a maximum of 10 million")
-	v.Check(f.PageSize > 0, "page_size", "size must be greater than zero")
-	v.Check(f.PageSize <= 100, "page_size", "size must be a maximum of 100")
+func ValidatePagination(v *validator.Validator, p Pagination) {
+	v.Check(p.Page > 0, "page", "must be greater than zero")
+	v.Check(p.Page <= 10_000_000, "page", "must be a maximum of 10 million")
+	v.Check(p.PageSize > 0, "page_size", "size must be greater than zero")
+	v.Check(p.PageSize <= 100, "page_size", "size must be a maximum of 100")
 }

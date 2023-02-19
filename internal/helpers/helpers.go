@@ -10,14 +10,11 @@ import (
 	"runtime/debug"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/goccy/go-json"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/seanflannery10/core/internal/data"
 	"github.com/seanflannery10/core/internal/validator"
-	"golang.org/x/exp/slog"
 )
 
 var (
@@ -204,19 +201,4 @@ func GetVersion() string {
 	}
 
 	return revision
-}
-
-func NewDBPool(dsn string) (*pgxpool.Pool, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	dbpool, err := pgxpool.New(ctx, dsn)
-	if err != nil {
-		return nil, err
-	}
-	defer dbpool.Close()
-
-	slog.Info("database connection pool established")
-
-	return dbpool, nil
 }

@@ -11,6 +11,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/seanflannery10/core/internal/data"
 	"github.com/seanflannery10/core/internal/helpers"
 	"github.com/seanflannery10/core/internal/mailer"
@@ -60,10 +61,21 @@ func main() {
 		log.Fatal(err)
 	}
 
-	dbpool, err := helpers.NewDBPool(cfg.DB.DSN)
-	if err != nil {
-		log.Fatal(err)
+	if cfg.DB.DSN == "" {
+		log.Fatal("DSN Missing")
 	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	dbpool, err := pgxpool.New(ctx, cfg.DB.DSN)
+	if err != nil {
+		log.Fatal(err) // nolint:gocritic
+	}
+
+	defer dbpool.Close()
+
+	slog.Info("database connection pool established")
 
 	expvar.NewString("version").Set(helpers.GetVersion())
 	expvar.Publish("goroutines", expvar.Func(func() any { return runtime.NumGoroutine() }))

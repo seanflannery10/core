@@ -42,7 +42,7 @@ metadata:
   labels:
     app: core
 data:
-  DB_URL: 'postgres://{USER}:{PASS}@postgres:5432/{DB}?sslmode=disable'
+  DB_DSN: 'postgres://{USER}:{PASS}@postgres:5432/{DB}?sslmode=disable'
 ---
 apiVersion: apps/v1
 kind: Deployment

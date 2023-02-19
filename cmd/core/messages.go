@@ -158,9 +158,9 @@ func (app *application) deleteMessageHandler(w http.ResponseWriter, r *http.Requ
 func (app *application) listUserMessagesHandler(w http.ResponseWriter, r *http.Request) {
 	v := validator.New()
 
-	filters := pagination.New(r, v)
+	pgn := pagination.New(r, v)
 
-	if pagination.ValidateFilters(v, filters); v.HasErrors() {
+	if pagination.ValidatePagination(v, pgn); v.HasErrors() {
 		httperrors.FailedValidation(w, r, v)
 		return
 	}
@@ -169,8 +169,8 @@ func (app *application) listUserMessagesHandler(w http.ResponseWriter, r *http.R
 
 	params := data.GetUserMessagesParams{
 		UserID: user.ID,
-		Offset: filters.Offset(),
-		Limit:  filters.Limit(),
+		Offset: pgn.Offset(),
+		Limit:  pgn.Limit(),
 	}
 
 	messages, err := app.queries.GetUserMessages(r.Context(), params)
@@ -185,7 +185,7 @@ func (app *application) listUserMessagesHandler(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	metadata := filters.CalculateMetadata(count)
+	metadata := pgn.CalculateMetadata(count)
 
 	err = helpers.WriteJSON(w, http.StatusOK, map[string]any{"messages": messages, "metadata": metadata})
 	if err != nil {
