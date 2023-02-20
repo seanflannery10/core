@@ -2,7 +2,6 @@ package data
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/seanflannery10/core/internal/validator"
 	"golang.org/x/crypto/bcrypt"
@@ -59,9 +58,7 @@ func ValidatePasswordPlaintext(v *validator.Validator, password string) {
 	v.Check(len(password) <= 72, "password", "must not be more than 72 bytes long")
 }
 
-func ValidateNewUserParams(v *validator.Validator, user CreateUserParams) {
-	v.Check(user.Name != "", "name", "must be provided")
-	v.Check(len(user.Name) <= 500, "name", "must not be more than 500 bytes long")
-
-	ValidateEmail(v, fmt.Sprintf("%v", user.Email))
+func ValidateName(v *validator.Validator, name string) {
+	v.Check(name != "", "name", "must be provided")
+	v.Check(len(name) <= 500, "name", "must not be more than 500 bytes long")
 }

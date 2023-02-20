@@ -25,7 +25,7 @@ ORDER BY created_at
 OFFSET $2 LIMIT $3;
 
 -- name: GetUserMessageCount :one
-SELECT count(*)
+SELECT count(1)
 FROM messages
 WHERE id = $1;
 

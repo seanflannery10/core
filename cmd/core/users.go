@@ -30,6 +30,16 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 
 	v := validator.New()
 
+	ok, err := app.queries.CheckUser(r.Context(), input.Email)
+	if err != nil {
+		httperrors.ServerError(w, r, err)
+		return
+	}
+
+	if ok {
+		v.AddError("email", "a user with this email address already exists")
+	}
+
 	if data.ValidatePasswordPlaintext(v, input.Password); v.HasErrors() {
 		httperrors.FailedValidation(w, r, v)
 		return
@@ -41,28 +51,22 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	params := data.CreateUserParams{
-		Name:         input.Name,
-		Email:        input.Email,
-		PasswordHash: hash,
-		Activated:    false,
-	}
+	data.ValidateName(v, input.Name)
+	data.ValidateEmail(v, input.Email)
 
-	if data.ValidateNewUserParams(v, params); v.HasErrors() {
+	if v.HasErrors() {
 		httperrors.FailedValidation(w, r, v)
 		return
 	}
 
-	user, err := app.queries.CreateUser(r.Context(), params)
+	user, err := app.queries.CreateUser(r.Context(), data.CreateUserParams{
+		Name:         input.Name,
+		Email:        input.Email,
+		PasswordHash: hash,
+		Activated:    false,
+	})
 	if err != nil {
-		switch {
-		case err.Error() == "ERROR: duplicate key value violates unique constraint \"users_email_key\" (SQLSTATE 23505)":
-			v.AddError("email", "a user with this email address already exists")
-			httperrors.FailedValidation(w, r, v)
-		default:
-			httperrors.ServerError(w, r, err)
-		}
-
+		httperrors.ServerError(w, r, err)
 		return
 	}
 
@@ -112,7 +116,7 @@ func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Reque
 	user, err := app.queries.GetUserFromToken(r.Context(), data.GetUserFromTokenParams{
 		Hash:   tokenHash[:],
 		Scope:  data.ScopeActivation,
-		Expiry: pgtype.Timestamptz{Time: time.Now()},
+		Expiry: pgtype.Timestamptz{Time: time.Now(), Valid: true},
 	})
 	if err != nil {
 		switch {
@@ -189,7 +193,7 @@ func (app *application) updateUserPasswordHandler(w http.ResponseWriter, r *http
 	user, err := app.queries.GetUserFromToken(r.Context(), data.GetUserFromTokenParams{
 		Hash:   tokenHash[:],
 		Scope:  data.ScopePasswordReset,
-		Expiry: pgtype.Timestamptz{Time: time.Now()},
+		Expiry: pgtype.Timestamptz{Time: time.Now(), Valid: true},
 	})
 	if err != nil {
 		switch {

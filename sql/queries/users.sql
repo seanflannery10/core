@@ -3,6 +3,9 @@ INSERT INTO users (name, email, password_hash, activated)
 VALUES ($1, $2, $3, $4)
 RETURNING *;
 
+-- name: CheckUser :one
+SELECT EXISTS(SELECT email FROM users WHERE email = $1)::bool;
+
 -- name: GetUserByEmail :one
 SELECT id, created_at, name, email, password_hash, activated, version
 FROM users

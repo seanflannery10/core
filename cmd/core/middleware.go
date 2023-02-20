@@ -50,7 +50,7 @@ func (app *application) authenticate(next http.Handler) http.Handler {
 		user, err := app.queries.GetUserFromToken(r.Context(), data.GetUserFromTokenParams{
 			Hash:   tokenHash[:],
 			Scope:  data.ScopePasswordReset,
-			Expiry: pgtype.Timestamptz{Time: time.Now()},
+			Expiry: pgtype.Timestamptz{Time: time.Now(), Valid: true},
 		})
 		if err != nil {
 			switch {

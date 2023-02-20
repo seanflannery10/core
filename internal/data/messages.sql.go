@@ -64,7 +64,7 @@ func (q *Queries) GetMessage(ctx context.Context, id int64) (Message, error) {
 }
 
 const getUserMessageCount = `-- name: GetUserMessageCount :one
-SELECT count(*)
+SELECT count(1)
 FROM messages
 WHERE id = $1
 `

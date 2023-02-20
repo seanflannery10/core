@@ -25,21 +25,19 @@ func (app *application) createMessageHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	user := helpers.ContextGetUser(r)
-
-	params := data.CreateMessageParams{
-		Message: input.Message,
-		UserID:  user.ID,
-	}
-
 	v := validator.New()
 
-	if data.ValidateMessage(v, params.Message); v.HasErrors() {
+	if data.ValidateMessage(v, input.Message); v.HasErrors() {
 		httperrors.FailedValidation(w, r, v)
 		return
 	}
 
-	message, err := app.queries.CreateMessage(r.Context(), params)
+	user := helpers.ContextGetUser(r)
+
+	message, err := app.queries.CreateMessage(r.Context(), data.CreateMessageParams{
+		Message: input.Message,
+		UserID:  user.ID,
+	})
 	if err != nil {
 		httperrors.ServerError(w, r, err)
 		return
@@ -96,16 +94,17 @@ func (app *application) updateMessageHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	params := data.UpdateMessageParams{Message: input.Message, ID: id}
-
 	v := validator.New()
 
-	if data.ValidateMessage(v, params.Message); v.HasErrors() {
+	if data.ValidateMessage(v, input.Message); v.HasErrors() {
 		httperrors.FailedValidation(w, r, v)
 		return
 	}
 
-	message, err := app.queries.UpdateMessage(r.Context(), params)
+	message, err := app.queries.UpdateMessage(r.Context(), data.UpdateMessageParams{
+		Message: input.Message,
+		ID:      id,
+	})
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
@@ -167,13 +166,11 @@ func (app *application) listUserMessagesHandler(w http.ResponseWriter, r *http.R
 
 	user := helpers.ContextGetUser(r)
 
-	params := data.GetUserMessagesParams{
+	messages, err := app.queries.GetUserMessages(r.Context(), data.GetUserMessagesParams{
 		UserID: user.ID,
 		Offset: pgn.Offset(),
 		Limit:  pgn.Limit(),
-	}
-
-	messages, err := app.queries.GetUserMessages(r.Context(), params)
+	})
 	if err != nil {
 		httperrors.ServerError(w, r, err)
 		return
