@@ -28,7 +28,7 @@ func (app *application) routes() http.Handler {
 	r.Get("/healthcheck", app.healthCheckHandler)
 
 	r.Route("/v1/messages", func(r chi.Router) {
-		// r.Use(app.requireAuthenticatedUser)
+		r.Use(app.requireAuthenticatedUser)
 
 		r.Get("/", app.listUserMessagesHandler)
 		r.Post("/", app.createMessageHandler)

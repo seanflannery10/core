@@ -2,7 +2,6 @@ package main
 
 import (
 	"crypto/sha256"
-	"database/sql"
 	"errors"
 	"expvar"
 	"net/http"
@@ -11,6 +10,7 @@ import (
 	"time"
 
 	"github.com/felixge/httpsnoop"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/seanflannery10/core/internal/data"
 	"github.com/seanflannery10/core/internal/helpers"
@@ -54,7 +54,7 @@ func (app *application) authenticate(next http.Handler) http.Handler {
 		})
 		if err != nil {
 			switch {
-			case errors.Is(err, sql.ErrNoRows):
+			case errors.Is(err, pgx.ErrNoRows):
 				httperrors.InvalidAuthenticationToken(w, r)
 			default:
 				httperrors.ServerError(w, r, err)

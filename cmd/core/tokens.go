@@ -1,11 +1,11 @@
 package main
 
 import (
-	"database/sql"
 	"errors"
 	"net/http"
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/seanflannery10/core/internal/data"
 	"github.com/seanflannery10/core/internal/helpers"
 	"github.com/seanflannery10/core/internal/httperrors"
@@ -35,10 +35,10 @@ func (app *application) createAuthenticationTokenHandler(w http.ResponseWriter, 
 		return
 	}
 
-	user, err := app.queries.GetUserByEmail(r.Context(), input.Email)
+	user, err := app.queries.GetUserFromEmail(r.Context(), input.Email)
 	if err != nil {
 		switch {
-		case errors.Is(err, sql.ErrNoRows):
+		case errors.Is(err, pgx.ErrNoRows):
 			httperrors.InvalidAuthenticationToken(w, r)
 		default:
 			httperrors.ServerError(w, r, err)
@@ -88,10 +88,10 @@ func (app *application) createPasswordResetTokenHandler(w http.ResponseWriter, r
 		return
 	}
 
-	user, err := app.queries.GetUserByEmail(r.Context(), input.Email)
+	user, err := app.queries.GetUserFromEmail(r.Context(), input.Email)
 	if err != nil {
 		switch {
-		case errors.Is(err, sql.ErrNoRows):
+		case errors.Is(err, pgx.ErrNoRows):
 			httperrors.InvalidAuthenticationToken(w, r)
 		default:
 			httperrors.ServerError(w, r, err)
@@ -113,7 +113,7 @@ func (app *application) createPasswordResetTokenHandler(w http.ResponseWriter, r
 		return
 	}
 
-	app.background(func() {
+	app.server.Background(func() {
 		input := map[string]any{
 			"passwordResetToken": token.Plaintext,
 		}
@@ -150,10 +150,10 @@ func (app *application) createActivationTokenHandler(w http.ResponseWriter, r *h
 		return
 	}
 
-	user, err := app.queries.GetUserByEmail(r.Context(), input.Email)
+	user, err := app.queries.GetUserFromEmail(r.Context(), input.Email)
 	if err != nil {
 		switch {
-		case errors.Is(err, sql.ErrNoRows):
+		case errors.Is(err, pgx.ErrNoRows):
 			httperrors.InvalidAuthenticationToken(w, r)
 		default:
 			httperrors.ServerError(w, r, err)
@@ -175,7 +175,7 @@ func (app *application) createActivationTokenHandler(w http.ResponseWriter, r *h
 		return
 	}
 
-	app.background(func() {
+	app.server.Background(func() {
 		input := map[string]any{
 			"activationToken": token.Plaintext,
 		}

@@ -2,11 +2,11 @@ package main
 
 import (
 	"crypto/sha256"
-	"database/sql"
 	"errors"
 	"net/http"
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/seanflannery10/core/internal/data"
 	"github.com/seanflannery10/core/internal/helpers"
@@ -76,7 +76,7 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	app.background(func() {
+	app.server.Background(func() {
 		input := map[string]any{
 			"activationToken": token.Plaintext,
 		}
@@ -120,7 +120,7 @@ func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Reque
 	})
 	if err != nil {
 		switch {
-		case errors.Is(err, sql.ErrNoRows):
+		case errors.Is(err, pgx.ErrNoRows):
 			v.AddError("token", "invalid or expired activation token")
 			httperrors.FailedValidation(w, r, v)
 		default:
@@ -130,25 +130,14 @@ func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	user.Activated = true
-
-	_, err = app.queries.UpdateUser(r.Context(), data.UpdateUserParams{
-		Name:         user.Name,
-		Email:        user.Email,
-		PasswordHash: user.PasswordHash,
-		Activated:    user.Activated,
-		ID:           user.ID,
-		Version:      user.Version,
+	user, err = app.queries.UpdateUser(r.Context(), data.UpdateUserParams{
+		UpdateActivated: true,
+		Activated:       true,
+		ID:              user.ID,
+		Version:         user.Version,
 	})
 	if err != nil {
-		switch {
-		case err.Error() == `pq: duplicate key value violates unique constraint "users_email_key"`:
-			v.AddError("email", "a user with this email address already exists")
-			httperrors.FailedValidation(w, r, v)
-		default:
-			httperrors.ServerError(w, r, err)
-		}
-
+		httperrors.ServerError(w, r, err)
 		return
 	}
 
@@ -197,7 +186,7 @@ func (app *application) updateUserPasswordHandler(w http.ResponseWriter, r *http
 	})
 	if err != nil {
 		switch {
-		case errors.Is(err, sql.ErrNoRows):
+		case errors.Is(err, pgx.ErrNoRows):
 			v.AddError("token", "invalid or expired password token")
 			httperrors.FailedValidation(w, r, v)
 		default:
@@ -213,23 +202,14 @@ func (app *application) updateUserPasswordHandler(w http.ResponseWriter, r *http
 		return
 	}
 
-	_, err = app.queries.UpdateUser(r.Context(), data.UpdateUserParams{
-		Name:         user.Name,
-		Email:        user.Email,
-		PasswordHash: user.PasswordHash,
-		Activated:    user.Activated,
-		ID:           user.ID,
-		Version:      user.Version,
+	user, err = app.queries.UpdateUser(r.Context(), data.UpdateUserParams{
+		UpdatePasswordHash: true,
+		PasswordHash:       user.PasswordHash,
+		ID:                 user.ID,
+		Version:            user.Version,
 	})
 	if err != nil {
-		switch {
-		case err.Error() == `pq: duplicate key value violates unique constraint "users_email_key"`:
-			v.AddError("email", "a user with this email address already exists")
-			httperrors.FailedValidation(w, r, v)
-		default:
-			httperrors.ServerError(w, r, err)
-		}
-
+		httperrors.ServerError(w, r, err)
 		return
 	}
 

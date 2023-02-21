@@ -3,6 +3,13 @@ INSERT INTO messages (message, user_id)
 VALUES ($1, $2)
 RETURNING *;
 
+-- name: UpdateMessage :one
+UPDATE messages
+SET message = $1,
+    version = version + 1
+WHERE id = $2
+RETURNING *;
+
 -- name: DeleteMessage :exec
 DELETE
 FROM messages
@@ -28,10 +35,3 @@ OFFSET $2 LIMIT $3;
 SELECT count(1)
 FROM messages
 WHERE id = $1;
-
--- name: UpdateMessage :one
-UPDATE messages
-SET message = $1,
-    version = version + 1
-WHERE id = $2
-RETURNING *;

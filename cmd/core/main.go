@@ -8,13 +8,13 @@ import (
 	"log"
 	"os"
 	"runtime"
-	"sync"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/seanflannery10/core/internal/data"
 	"github.com/seanflannery10/core/internal/helpers"
 	"github.com/seanflannery10/core/internal/mailer"
+	"github.com/seanflannery10/core/internal/server"
 	"github.com/sethvargo/go-envconfig"
 	"golang.org/x/exp/slog"
 )
@@ -40,7 +40,7 @@ type application struct {
 	config  Config
 	mailer  mailer.Mailer
 	queries *data.Queries
-	wg      sync.WaitGroup
+	server  *server.Server
 }
 
 func main() {
@@ -61,10 +61,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	slog.Info("pass", cfg)
-
 	if cfg.DB.DSN == "" {
-		log.Fatal("DSN Missing")
+		log.Fatal("DB_DSN Missing")
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -95,7 +93,9 @@ func main() {
 		queries: data.New(dbpool),
 	}
 
-	err = app.serve()
+	app.server = server.New(app.config.Connection.Port, app.routes())
+
+	err = app.server.Serve()
 	if err != nil {
 		log.Fatal(err)
 	}

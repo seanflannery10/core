@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"context"
@@ -7,21 +7,32 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 	"time"
 
 	"golang.org/x/exp/slog"
 )
 
-func (app *application) serve() error {
-	srv := &http.Server{
-		Addr:         fmt.Sprintf(":%d", app.config.Connection.Port),
-		Handler:      app.routes(),
-		IdleTimeout:  time.Minute,
-		ReadTimeout:  10 * time.Second,
-		WriteTimeout: 30 * time.Second,
-	}
+type Server struct {
+	*http.Server
+	wg *sync.WaitGroup
+}
 
+func New(port int, routes http.Handler) *Server {
+	return &Server{
+		&http.Server{
+			Addr:         fmt.Sprintf(":%d", port),
+			Handler:      routes,
+			IdleTimeout:  1 * time.Minute,
+			ReadTimeout:  10 * time.Second,
+			WriteTimeout: 30 * time.Second,
+		},
+		&sync.WaitGroup{},
+	}
+}
+
+func (s *Server) Serve() error {
 	shutdownError := make(chan error)
 
 	go func() {
@@ -34,20 +45,20 @@ func (app *application) serve() error {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 
-		err := srv.Shutdown(ctx)
+		err := s.Shutdown(ctx)
 		if err != nil {
 			shutdownError <- err
 		}
 
-		slog.Info("completing background tasks", "address", srv.Addr)
+		slog.Info("completing background tasks", "address", s.Addr)
 
-		app.wg.Wait()
+		s.wg.Wait()
 		shutdownError <- nil
 	}()
 
-	slog.Info("starting server", "address", srv.Addr, "env", app.config.Connection.Env)
+	slog.Info("starting server", "address", s.Addr)
 
-	err := srv.ListenAndServe()
+	err := s.ListenAndServe()
 	if !errors.Is(err, http.ErrServerClosed) {
 		return err
 	}
@@ -57,16 +68,16 @@ func (app *application) serve() error {
 		return err
 	}
 
-	slog.Info("server stopped", "address", srv.Addr)
+	slog.Info("server stopped", "address", s.Addr)
 
 	return nil
 }
 
-func (app *application) background(fn func()) {
-	app.wg.Add(1)
+func (s *Server) Background(fn func()) {
+	s.wg.Add(1)
 
 	go func() {
-		defer app.wg.Done()
+		defer s.wg.Done()
 
 		defer func() {
 			if err := recover(); err != nil {

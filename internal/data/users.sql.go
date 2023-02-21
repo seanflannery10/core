@@ -55,14 +55,14 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	return i, err
 }
 
-const getUserByEmail = `-- name: GetUserByEmail :one
+const getUserFromEmail = `-- name: GetUserFromEmail :one
 SELECT id, created_at, name, email, password_hash, activated, version
 FROM users
 WHERE email = $1
 `
 
-func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error) {
-	row := q.db.QueryRow(ctx, getUserByEmail, email)
+func (q *Queries) GetUserFromEmail(ctx context.Context, email string) (User, error) {
+	row := q.db.QueryRow(ctx, getUserFromEmail, email)
 	var i User
 	err := row.Scan(
 		&i.ID,
@@ -109,30 +109,38 @@ func (q *Queries) GetUserFromToken(ctx context.Context, arg GetUserFromTokenPara
 
 const updateUser = `-- name: UpdateUser :one
 UPDATE users
-SET name          = $1,
-    email         = $2,
-    password_hash = $3,
-    activated     = $4,
+SET name          = CASE WHEN $1::boolean THEN $2 ELSE name END,
+    email         = CASE WHEN $3::boolean THEN $4 ELSE email END,
+    password_hash = CASE WHEN $5::boolean THEN $6 ELSE password_hash END,
+    activated     = CASE WHEN $7::boolean THEN $8 ELSE activated END,
     version       = version + 1
-WHERE id = $5
-  AND version = $6
+WHERE id = $9
+  AND version = $10
 RETURNING id, created_at, name, email, password_hash, activated, version
 `
 
 type UpdateUserParams struct {
-	Name         string
-	Email        string
-	PasswordHash []byte
-	Activated    bool
-	ID           int64
-	Version      int32
+	UpdateName         bool
+	Name               string
+	UpdateEmail        bool
+	Email              string
+	UpdatePasswordHash bool
+	PasswordHash       []byte
+	UpdateActivated    bool
+	Activated          bool
+	ID                 int64
+	Version            int32
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
 	row := q.db.QueryRow(ctx, updateUser,
+		arg.UpdateName,
 		arg.Name,
+		arg.UpdateEmail,
 		arg.Email,
+		arg.UpdatePasswordHash,
 		arg.PasswordHash,
+		arg.UpdateActivated,
 		arg.Activated,
 		arg.ID,
 		arg.Version,
