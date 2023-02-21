@@ -64,6 +64,11 @@ func BadRequest(w http.ResponseWriter, r *http.Request, err error) {
 	ErrorMessage(w, r, http.StatusBadRequest, err.Error())
 }
 
+func InvalidCredentials(w http.ResponseWriter, r *http.Request) {
+	message := "invalid authentication credentials"
+	ErrorMessage(w, r, http.StatusUnauthorized, message)
+}
+
 func InvalidAuthenticationToken(w http.ResponseWriter, r *http.Request) {
 	headers := make(http.Header)
 	headers.Set("WWW-Authenticate", "Bearer")

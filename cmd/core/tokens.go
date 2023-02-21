@@ -39,7 +39,7 @@ func (app *application) createAuthenticationTokenHandler(w http.ResponseWriter, 
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
-			httperrors.InvalidAuthenticationToken(w, r)
+			httperrors.InvalidCredentials(w, r)
 		default:
 			httperrors.ServerError(w, r, err)
 		}
@@ -54,7 +54,7 @@ func (app *application) createAuthenticationTokenHandler(w http.ResponseWriter, 
 	}
 
 	if !match {
-		httperrors.InvalidAuthenticationToken(w, r)
+		httperrors.InvalidCredentials(w, r)
 		return
 	}
 
@@ -92,7 +92,8 @@ func (app *application) createPasswordResetTokenHandler(w http.ResponseWriter, r
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
-			httperrors.InvalidAuthenticationToken(w, r)
+			v.AddError("email", "no matching email address found")
+			httperrors.FailedValidation(w, r, v)
 		default:
 			httperrors.ServerError(w, r, err)
 		}
@@ -154,7 +155,8 @@ func (app *application) createActivationTokenHandler(w http.ResponseWriter, r *h
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
-			httperrors.InvalidAuthenticationToken(w, r)
+			v.AddError("email", "no matching email address found")
+			httperrors.FailedValidation(w, r, v)
 		default:
 			httperrors.ServerError(w, r, err)
 		}
