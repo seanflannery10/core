@@ -20,9 +20,9 @@ func New(host string, port int, username, password, sender string) (Mailer, erro
 	client, err := mail.NewClient(
 		host,
 		mail.WithPort(port),
+		mail.WithSMTPAuth(mail.SMTPAuthPlain),
 		mail.WithUsername(username),
 		mail.WithPassword(password),
-		mail.WithSMTPAuth(mail.SMTPAuthPlain),
 	)
 	if err != nil {
 		return Mailer{}, err

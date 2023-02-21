@@ -29,7 +29,7 @@ type Config struct {
 		Port     int    `env:"SMTP_PORT,default=25"`
 		Username string `env:"SMTP_USERNAME"`
 		Password string `env:"SMTP_PASSWORD"`
-		Sender   string `env:"SMTP_SENDER,default=Greenlight <no-reply@testdomain.com>"`
+		Sender   string `env:"SMTP_SENDER,default=Test <no-reply@testdomain.com>"`
 	}
 	DB struct {
 		DSN string `env:"DB_DSN"`
@@ -60,6 +60,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	slog.Info("pass", cfg)
 
 	if cfg.DB.DSN == "" {
 		log.Fatal("DSN Missing")

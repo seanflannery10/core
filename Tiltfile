@@ -6,6 +6,9 @@ POSTGRES_USER = os.getenv('POSTGRES_USER')
 POSTGRES_PASSWORD = os.getenv('POSTGRES_PASSWORD')
 POSTGRES_DB = os.getenv('POSTGRES_DB')
 
+SMTP_USERNAME = os.getenv('SMTP_USERNAME')
+SMTP_PASSWORD = os.getenv('SMTP_PASSWORD')
+
 # Tests
 load('ext://tests/golang', 'test_go')
 test_go('test-core-cmd', './cmd/...', './cmd')
@@ -43,6 +46,8 @@ metadata:
     app: core
 data:
   DB_DSN: 'postgres://{USER}:{PASS}@postgres:5432/{DB}?sslmode=disable'
+  SMTP_USERNAME: {SMTP_USERNAME}
+  SMTP_PASSWORD: {SMTP_PASSWORD}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -67,7 +72,7 @@ spec:
                 name: core
           ports:
             - containerPort: 4000
-'''.format(USER=POSTGRES_USER, PASS=POSTGRES_PASSWORD, DB=POSTGRES_DB)
+'''.format(USER=POSTGRES_USER, PASS=POSTGRES_PASSWORD, DB=POSTGRES_DB, SMTP_USERNAME=SMTP_USERNAME, SMTP_PASSWORD=SMTP_PASSWORD)
 
 k8s_yaml(blob(core))
 k8s_resource('core', port_forwards='4000', resource_deps=['postgres', 'core-compile'])
