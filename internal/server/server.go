@@ -16,7 +16,7 @@ import (
 
 type Server struct {
 	*http.Server
-	wg *sync.WaitGroup
+	wg sync.WaitGroup
 }
 
 func New(port int, routes http.Handler) *Server {
@@ -28,7 +28,7 @@ func New(port int, routes http.Handler) *Server {
 			ReadTimeout:  10 * time.Second,
 			WriteTimeout: 30 * time.Second,
 		},
-		&sync.WaitGroup{},
+		sync.WaitGroup{},
 	}
 }
 
