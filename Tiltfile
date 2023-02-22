@@ -17,8 +17,8 @@ test_go('test-core-internal', './internal/...', './internal')
 # Build App
 local_resource(
   'core-compile',
-  'CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -gcflags="all=-N -l" -o ./bin/core ./cmd/core',
-   deps=['./cmd/core/', './internal/'],
+  'CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -gcflags="all=-N -l" -o ./bin/api ./cmd/api',
+   deps=['./cmd/api/', './internal/'],
 )
 
 # Run App
@@ -31,7 +31,7 @@ load('ext://restart_process', 'docker_build_with_restart')
 docker_build_with_restart(
   'core-image',
   '.',
-  entrypoint='/core',
+  entrypoint='/api',
   dockerfile_contents=dockerfile,
   only=['./bin/'],
   live_update=[sync('./bin/', '/')],
