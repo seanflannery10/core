@@ -1,7 +1,7 @@
 -- name: CreateToken :one
-INSERT INTO tokens (plaintext, hash, user_id, expiry, scope)
-VALUES ('', $1, $2, $3, $4)
-RETURNING *;
+INSERT INTO tokens (hash, user_id, expiry, scope)
+VALUES ($1, $2, $3, $4)
+RETURNING hash, user_id, expiry, scope;
 
 -- name: DeleteAllTokensForUser :exec
 DELETE

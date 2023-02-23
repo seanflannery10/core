@@ -17,12 +17,20 @@ const (
 	ScopePasswordReset  = "password-reset"
 )
 
-func (q *Queries) NewToken(ctx context.Context, userID int64, ttl time.Duration, scope string) (Token, error) {
+type FullToken struct {
+	Plaintext string
+	Hash      []byte
+	UserID    int64
+	Expiry    pgtype.Timestamptz
+	Scope     string
+}
+
+func (q *Queries) NewToken(ctx context.Context, userID int64, ttl time.Duration, scope string) (FullToken, error) {
 	randomBytes := make([]byte, 16)
 
 	_, err := rand.Read(randomBytes)
 	if err != nil {
-		return Token{}, err
+		return FullToken{}, err
 	}
 
 	plaintext := base32.StdEncoding.WithPadding(base32.NoPadding).EncodeToString(randomBytes)
@@ -35,12 +43,18 @@ func (q *Queries) NewToken(ctx context.Context, userID int64, ttl time.Duration,
 		Scope:  scope,
 	})
 	if err != nil {
-		return Token{}, err
+		return FullToken{}, err
 	}
 
-	token.Plaintext = plaintext
+	fullToken := FullToken{
+		Plaintext: plaintext,
+		Hash:      token.Hash,
+		UserID:    token.UserID,
+		Expiry:    token.Expiry,
+		Scope:     token.Scope,
+	}
 
-	return token, nil
+	return fullToken, nil
 }
 
 func ValidateTokenPlaintext(v *validator.Validator, tokenPlaintext string) {

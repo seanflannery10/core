@@ -64,7 +64,7 @@ func (app *application) createAuthenticationTokenHandler(w http.ResponseWriter, 
 		return
 	}
 
-	err = helpers.WriteJSON(w, http.StatusCreated, map[string]any{"authentication_token": token})
+	err = helpers.WriteJSON(w, http.StatusCreated, map[string]any{"token": token})
 	if err != nil {
 		httperrors.ServerError(w, r, err)
 	}

@@ -87,7 +87,7 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		}
 	})
 
-	err = helpers.WriteJSON(w, http.StatusCreated, map[string]any{"authentication_token": token})
+	err = helpers.WriteJSON(w, http.StatusCreated, map[string]any{"user": user})
 	if err != nil {
 		httperrors.ServerError(w, r, err)
 	}

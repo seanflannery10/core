@@ -12,9 +12,9 @@ import (
 )
 
 const createToken = `-- name: CreateToken :one
-INSERT INTO tokens (plaintext, hash, user_id, expiry, scope)
-VALUES ('', $1, $2, $3, $4)
-RETURNING plaintext, hash, user_id, expiry, scope
+INSERT INTO tokens (hash, user_id, expiry, scope)
+VALUES ($1, $2, $3, $4)
+RETURNING hash, user_id, expiry, scope
 `
 
 type CreateTokenParams struct {
@@ -33,7 +33,6 @@ func (q *Queries) CreateToken(ctx context.Context, arg CreateTokenParams) (Token
 	)
 	var i Token
 	err := row.Scan(
-		&i.Plaintext,
 		&i.Hash,
 		&i.UserID,
 		&i.Expiry,

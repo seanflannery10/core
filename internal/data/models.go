@@ -17,11 +17,10 @@ type Message struct {
 }
 
 type Token struct {
-	Plaintext string
-	Hash      []byte
-	UserID    int64
-	Expiry    pgtype.Timestamptz
-	Scope     string
+	Hash   []byte
+	UserID int64
+	Expiry pgtype.Timestamptz
+	Scope  string
 }
 
 type User struct {
