@@ -66,11 +66,11 @@ func (q *Queries) GetMessage(ctx context.Context, id int64) (Message, error) {
 const getUserMessageCount = `-- name: GetUserMessageCount :one
 SELECT count(1)
 FROM messages
-WHERE id = $1
+WHERE user_id = $1
 `
 
-func (q *Queries) GetUserMessageCount(ctx context.Context, id int64) (int64, error) {
-	row := q.db.QueryRow(ctx, getUserMessageCount, id)
+func (q *Queries) GetUserMessageCount(ctx context.Context, userID int64) (int64, error) {
+	row := q.db.QueryRow(ctx, getUserMessageCount, userID)
 	var count int64
 	err := row.Scan(&count)
 	return count, err
@@ -84,7 +84,7 @@ SELECT id,
        version
 FROM messages
 WHERE user_id = $1
-ORDER BY created_at
+ORDER BY id
 OFFSET $2 LIMIT $3
 `
 

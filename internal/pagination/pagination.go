@@ -1,6 +1,7 @@
 package pagination
 
 import (
+	"fmt"
 	"math"
 	"net/http"
 
@@ -36,18 +37,27 @@ func (f *Pagination) Offset() int32 {
 	return int32((f.Page - 1) * f.PageSize)
 }
 
-func (f *Pagination) CalculateMetadata(totalRecords int64) Metadata {
+func (f *Pagination) CalculateMetadata(totalRecords int64, v *validator.Validator) Metadata {
 	if totalRecords == 0 {
 		return Metadata{}
 	}
 
-	return Metadata{
+	metadata := Metadata{
 		CurrentPage:  f.Page,
 		PageSize:     f.PageSize,
 		FirstPage:    1,
 		LastPage:     int(math.Ceil(float64(totalRecords) / float64(f.PageSize))),
 		TotalRecords: int(totalRecords),
 	}
+
+	if f.Page > metadata.LastPage {
+		msg := fmt.Sprintf("must be lower than last page of %d", metadata.LastPage)
+		v.AddError("page", msg)
+
+		return Metadata{}
+	}
+
+	return metadata
 }
 
 func ValidatePagination(v *validator.Validator, p Pagination) {

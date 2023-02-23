@@ -28,10 +28,10 @@ SELECT id,
        version
 FROM messages
 WHERE user_id = $1
-ORDER BY created_at
+ORDER BY id
 OFFSET $2 LIMIT $3;
 
 -- name: GetUserMessageCount :one
 SELECT count(1)
 FROM messages
-WHERE id = $1;
+WHERE user_id = $1;

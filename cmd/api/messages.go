@@ -182,7 +182,12 @@ func (app *application) listUserMessagesHandler(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	metadata := pgn.CalculateMetadata(count)
+	metadata := pgn.CalculateMetadata(count, v)
+
+	if v.HasErrors() {
+		httperrors.FailedValidation(w, r, v)
+		return
+	}
 
 	err = helpers.WriteJSON(w, http.StatusOK, map[string]any{"messages": messages, "metadata": metadata})
 	if err != nil {
