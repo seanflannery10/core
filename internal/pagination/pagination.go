@@ -51,7 +51,7 @@ func (f *Pagination) CalculateMetadata(totalRecords int64, v *validator.Validato
 	}
 
 	if f.Page > metadata.LastPage {
-		msg := fmt.Sprintf("must be lower than last page of %d", metadata.LastPage)
+		msg := fmt.Sprintf("must be equal or lower than the last page value of %d", metadata.LastPage)
 		v.AddError("page", msg)
 
 		return Metadata{}
