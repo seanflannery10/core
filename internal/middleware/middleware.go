@@ -1,6 +1,7 @@
-package main
+package middleware
 
 import (
+	"context"
 	"crypto/sha256"
 	"errors"
 	"expvar"
@@ -12,21 +13,33 @@ import (
 	"github.com/felixge/httpsnoop"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/seanflannery10/core/internal/ctxkeys"
 	"github.com/seanflannery10/core/internal/data"
 	"github.com/seanflannery10/core/internal/helpers"
 	"github.com/seanflannery10/core/internal/httperrors"
 	"github.com/seanflannery10/core/internal/validator"
 )
 
-func (app *application) authenticate(next http.Handler) http.Handler {
+func SetQueriesCtx(queries *data.Queries) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		fn := func(w http.ResponseWriter, r *http.Request) {
+			r = r.WithContext(context.WithValue(r.Context(), ctxkeys.QueriesContextKey, queries))
+			next.ServeHTTP(w, r)
+		}
+
+		return http.HandlerFunc(fn)
+	}
+}
+
+func Authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Vary", "Authorization")
 
 		authorizationHeader := r.Header.Get("Authorization")
 
 		if authorizationHeader == "" {
-			r = helpers.ContextSetUser(r, data.AnonymousUser)
-			next.ServeHTTP(w, r)
+			ctx := context.WithValue(r.Context(), ctxkeys.UserContextKey, data.AnonymousUser)
+			next.ServeHTTP(w, r.WithContext(ctx))
 			return
 		}
 
@@ -40,14 +53,19 @@ func (app *application) authenticate(next http.Handler) http.Handler {
 
 		v := validator.New()
 
-		if data.ValidateTokenPlaintext(v, token); v.HasErrors() {
+		v.Check(token != "", "token", "must be provided")
+		v.Check(len(token) == 26, "token", "must be 26 bytes long")
+
+		if v.HasErrors() {
 			httperrors.InvalidAuthenticationToken(w, r)
 			return
 		}
 
 		tokenHash := sha256.Sum256([]byte(token))
 
-		user, err := app.queries.GetUserFromToken(r.Context(), data.GetUserFromTokenParams{
+		queries := helpers.ContextGetQueries(r)
+
+		user, err := queries.GetUserFromToken(r.Context(), data.GetUserFromTokenParams{
 			Hash:   tokenHash[:],
 			Scope:  data.ScopeAuthentication,
 			Expiry: pgtype.Timestamptz{Time: time.Now(), Valid: true},
@@ -62,13 +80,13 @@ func (app *application) authenticate(next http.Handler) http.Handler {
 			return
 		}
 
-		r = helpers.ContextSetUser(r, &user)
+		ctx := context.WithValue(r.Context(), ctxkeys.UserContextKey, user)
 
-		next.ServeHTTP(w, r)
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 
-func (app *application) requireAuthenticatedUser(next http.Handler) http.Handler {
+func RequireAuthenticatedUser(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		user := helpers.ContextGetUser(r)
 
@@ -81,7 +99,7 @@ func (app *application) requireAuthenticatedUser(next http.Handler) http.Handler
 	})
 }
 
-func (app *application) metrics(next http.Handler) http.Handler {
+func Metrics(next http.Handler) http.Handler {
 	totalRequestsReceived := expvar.NewInt("total_requests_received")
 	totalResponsesSent := expvar.NewInt("total_responses_sent")
 	totalProcessingTimeMicroseconds := expvar.NewInt("total_processing_time_μs")
@@ -97,7 +115,7 @@ func (app *application) metrics(next http.Handler) http.Handler {
 	})
 }
 
-func (app *application) recoverPanic(next http.Handler) http.Handler {
+func RecoverPanic(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if rvr := recover(); rvr != nil {

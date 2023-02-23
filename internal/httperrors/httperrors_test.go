@@ -8,8 +8,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/seanflannery10/core/internal/assert"
 	"github.com/seanflannery10/core/internal/validator"
+	"github.com/stretchr/testify/assert"
 )
 
 var ctx = context.Background()

@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/seanflannery10/core/internal/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestNew(t *testing.T) {
@@ -14,7 +14,7 @@ func TestNew(t *testing.T) {
 	srv.Background(func() {})
 
 	assert.Equal(t, srv.Server.Addr, ":12345")
-	assert.SameType(t, srv, &Server{})
+	assert.IsType(t, srv, &Server{})
 }
 
 func TestServer_Run(t *testing.T) {
