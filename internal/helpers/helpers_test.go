@@ -10,8 +10,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/seanflannery10/core/internal/assert"
 	"github.com/seanflannery10/core/internal/validator"
+	"github.com/stretchr/testify/assert"
 )
 
 var ctx = context.Background()
@@ -178,48 +178,6 @@ func TestEncodeWithHeaders(t *testing.T) {
 			assert.Equal(t, rr.Header().Get("Content-Type"), "application/a")
 			assert.Equal(t, rr.Header().Get("X-Request-Id"), tt.h)
 			assert.Equal(t, rr.Code, tt.c)
-		})
-	}
-}
-
-func TestCSV(t *testing.T) {
-	tests := []struct {
-		key string
-		csv string
-	}{
-		{
-			"csv",
-			"csv,foo,bar",
-		},
-		{
-			"csv",
-			"csv,foo,bar,test",
-		},
-		{
-			"string",
-			"string",
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(fmt.Sprintf("%#v", tt.csv), func(t *testing.T) {
-			r, err := http.NewRequestWithContext(ctx, http.MethodGet, "/", nil)
-			if err != nil {
-				t.Fatal(err)
-			}
-
-			split := strings.Split(tt.csv, ",")
-
-			r.URL.RawQuery = url.Values{
-				tt.key: {tt.csv},
-			}.Encode()
-
-			qs := r.URL.Query()
-			res := ReadCSVParam(qs, tt.key, nil)
-
-			assert.Equal(t, len(res), len(split))
-			assert.Equal(t, res[0], split[0])
-			assert.Equal(t, res[len(res)-1], split[len(split)-1])
 		})
 	}
 }
