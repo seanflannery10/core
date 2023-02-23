@@ -13,7 +13,7 @@ func TestNew(t *testing.T) {
 	srv := New(12345, nil)
 	srv.Background(func() {})
 
-	assert.Equal(t, srv.Addr, ":12345")
+	assert.Equal(t, srv.Server.Addr, ":12345")
 	assert.SameType(t, srv, &Server{})
 }
 
