@@ -48,17 +48,15 @@ func createUserHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	slog.Info("debug", "token", token)
-	//
-	// server.Background(func() {
-	//	input := map[string]any{
-	//		"activationToken": token.Plaintext,
-	//	}
-	//
-	//	err = mailer.Send(user.Email, "token_activation.tmpl", input)
-	//	if err != nil {
-	//		slog.Error("email error", err)
-	//	}
-	// })
+
+	mailer := helpers.ContextGetMailer(r)
+
+	err = mailer.Send(user.Email, "token_activation.tmpl", map[string]any{
+		"activationToken": token.Plaintext,
+	})
+	if err != nil {
+		slog.Error("email error", err)
+	}
 
 	render.Status(r, http.StatusCreated)
 

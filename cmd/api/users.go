@@ -12,7 +12,6 @@ import (
 	"github.com/seanflannery10/core/pkg/helpers"
 	"github.com/seanflannery10/core/pkg/httperrors"
 	"github.com/seanflannery10/core/pkg/validator"
-	"golang.org/x/exp/slog"
 )
 
 func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Request) {
@@ -71,22 +70,22 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	token, err := app.queries.NewToken(r.Context(), user.ID, 3*24*time.Hour, data.ScopeActivation)
+	_, err = app.queries.NewToken(r.Context(), user.ID, 3*24*time.Hour, data.ScopeActivation)
 	if err != nil {
 		httperrors.ServerError(w, r, err)
 		return
 	}
 
-	app.server.Background(func() {
-		input := map[string]any{
-			"activationToken": token.Plaintext,
-		}
-
-		err = app.mailer.Send(user.Email, "token_activation.tmpl", input)
-		if err != nil {
-			slog.Error("email error", err)
-		}
-	})
+	// app.server.Background(func() {
+	//	input := map[string]any{
+	//		"activationToken": token.Plaintext,
+	//	}
+	//
+	//	err = app.mailer.Send(user.Email, "token_activation.tmpl", input)
+	//	if err != nil {
+	//		slog.Error("email error", err)
+	//	}
+	// })
 
 	err = helpers.WriteJSON(w, http.StatusCreated, map[string]any{"user": user})
 	if err != nil {

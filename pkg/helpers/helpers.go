@@ -14,7 +14,6 @@ import (
 	"github.com/goccy/go-json"
 	"github.com/seanflannery10/core/internal/data"
 	"github.com/seanflannery10/core/pkg/mailer"
-	"github.com/seanflannery10/core/pkg/server"
 	"github.com/seanflannery10/core/pkg/validator"
 )
 
@@ -62,15 +61,6 @@ func ContextGetMailer(r *http.Request) mailer.Mailer {
 	}
 
 	return m
-}
-
-func ContextGetServer(r *http.Request) *server.Server {
-	s, ok := r.Context().Value(ServerContextKey).(*server.Server)
-	if !ok {
-		panic("missing server value in request context")
-	}
-
-	return s
 }
 
 func ReadJSON(w http.ResponseWriter, r *http.Request, dst interface{}) error {

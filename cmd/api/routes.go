@@ -21,6 +21,7 @@ func (app *application) routes() http.Handler {
 	r.Use(middleware.RecoverPanic)
 
 	r.Use(middleware.SetQueriesCtx(app.queries))
+	r.Use(middleware.SetMailerCtx(app.mailer))
 	r.Use(middleware.Authenticate)
 
 	r.Use(cors.Handler(cors.Options{

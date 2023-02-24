@@ -10,7 +10,6 @@ import (
 	"github.com/seanflannery10/core/pkg/helpers"
 	"github.com/seanflannery10/core/pkg/httperrors"
 	"github.com/seanflannery10/core/pkg/validator"
-	"golang.org/x/exp/slog"
 )
 
 func (app *application) createAuthenticationTokenHandler(w http.ResponseWriter, r *http.Request) {
@@ -108,22 +107,22 @@ func (app *application) createPasswordResetTokenHandler(w http.ResponseWriter, r
 		return
 	}
 
-	token, err := app.queries.NewToken(r.Context(), user.ID, 45*time.Minute, data.ScopePasswordReset)
+	_, err = app.queries.NewToken(r.Context(), user.ID, 45*time.Minute, data.ScopePasswordReset)
 	if err != nil {
 		httperrors.ServerError(w, r, err)
 		return
 	}
 
-	app.server.Background(func() {
-		input := map[string]any{
-			"passwordResetToken": token.Plaintext,
-		}
-
-		err = app.mailer.Send(user.Email, "token_password_reset.tmpl", input)
-		if err != nil {
-			slog.Error("email error", err)
-		}
-	})
+	// app.server.Background(func() {
+	//	input := map[string]any{
+	//		"passwordResetToken": token.Plaintext,
+	//	}
+	//
+	//	err = app.mailer.Send(user.Email, "token_password_reset.tmpl", input)
+	//	if err != nil {
+	//		slog.Error("email error", err)
+	//	}
+	// })
 
 	msg := "an email will be sent to you containing password reset instructions"
 
@@ -171,22 +170,22 @@ func (app *application) createActivationTokenHandler(w http.ResponseWriter, r *h
 		return
 	}
 
-	token, err := app.queries.NewToken(r.Context(), user.ID, 3*24*time.Hour, data.ScopeActivation)
+	_, err = app.queries.NewToken(r.Context(), user.ID, 3*24*time.Hour, data.ScopeActivation)
 	if err != nil {
 		httperrors.ServerError(w, r, err)
 		return
 	}
 
-	app.server.Background(func() {
-		input := map[string]any{
-			"activationToken": token.Plaintext,
-		}
-
-		err = app.mailer.Send(user.Email, "token_activation.tmpl", input)
-		if err != nil {
-			slog.Error("email error", err)
-		}
-	})
+	// app.server.Background(func() {
+	//	input := map[string]any{
+	//		"activationToken": token.Plaintext,
+	//	}
+	//
+	//	err = app.mailer.Send(user.Email, "token_activation.tmpl", input)
+	//	if err != nil {
+	//		slog.Error("email error", err)
+	//	}
+	// })
 
 	msg := "an email will be sent to you containing activation instructions"
 

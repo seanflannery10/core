@@ -7,33 +7,22 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"sync"
 	"syscall"
 	"time"
 
 	"golang.org/x/exp/slog"
 )
 
-type Server struct {
-	*http.Server
-	wg sync.WaitGroup
-}
-
-func New(port int, routes http.Handler) *Server {
-	return &Server{
-		&http.Server{
-			Addr:         fmt.Sprintf(":%d", port),
-			Handler:      routes,
-			IdleTimeout:  1 * time.Minute,
-			ReadTimeout:  10 * time.Second,
-			WriteTimeout: 30 * time.Second,
-		},
-		sync.WaitGroup{},
-	}
-}
-
-func (s *Server) Serve() error {
+func Serve(port int, routes http.Handler) error {
 	shutdownError := make(chan error)
+
+	s := &http.Server{
+		Addr:         fmt.Sprintf(":%d", port),
+		Handler:      routes,
+		IdleTimeout:  1 * time.Minute,
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 30 * time.Second,
+	}
 
 	go func() {
 		quit := make(chan os.Signal, 1)
@@ -45,20 +34,17 @@ func (s *Server) Serve() error {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 
-		err := s.Server.Shutdown(ctx)
+		err := s.Shutdown(ctx)
 		if err != nil {
 			shutdownError <- err
 		}
 
-		slog.Info("completing background tasks", "address", s.Server.Addr)
-
-		s.wg.Wait()
 		shutdownError <- nil
 	}()
 
-	slog.Info("starting server", "address", s.Server.Addr)
+	slog.Info("starting server", "address", s.Addr)
 
-	err := s.Server.ListenAndServe()
+	err := s.ListenAndServe()
 	if !errors.Is(err, http.ErrServerClosed) {
 		return err
 	}
@@ -68,23 +54,7 @@ func (s *Server) Serve() error {
 		return err
 	}
 
-	slog.Info("server stopped", "address", s.Server.Addr)
+	slog.Info("server stopped", "address", s.Addr)
 
 	return nil
-}
-
-func (s *Server) Background(fn func()) {
-	s.wg.Add(1)
-
-	go func() {
-		defer s.wg.Done()
-
-		defer func() {
-			if err := recover(); err != nil {
-				slog.Error("background recovery error", fmt.Errorf("%s", err)) //nolint:goerr113
-			}
-		}()
-
-		fn()
-	}()
 }

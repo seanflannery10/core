@@ -16,6 +16,7 @@ import (
 	"github.com/seanflannery10/core/internal/data"
 	"github.com/seanflannery10/core/pkg/helpers"
 	"github.com/seanflannery10/core/pkg/httperrors"
+	"github.com/seanflannery10/core/pkg/mailer"
 	"github.com/seanflannery10/core/pkg/validator"
 )
 
@@ -23,6 +24,17 @@ func SetQueriesCtx(q *data.Queries) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
 			r = r.WithContext(context.WithValue(r.Context(), helpers.QueriesContextKey, q))
+			next.ServeHTTP(w, r)
+		}
+
+		return http.HandlerFunc(fn)
+	}
+}
+
+func SetMailerCtx(m mailer.Mailer) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		fn := func(w http.ResponseWriter, r *http.Request) {
+			r = r.WithContext(context.WithValue(r.Context(), helpers.MailerContextKey, m))
 			next.ServeHTTP(w, r)
 		}
 

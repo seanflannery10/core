@@ -40,7 +40,6 @@ type application struct {
 	config  Config
 	mailer  mailer.Mailer
 	queries *data.Queries
-	server  *server.Server
 }
 
 func main() {
@@ -93,9 +92,7 @@ func main() {
 		queries: data.New(dbpool),
 	}
 
-	app.server = server.New(app.config.Connection.Port, app.routes())
-
-	err = app.server.Serve()
+	err = server.Serve(app.config.Connection.Port, app.routes())
 	if err != nil {
 		log.Fatal(err)
 	}
