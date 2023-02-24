@@ -3,7 +3,7 @@ package validator
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/seanflannery10/core/pkg/assert"
 )
 
 func TestValidator(t *testing.T) {

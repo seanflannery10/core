@@ -12,9 +12,9 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/seanflannery10/core/internal/data"
-	"github.com/seanflannery10/core/internal/helpers"
-	"github.com/seanflannery10/core/internal/mailer"
-	"github.com/seanflannery10/core/internal/server"
+	"github.com/seanflannery10/core/pkg/helpers"
+	"github.com/seanflannery10/core/pkg/mailer"
+	"github.com/seanflannery10/core/pkg/server"
 	"github.com/sethvargo/go-envconfig"
 	"golang.org/x/exp/slog"
 )

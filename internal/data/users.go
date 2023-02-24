@@ -3,7 +3,7 @@ package data
 import (
 	"errors"
 
-	"github.com/seanflannery10/core/internal/validator"
+	"github.com/seanflannery10/core/pkg/validator"
 	"golang.org/x/crypto/bcrypt"
 )
 

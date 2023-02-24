@@ -1,7 +1,6 @@
 package helpers
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -14,7 +13,9 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/goccy/go-json"
 	"github.com/seanflannery10/core/internal/data"
-	"github.com/seanflannery10/core/internal/validator"
+	"github.com/seanflannery10/core/pkg/mailer"
+	"github.com/seanflannery10/core/pkg/server"
+	"github.com/seanflannery10/core/pkg/validator"
 )
 
 var (
@@ -29,20 +30,47 @@ var (
 
 type contextKey string
 
-const userContextKey = contextKey("user")
-
-func ContextSetUser(r *http.Request, user *data.User) *http.Request {
-	ctx := context.WithValue(r.Context(), userContextKey, user)
-	return r.WithContext(ctx)
-}
+const (
+	MailerContextKey  = contextKey("mailer")
+	QueriesContextKey = contextKey("queries")
+	ServerContextKey  = contextKey("server")
+	UserContextKey    = contextKey("user")
+)
 
 func ContextGetUser(r *http.Request) *data.User {
-	user, ok := r.Context().Value(userContextKey).(*data.User)
+	u, ok := r.Context().Value(UserContextKey).(*data.User)
 	if !ok {
 		panic("missing user value in request context")
 	}
 
-	return user
+	return u
+}
+
+func ContextGetQueries(r *http.Request) *data.Queries {
+	q, ok := r.Context().Value(QueriesContextKey).(*data.Queries)
+	if !ok {
+		panic("missing queries value in request context")
+	}
+
+	return q
+}
+
+func ContextGetMailer(r *http.Request) mailer.Mailer {
+	m, ok := r.Context().Value(MailerContextKey).(mailer.Mailer)
+	if !ok {
+		panic("missing mailer value in request context")
+	}
+
+	return m
+}
+
+func ContextGetServer(r *http.Request) *server.Server {
+	s, ok := r.Context().Value(ServerContextKey).(*server.Server)
+	if !ok {
+		panic("missing server value in request context")
+	}
+
+	return s
 }
 
 func ReadJSON(w http.ResponseWriter, r *http.Request, dst interface{}) error {
@@ -144,16 +172,6 @@ func ReadStringParam(qs url.Values, key string, defaultValue string) string {
 	}
 
 	return s
-}
-
-func ReadCSVParam(qs url.Values, key string, defaultValue []string) []string {
-	csv := qs.Get(key)
-
-	if csv == "" {
-		return defaultValue
-	}
-
-	return strings.Split(csv, ",")
 }
 
 func ReadIntParam(qs url.Values, key string, defaultValue int, v *validator.Validator) int {

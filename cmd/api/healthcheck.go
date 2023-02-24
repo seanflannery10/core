@@ -3,8 +3,8 @@ package main
 import (
 	"net/http"
 
-	"github.com/seanflannery10/core/internal/helpers"
-	"github.com/seanflannery10/core/internal/httperrors"
+	"github.com/seanflannery10/core/pkg/helpers"
+	"github.com/seanflannery10/core/pkg/httperrors"
 )
 
 func (app *application) healthCheckHandler(w http.ResponseWriter, r *http.Request) {

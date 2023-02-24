@@ -80,14 +80,14 @@ k8s_resource('core', port_forwards='4000', resource_deps=['postgres', 'core-comp
 # Run App Migrations
 migrations_dockerfile='''
 FROM amacneil/dbmate
-COPY /sql/migrations/ /db/migrations/
+COPY /db/migrations/ /db/migrations/
 '''
 
 docker_build(
   'core-migrations-image',
   '.',
   dockerfile_contents=migrations_dockerfile,
-  only=['./sql/migrations/'],
+  only=['./db/migrations/'],
 )
 
 core_migrations = '''

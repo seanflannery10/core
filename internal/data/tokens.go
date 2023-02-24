@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
-	"github.com/seanflannery10/core/internal/validator"
+	"github.com/seanflannery10/core/pkg/validator"
 )
 
 const (

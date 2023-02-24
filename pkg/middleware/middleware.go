@@ -13,17 +13,16 @@ import (
 	"github.com/felixge/httpsnoop"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
-	"github.com/seanflannery10/core/internal/ctxkeys"
 	"github.com/seanflannery10/core/internal/data"
-	"github.com/seanflannery10/core/internal/helpers"
-	"github.com/seanflannery10/core/internal/httperrors"
-	"github.com/seanflannery10/core/internal/validator"
+	"github.com/seanflannery10/core/pkg/helpers"
+	"github.com/seanflannery10/core/pkg/httperrors"
+	"github.com/seanflannery10/core/pkg/validator"
 )
 
-func SetQueriesCtx(queries *data.Queries) func(next http.Handler) http.Handler {
+func SetQueriesCtx(q *data.Queries) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
-			r = r.WithContext(context.WithValue(r.Context(), ctxkeys.QueriesContextKey, queries))
+			r = r.WithContext(context.WithValue(r.Context(), helpers.QueriesContextKey, q))
 			next.ServeHTTP(w, r)
 		}
 
@@ -38,7 +37,7 @@ func Authenticate(next http.Handler) http.Handler {
 		authorizationHeader := r.Header.Get("Authorization")
 
 		if authorizationHeader == "" {
-			ctx := context.WithValue(r.Context(), ctxkeys.UserContextKey, data.AnonymousUser)
+			ctx := context.WithValue(r.Context(), helpers.UserContextKey, data.AnonymousUser)
 			next.ServeHTTP(w, r.WithContext(ctx))
 			return
 		}
@@ -80,7 +79,7 @@ func Authenticate(next http.Handler) http.Handler {
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), ctxkeys.UserContextKey, user)
+		ctx := context.WithValue(r.Context(), helpers.UserContextKey, user)
 
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})

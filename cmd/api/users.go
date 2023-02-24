@@ -9,9 +9,9 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/seanflannery10/core/internal/data"
-	"github.com/seanflannery10/core/internal/helpers"
-	"github.com/seanflannery10/core/internal/httperrors"
-	"github.com/seanflannery10/core/internal/validator"
+	"github.com/seanflannery10/core/pkg/helpers"
+	"github.com/seanflannery10/core/pkg/httperrors"
+	"github.com/seanflannery10/core/pkg/validator"
 	"golang.org/x/exp/slog"
 )
 
@@ -30,6 +30,15 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 
 	v := validator.New()
 
+	data.ValidateName(v, input.Name)
+	data.ValidateEmail(v, input.Email)
+	data.ValidatePasswordPlaintext(v, input.Password)
+
+	if v.HasErrors() {
+		httperrors.FailedValidation(w, r, v)
+		return
+	}
+
 	ok, err := app.queries.CheckUser(r.Context(), input.Email)
 	if err != nil {
 		httperrors.ServerError(w, r, err)
@@ -40,7 +49,7 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		v.AddError("email", "a user with this email address already exists")
 	}
 
-	if data.ValidatePasswordPlaintext(v, input.Password); v.HasErrors() {
+	if v.HasErrors() {
 		httperrors.FailedValidation(w, r, v)
 		return
 	}
@@ -48,14 +57,6 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 	hash, err := data.GetPasswordHash(input.Password)
 	if err != nil {
 		httperrors.ServerError(w, r, err)
-		return
-	}
-
-	data.ValidateName(v, input.Name)
-	data.ValidateEmail(v, input.Email)
-
-	if v.HasErrors() {
-		httperrors.FailedValidation(w, r, v)
 		return
 	}
 

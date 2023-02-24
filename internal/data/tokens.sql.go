@@ -18,10 +18,10 @@ RETURNING hash, user_id, expiry, scope
 `
 
 type CreateTokenParams struct {
-	Hash   []byte
-	UserID int64
-	Expiry pgtype.Timestamptz
-	Scope  string
+	Hash   []byte             `json:"hash"`
+	UserID int64              `json:"user_id"`
+	Expiry pgtype.Timestamptz `json:"expiry"`
+	Scope  string             `json:"scope"`
 }
 
 func (q *Queries) CreateToken(ctx context.Context, arg CreateTokenParams) (Token, error) {
@@ -49,8 +49,8 @@ WHERE scope = $1
 `
 
 type DeleteAllTokensForUserParams struct {
-	Scope  string
-	UserID int64
+	Scope  string `json:"scope"`
+	UserID int64  `json:"user_id"`
 }
 
 func (q *Queries) DeleteAllTokensForUser(ctx context.Context, arg DeleteAllTokensForUserParams) error {

@@ -7,9 +7,9 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/seanflannery10/core/internal/data"
-	"github.com/seanflannery10/core/internal/helpers"
-	"github.com/seanflannery10/core/internal/httperrors"
-	"github.com/seanflannery10/core/internal/validator"
+	"github.com/seanflannery10/core/pkg/helpers"
+	"github.com/seanflannery10/core/pkg/httperrors"
+	"github.com/seanflannery10/core/pkg/validator"
 	"golang.org/x/exp/slog"
 )
 

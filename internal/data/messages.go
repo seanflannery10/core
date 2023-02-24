@@ -1,6 +1,6 @@
 package data
 
-import "github.com/seanflannery10/core/internal/validator"
+import "github.com/seanflannery10/core/pkg/validator"
 
 func ValidateMessage(v *validator.Validator, message string) {
 	v.Check(message != "", "message", "must be provided")

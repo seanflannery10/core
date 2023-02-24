@@ -6,7 +6,9 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
-	"github.com/seanflannery10/core/internal/httperrors"
+	"github.com/seanflannery10/core/internal/modules/users"
+	"github.com/seanflannery10/core/pkg/httperrors"
+	"github.com/seanflannery10/core/pkg/middleware"
 )
 
 func (app *application) routes() http.Handler {
@@ -15,20 +17,21 @@ func (app *application) routes() http.Handler {
 	r.NotFound(httperrors.NotFound)
 	r.MethodNotAllowed(httperrors.MethodNotAllowed)
 
-	r.Use(app.metrics)
-	r.Use(app.recoverPanic)
+	r.Use(middleware.Metrics)
+	r.Use(middleware.RecoverPanic)
+
+	r.Use(middleware.SetQueriesCtx(app.queries))
+	r.Use(middleware.Authenticate)
 
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins: []string{"https://*", "http://*"},
 	}))
 
-	r.Use(app.authenticate)
-
 	r.Get("/debug/vars", expvar.Handler().ServeHTTP)
 	r.Get("/healthcheck", app.healthCheckHandler)
 
 	r.Route("/v1/messages", func(r chi.Router) {
-		r.Use(app.requireAuthenticatedUser)
+		r.Use(middleware.RequireAuthenticatedUser)
 
 		r.Get("/", app.listUserMessagesHandler)
 		r.Post("/", app.createMessageHandler)
@@ -40,11 +43,7 @@ func (app *application) routes() http.Handler {
 		})
 	})
 
-	r.Route("/v1/users", func(r chi.Router) {
-		r.Post("/register", app.registerUserHandler)
-		r.Put("/activate", app.activateUserHandler)
-		r.Put("/update-password", app.updateUserPasswordHandler)
-	})
+	r.Mount("/", users.Router())
 
 	r.Route("/v1/tokens", func(r chi.Router) {
 		r.Post("/authentication", app.createAuthenticationTokenHandler)

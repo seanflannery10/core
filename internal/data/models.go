@@ -9,26 +9,26 @@ import (
 )
 
 type Message struct {
-	ID        int64
-	CreatedAt pgtype.Timestamptz
-	Message   string
-	UserID    int64
-	Version   int32
+	ID        int64              `json:"id"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	Message   string             `json:"message"`
+	UserID    int64              `json:"user_id"`
+	Version   int32              `json:"version"`
 }
 
 type Token struct {
-	Hash   []byte
-	UserID int64
-	Expiry pgtype.Timestamptz
-	Scope  string
+	Hash   []byte             `json:"hash"`
+	UserID int64              `json:"user_id"`
+	Expiry pgtype.Timestamptz `json:"expiry"`
+	Scope  string             `json:"scope"`
 }
 
 type User struct {
-	ID           int64
-	CreatedAt    pgtype.Timestamptz
-	Name         string
-	Email        string
-	PasswordHash []byte
-	Activated    bool
-	Version      int32
+	ID           int64              `json:"id"`
+	CreatedAt    pgtype.Timestamptz `json:"created_at"`
+	Name         string             `json:"name"`
+	Email        string             `json:"email"`
+	PasswordHash []byte             `json:"password_hash"`
+	Activated    bool               `json:"activated"`
+	Version      int32              `json:"version"`
 }

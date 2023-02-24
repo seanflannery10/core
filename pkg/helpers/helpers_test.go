@@ -10,8 +10,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/seanflannery10/core/internal/validator"
-	"github.com/stretchr/testify/assert"
+	"github.com/seanflannery10/core/pkg/assert"
+	"github.com/seanflannery10/core/pkg/validator"
 )
 
 var ctx = context.Background()
