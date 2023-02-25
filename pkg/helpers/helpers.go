@@ -11,8 +11,10 @@ import (
 	"strings"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/render"
 	"github.com/goccy/go-json"
 	"github.com/seanflannery10/core/internal/data"
+	"github.com/seanflannery10/core/pkg/errs"
 	"github.com/seanflannery10/core/pkg/mailer"
 	"github.com/seanflannery10/core/pkg/validator"
 )
@@ -32,7 +34,6 @@ type contextKey string
 const (
 	MailerContextKey  = contextKey("mailer")
 	QueriesContextKey = contextKey("queries")
-	ServerContextKey  = contextKey("server")
 	UserContextKey    = contextKey("user")
 )
 
@@ -61,6 +62,15 @@ func ContextGetMailer(r *http.Request) mailer.Mailer {
 	}
 
 	return m
+}
+
+func CheckBind(w http.ResponseWriter, r *http.Request, err error) {
+	switch {
+	case errors.As(err, &validator.ValidationError{}):
+		_ = render.Render(w, r, errs.ErrFailedValidation(err))
+	default:
+		_ = render.Render(w, r, errs.ErrBadRequest(err))
+	}
 }
 
 func ReadJSON(w http.ResponseWriter, r *http.Request, dst interface{}) error {

@@ -17,7 +17,7 @@ const (
 	ScopePasswordReset  = "password-reset"
 )
 
-type FullToken struct {
+type TokenFull struct {
 	Plaintext string
 	Hash      []byte
 	UserID    int64
@@ -25,12 +25,12 @@ type FullToken struct {
 	Scope     string
 }
 
-func (q *Queries) NewToken(ctx context.Context, userID int64, ttl time.Duration, scope string) (FullToken, error) {
+func (q *Queries) CreateTokenHelper(ctx context.Context, uid int64, ttl time.Duration, s string) (TokenFull, error) {
 	randomBytes := make([]byte, 16)
 
 	_, err := rand.Read(randomBytes)
 	if err != nil {
-		return FullToken{}, err
+		return TokenFull{}, err
 	}
 
 	plaintext := base32.StdEncoding.WithPadding(base32.NoPadding).EncodeToString(randomBytes)
@@ -38,15 +38,15 @@ func (q *Queries) NewToken(ctx context.Context, userID int64, ttl time.Duration,
 
 	token, err := q.CreateToken(ctx, CreateTokenParams{
 		Hash:   hash[:],
-		UserID: userID,
+		UserID: uid,
 		Expiry: pgtype.Timestamptz{Time: time.Now().Add(ttl), Valid: true},
-		Scope:  scope,
+		Scope:  s,
 	})
 	if err != nil {
-		return FullToken{}, err
+		return TokenFull{}, err
 	}
 
-	fullToken := FullToken{
+	tokenPlaintext := TokenFull{
 		Plaintext: plaintext,
 		Hash:      token.Hash,
 		UserID:    token.UserID,
@@ -54,7 +54,7 @@ func (q *Queries) NewToken(ctx context.Context, userID int64, ttl time.Duration,
 		Scope:     token.Scope,
 	}
 
-	return fullToken, nil
+	return tokenPlaintext, nil
 }
 
 func ValidateTokenPlaintext(v *validator.Validator, tokenPlaintext string) {

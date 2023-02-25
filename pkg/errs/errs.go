@@ -14,7 +14,7 @@ type ErrResponse struct {
 	ErrorText string `json:"error,omitempty"`
 }
 
-func (e ErrResponse) Render(w http.ResponseWriter, r *http.Request) error {
+func (e ErrResponse) Render(_ http.ResponseWriter, r *http.Request) error {
 	render.Status(r, e.Code)
 	return nil
 }
@@ -50,6 +50,11 @@ var ErrAuthenticationRequired = ErrResponse{
 }
 
 var ErrUserExists = ErrResponse{
+	Code:   http.StatusUnprocessableEntity,
+	Status: "a user with this email address already exists",
+}
+
+var ErrInvalidToken = ErrResponse{
 	Code:   http.StatusUnprocessableEntity,
 	Status: "a user with this email address already exists",
 }

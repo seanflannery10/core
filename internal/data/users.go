@@ -1,8 +1,12 @@
 package data
 
 import (
+	"context"
+	"crypto/sha256"
 	"errors"
+	"time"
 
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/seanflannery10/core/pkg/validator"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -14,7 +18,7 @@ func (u *User) IsAnonymous() bool {
 }
 
 func (u *User) SetPassword(plaintextPassword string) error {
-	hash, err := GetPasswordHash(plaintextPassword)
+	hash, err := bcrypt.GenerateFromPassword([]byte(plaintextPassword), 14)
 	if err != nil {
 		return err
 	}
@@ -38,13 +42,19 @@ func (u *User) ComparePasswords(plaintextPassword string) (bool, error) {
 	return true, nil
 }
 
-func GetPasswordHash(plaintextPassword string) ([]byte, error) {
-	hash, err := bcrypt.GenerateFromPassword([]byte(plaintextPassword), 14)
+func (q *Queries) GetUserFromTokenHelper(ctx context.Context, tokenPlaintext, scope string) (User, error) {
+	tokenHash := sha256.Sum256([]byte(tokenPlaintext))
+
+	user, err := q.GetUserFromToken(ctx, GetUserFromTokenParams{
+		Hash:   tokenHash[:],
+		Scope:  scope,
+		Expiry: pgtype.Timestamptz{Time: time.Now(), Valid: true},
+	})
 	if err != nil {
-		return nil, err
+		return User{}, err
 	}
 
-	return hash, nil
+	return user, nil
 }
 
 func ValidateEmail(v *validator.Validator, email string) {
