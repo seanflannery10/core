@@ -9,6 +9,7 @@ func Router() chi.Router {
 
 	r.Route("/v1/users", func(r chi.Router) {
 		r.Post("/register", createUserHandler)
+		r.Put("/activate", activateUserHandler)
 	})
 
 	return r

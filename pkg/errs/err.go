@@ -1,11 +1,9 @@
 package errs
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/go-chi/render"
-	"github.com/seanflannery10/core/pkg/validator"
 	"golang.org/x/exp/slog"
 )
 
@@ -51,11 +49,17 @@ var ErrAuthenticationRequired = ErrResponse{
 	Status: "you must be authenticated to access this resource",
 }
 
-func ErrFailedValidation(v *validator.Validator) render.Renderer {
+var ErrUserExists = ErrResponse{
+	Code:   http.StatusUnprocessableEntity,
+	Status: "a user with this email address already exists",
+}
+
+func ErrFailedValidation(err error) render.Renderer {
 	return ErrResponse{
+		Err:       err,
 		Code:      http.StatusUnprocessableEntity,
 		Status:    "validation failed",
-		ErrorText: fmt.Sprintf("%v", map[string]map[string]string{"error": v.Errors}),
+		ErrorText: err.Error(),
 	}
 }
 

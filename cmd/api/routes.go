@@ -6,7 +6,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
-	"github.com/seanflannery10/core/internal/modules/users"
+	"github.com/seanflannery10/core/internal/service/users"
 	"github.com/seanflannery10/core/pkg/httperrors"
 	"github.com/seanflannery10/core/pkg/middleware"
 )
