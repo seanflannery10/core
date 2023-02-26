@@ -9,15 +9,16 @@ import (
 	"github.com/seanflannery10/core/pkg/errs"
 	"github.com/seanflannery10/core/pkg/helpers"
 	"github.com/seanflannery10/core/pkg/httperrors"
+	"github.com/seanflannery10/core/pkg/validator"
 	"golang.org/x/exp/slog"
 )
 
 func createUserHandler(w http.ResponseWriter, r *http.Request) {
-	p := &createUserPayload{}
+	p := &createUserPayload{Validator: validator.New()}
 
 	err := render.Bind(r, p)
 	if err != nil {
-		helpers.CheckBind(w, r, err)
+		helpers.CheckBindErr(w, r, p.Validator, err)
 		return
 	}
 
@@ -60,11 +61,11 @@ func createUserHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func activateUserHandler(w http.ResponseWriter, r *http.Request) {
-	p := &activateUserPayload{}
+	p := &activateUserPayload{Validator: validator.New()}
 
 	err := render.Bind(r, p)
 	if err != nil {
-		helpers.CheckBind(w, r, err)
+		helpers.CheckBindErr(w, r, p.Validator, err)
 		return
 	}
 
@@ -105,11 +106,11 @@ func activateUserHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func updateUserPasswordHandler(w http.ResponseWriter, r *http.Request) {
-	p := &updateUserPasswordPayload{}
+	p := &updateUserPasswordPayload{Validator: validator.New()}
 
 	err := render.Bind(r, p)
 	if err != nil {
-		helpers.CheckBind(w, r, err)
+		helpers.CheckBindErr(w, r, p.Validator, err)
 		return
 	}
 

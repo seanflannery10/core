@@ -13,17 +13,16 @@ type createUserPayload struct {
 	Email        string `json:"email"`
 	Password     string `json:"password"`
 	PasswordHash []byte
+	Validator    *validator.Validator
 }
 
 func (p *createUserPayload) Bind(r *http.Request) error {
-	v := validator.New()
+	validateName(p.Validator, p.Name)
+	validateEmail(p.Validator, p.Email)
+	validatePasswordPlaintext(p.Validator, p.Password)
 
-	validateName(v, p.Name)
-	validateEmail(v, p.Email)
-	validatePasswordPlaintext(v, p.Password)
-
-	if v.HasErrors() {
-		return validator.ValidationError{Errors: v.Errors}
+	if p.Validator.HasErrors() {
+		return validator.ErrValidation
 	}
 
 	queries := helpers.ContextGetQueries(r)
@@ -34,8 +33,8 @@ func (p *createUserPayload) Bind(r *http.Request) error {
 	}
 
 	if ok {
-		v.AddError("email", "a user with this email address already exists")
-		return validator.ValidationError{Errors: v.Errors}
+		p.Validator.AddError("email", "a user with this email address already exists")
+		return validator.ErrValidation
 	}
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(p.Password), 14)
@@ -50,15 +49,14 @@ func (p *createUserPayload) Bind(r *http.Request) error {
 
 type activateUserPayload struct {
 	TokenPlaintext string `json:"token"`
+	Validator      *validator.Validator
 }
 
 func (p *activateUserPayload) Bind(_ *http.Request) error {
-	v := validator.New()
+	validateTokenPlaintext(p.Validator, p.TokenPlaintext)
 
-	validateTokenPlaintext(v, p.TokenPlaintext)
-
-	if v.HasErrors() {
-		return validator.ValidationError{Errors: v.Errors}
+	if p.Validator.HasErrors() {
+		return validator.ErrValidation
 	}
 
 	return nil
@@ -67,16 +65,15 @@ func (p *activateUserPayload) Bind(_ *http.Request) error {
 type updateUserPasswordPayload struct {
 	Password       string `json:"password"`
 	TokenPlaintext string `json:"token"`
+	Validator      *validator.Validator
 }
 
 func (p *updateUserPasswordPayload) Bind(_ *http.Request) error {
-	v := validator.New()
+	validatePasswordPlaintext(p.Validator, p.Password)
+	validateTokenPlaintext(p.Validator, p.TokenPlaintext)
 
-	validatePasswordPlaintext(v, p.Password)
-	validateTokenPlaintext(v, p.TokenPlaintext)
-
-	if v.HasErrors() {
-		return validator.ValidationError{Errors: v.Errors}
+	if p.Validator.HasErrors() {
+		return validator.ErrValidation
 	}
 
 	return nil

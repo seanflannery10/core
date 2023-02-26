@@ -94,7 +94,7 @@ package main
 //	}
 //}
 //
-//func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Request) {
+// func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Request) {
 //	var input struct {
 //		TokenPlaintext string `json:"token"`
 //	}
@@ -156,7 +156,7 @@ package main
 //	}
 //}
 //
-//func (app *application) updateUserPasswordHandler(w http.ResponseWriter, r *http.Request) {
+// func (app *application) updateUserPasswordHandler(w http.ResponseWriter, r *http.Request) {
 //	var input struct {
 //		Password       string `json:"password"`
 //		TokenPlaintext string `json:"token"`
