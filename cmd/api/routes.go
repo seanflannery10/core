@@ -32,7 +32,6 @@ func (app *application) routes() http.Handler {
 	}))
 
 	r.Get("/debug/vars", expvar.Handler().ServeHTTP)
-	r.Get("/healthcheck", app.healthCheckHandler)
 
 	r.Mount("/v1/messages", messages.Router())
 	r.Mount("/v1/users", users.Router())
