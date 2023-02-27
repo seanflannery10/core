@@ -2,6 +2,8 @@ package main
 
 import (
 	"expvar"
+	"net/http"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
 	"github.com/go-chi/render"
@@ -10,7 +12,6 @@ import (
 	"github.com/seanflannery10/core/internal/services/users"
 	"github.com/seanflannery10/core/pkg/errs"
 	"github.com/seanflannery10/core/pkg/middleware"
-	"net/http"
 )
 
 func (app *application) routes() http.Handler {
