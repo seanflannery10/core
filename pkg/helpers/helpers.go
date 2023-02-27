@@ -3,16 +3,17 @@ package helpers
 import (
 	"errors"
 	"fmt"
+	"net/http"
+	"net/url"
+	"runtime/debug"
+	"strconv"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 	"github.com/seanflannery10/core/internal/data"
 	"github.com/seanflannery10/core/pkg/errs"
 	"github.com/seanflannery10/core/pkg/mailer"
 	"github.com/seanflannery10/core/pkg/validator"
-	"net/http"
-	"net/url"
-	"runtime/debug"
-	"strconv"
 )
 
 var ErrInvalidIDParameter = errors.New("invalid id parameter")
