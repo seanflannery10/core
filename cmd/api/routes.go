@@ -6,24 +6,19 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
-	"github.com/go-chi/render"
 	"github.com/seanflannery10/core/internal/services/messages"
 	"github.com/seanflannery10/core/internal/services/tokens"
 	"github.com/seanflannery10/core/internal/services/users"
 	"github.com/seanflannery10/core/pkg/errs"
+	"github.com/seanflannery10/core/pkg/helpers"
 	"github.com/seanflannery10/core/pkg/middleware"
 )
 
 func (app *application) routes() http.Handler {
 	r := chi.NewRouter()
 
-	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
-		_ = render.Render(w, r, errs.ErrNotFound)
-	})
-
-	r.MethodNotAllowed(func(w http.ResponseWriter, r *http.Request) {
-		_ = render.Render(w, r, errs.ErrMethodNotAllowed)
-	})
+	r.NotFound(helpers.ErrFuncWrapper(errs.ErrNotFound))
+	r.MethodNotAllowed(helpers.ErrFuncWrapper(errs.ErrMethodNotAllowed))
 
 	r.Use(middleware.Metrics)
 	r.Use(middleware.RecoverPanic)
