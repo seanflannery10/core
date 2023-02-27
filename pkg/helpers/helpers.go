@@ -26,7 +26,7 @@ var (
 	errUnknownKey         = errors.New("body contains unknown key")
 	errBodyToLarge        = errors.New("body must not be larger than")
 	errToManyValues       = errors.New("body must only contain a single encode value")
-	errInvalidIDParameter = errors.New("invalid id parameter")
+	ErrInvalidIDParameter = errors.New("invalid id parameter")
 )
 
 type contextKey string
@@ -68,6 +68,8 @@ func CheckBindErr(w http.ResponseWriter, r *http.Request, v *validator.Validator
 	switch {
 	case errors.Is(err, validator.ErrValidation):
 		_ = render.Render(w, r, errs.ErrFailedValidation(v))
+	case errors.Is(err, ErrInvalidIDParameter):
+		_ = render.Render(w, r, errs.ErrNotFound)
 	default:
 		_ = render.Render(w, r, errs.ErrBadRequest(err))
 	}
@@ -158,7 +160,7 @@ func WriteJSONWithHeaders(w http.ResponseWriter, status int, data any, headers h
 func ReadIDParam(r *http.Request) (int64, error) {
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id < 1 {
-		return 0, errInvalidIDParameter
+		return 0, ErrInvalidIDParameter
 	}
 
 	return id, nil

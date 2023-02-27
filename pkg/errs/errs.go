@@ -46,16 +46,6 @@ var ErrAuthenticationRequired = ErrResponse{
 	Message: "you must be authenticated to access this resource",
 }
 
-var ErrUserExists = ErrResponse{
-	Code:    http.StatusUnprocessableEntity,
-	Message: "a user with this email address already exists",
-}
-
-var ErrInvalidToken = ErrResponse{
-	Code:    http.StatusUnprocessableEntity,
-	Message: "a user with this email address already exists",
-}
-
 func ErrInvalidAuthenticationToken() render.Renderer {
 	headers := make(http.Header)
 	headers.Set("WWW-Authenticate", "Bearer")

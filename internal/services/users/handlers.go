@@ -14,11 +14,11 @@ import (
 )
 
 func createUserHandler(w http.ResponseWriter, r *http.Request) {
-	p := &createUserPayload{Validator: validator.New()}
+	p := &createUserPayload{v: validator.New()}
 
 	err := render.Bind(r, p)
 	if err != nil {
-		helpers.CheckBindErr(w, r, p.Validator, err)
+		helpers.CheckBindErr(w, r, p.v, err)
 		return
 	}
 
@@ -53,7 +53,7 @@ func createUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	render.Status(r, http.StatusCreated)
 
-	err = render.Render(w, r, userResponse{user})
+	err = render.Render(w, r, userResponsePayload{user})
 	if err != nil {
 		slog.Error("render error", err)
 		return
@@ -61,11 +61,11 @@ func createUserHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func activateUserHandler(w http.ResponseWriter, r *http.Request) {
-	p := &activateUserPayload{Validator: validator.New()}
+	p := &activateUserPayload{v: validator.New()}
 
 	err := render.Bind(r, p)
 	if err != nil {
-		helpers.CheckBindErr(w, r, p.Validator, err)
+		helpers.CheckBindErr(w, r, p.v, err)
 		return
 	}
 
@@ -98,7 +98,7 @@ func activateUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	render.Status(r, http.StatusOK)
 
-	err = render.Render(w, r, userResponse{user})
+	err = render.Render(w, r, userResponsePayload{user})
 	if err != nil {
 		slog.Error("render error", err)
 		return
@@ -106,11 +106,11 @@ func activateUserHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func updateUserPasswordHandler(w http.ResponseWriter, r *http.Request) {
-	p := &updateUserPasswordPayload{Validator: validator.New()}
+	p := &updateUserPasswordPayload{v: validator.New()}
 
 	err := render.Bind(r, p)
 	if err != nil {
-		helpers.CheckBindErr(w, r, p.Validator, err)
+		helpers.CheckBindErr(w, r, p.v, err)
 		return
 	}
 
@@ -149,7 +149,7 @@ func updateUserPasswordHandler(w http.ResponseWriter, r *http.Request) {
 
 	render.Status(r, http.StatusOK)
 
-	err = render.Render(w, r, messageResponse{"your password was successfully reset"})
+	err = render.Render(w, r, stringResponsePayload{"your password was successfully reset"})
 	if err != nil {
 		slog.Error("render error", err)
 		return
