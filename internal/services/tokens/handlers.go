@@ -10,7 +10,6 @@ import (
 	"github.com/seanflannery10/core/internal/data"
 	"github.com/seanflannery10/core/pkg/errs"
 	"github.com/seanflannery10/core/pkg/helpers"
-	"github.com/seanflannery10/core/pkg/httperrors"
 	"github.com/seanflannery10/core/pkg/validator"
 	"golang.org/x/exp/slog"
 )
@@ -30,9 +29,9 @@ func createAuthTokenHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
-			httperrors.InvalidCredentials(w, r)
+			_ = render.Render(w, r, errs.ErrInvalidCredentials)
 		default:
-			httperrors.ServerError(w, r, err)
+			_ = render.Render(w, r, errs.ErrServerError(err))
 		}
 
 		return
@@ -40,24 +39,24 @@ func createAuthTokenHandler(w http.ResponseWriter, r *http.Request) {
 
 	match, err := user.ComparePasswords(p.Password)
 	if err != nil {
-		httperrors.ServerError(w, r, err)
+		_ = render.Render(w, r, errs.ErrServerError(err))
 		return
 	}
 
 	if !match {
-		httperrors.InvalidCredentials(w, r)
+		_ = render.Render(w, r, errs.ErrInvalidCredentials)
 		return
 	}
 
 	token, err := q.CreateTokenHelper(r.Context(), user.ID, 3*24*time.Hour, data.ScopeAuthentication)
 	if err != nil {
-		httperrors.ServerError(w, r, err)
+		_ = render.Render(w, r, errs.ErrServerError(err))
 		return
 	}
 
 	render.Status(r, http.StatusCreated)
 
-	err = render.Render(w, r, tokenResponsePayload{token})
+	err = render.Render(w, r, &token)
 	if err != nil {
 		slog.Error("render error", err)
 	}
@@ -79,9 +78,9 @@ func createPasswordResetTokenHandler(w http.ResponseWriter, r *http.Request) {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
 			p.v.AddError("email", "no matching email address found")
-			httperrors.FailedValidation(w, r, p.v)
+			_ = render.Render(w, r, errs.ErrFailedValidation(p.v))
 		default:
-			httperrors.ServerError(w, r, err)
+			_ = render.Render(w, r, errs.ErrServerError(err))
 		}
 
 		return
@@ -89,14 +88,14 @@ func createPasswordResetTokenHandler(w http.ResponseWriter, r *http.Request) {
 
 	if !user.Activated {
 		p.v.AddError("email", "user account must be activated")
-		httperrors.FailedValidation(w, r, p.v)
+		_ = render.Render(w, r, errs.ErrFailedValidation(p.v))
 
 		return
 	}
 
 	token, err := q.CreateTokenHelper(r.Context(), user.ID, 45*time.Minute, data.ScopePasswordReset)
 	if err != nil {
-		httperrors.ServerError(w, r, err)
+		_ = render.Render(w, r, errs.ErrServerError(err))
 		return
 	}
 
@@ -112,25 +111,10 @@ func createPasswordResetTokenHandler(w http.ResponseWriter, r *http.Request) {
 
 	render.Status(r, http.StatusCreated)
 
-	err = render.Render(w, r, tokenResponsePayload{token})
+	err = render.Render(w, r, &token)
 	if err != nil {
 		slog.Error("render error", err)
 	}
-}
-
-type createActivationTokenPayload struct {
-	Email string `json:"email"`
-	v     *validator.Validator
-}
-
-func (p *createActivationTokenPayload) Bind(_ *http.Request) error {
-	data.ValidateEmail(p.v, p.Email)
-
-	if p.v.HasErrors() {
-		return validator.ErrValidation
-	}
-
-	return nil
 }
 
 func createActivationTokenHandler(w http.ResponseWriter, r *http.Request) {
@@ -149,9 +133,9 @@ func createActivationTokenHandler(w http.ResponseWriter, r *http.Request) {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
 			p.v.AddError("email", "no matching email address found")
-			httperrors.FailedValidation(w, r, p.v)
+			_ = render.Render(w, r, errs.ErrFailedValidation(p.v))
 		default:
-			httperrors.ServerError(w, r, err)
+			_ = render.Render(w, r, errs.ErrServerError(err))
 		}
 
 		return
@@ -159,14 +143,14 @@ func createActivationTokenHandler(w http.ResponseWriter, r *http.Request) {
 
 	if user.Activated {
 		p.v.AddError("email", "user has already been activated")
-		httperrors.FailedValidation(w, r, p.v)
+		_ = render.Render(w, r, errs.ErrFailedValidation(p.v))
 
 		return
 	}
 
 	token, err := q.CreateTokenHelper(r.Context(), user.ID, 3*24*time.Hour, data.ScopeActivation)
 	if err != nil {
-		httperrors.ServerError(w, r, err)
+		_ = render.Render(w, r, errs.ErrServerError(err))
 		return
 	}
 
@@ -182,7 +166,7 @@ func createActivationTokenHandler(w http.ResponseWriter, r *http.Request) {
 
 	render.Status(r, http.StatusCreated)
 
-	err = render.Render(w, r, tokenResponsePayload{})
+	err = render.Render(w, r, &token)
 	if err != nil {
 		slog.Error("render error", err)
 	}

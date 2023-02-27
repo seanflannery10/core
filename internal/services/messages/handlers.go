@@ -9,8 +9,9 @@ import (
 	"github.com/go-chi/render"
 	"github.com/jackc/pgx/v5"
 	"github.com/seanflannery10/core/internal/data"
+	"github.com/seanflannery10/core/pkg/errs"
 	"github.com/seanflannery10/core/pkg/helpers"
-	"github.com/seanflannery10/core/pkg/httperrors"
+	"github.com/seanflannery10/core/pkg/responses"
 	"github.com/seanflannery10/core/pkg/validator"
 	"golang.org/x/exp/slog"
 )
@@ -32,7 +33,7 @@ func createMessageHandler(w http.ResponseWriter, r *http.Request) {
 		UserID:  user.ID,
 	})
 	if err != nil {
-		httperrors.ServerError(w, r, err)
+		_ = render.Render(w, r, errs.ErrServerError(err))
 		return
 	}
 
@@ -42,7 +43,7 @@ func createMessageHandler(w http.ResponseWriter, r *http.Request) {
 
 	render.Status(r, http.StatusCreated)
 
-	err = render.Render(w, r, messageResponsePayload{message})
+	err = render.Render(w, r, &message)
 	if err != nil {
 		slog.Error("render error", err)
 	}
@@ -63,9 +64,9 @@ func showMessageHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
-			httperrors.NotFound(w, r)
+			_ = render.Render(w, r, errs.ErrNotFound)
 		default:
-			httperrors.ServerError(w, r, err)
+			_ = render.Render(w, r, errs.ErrServerError(err))
 		}
 
 		return
@@ -73,7 +74,7 @@ func showMessageHandler(w http.ResponseWriter, r *http.Request) {
 
 	render.Status(r, http.StatusCreated)
 
-	err = render.Render(w, r, messageResponsePayload{message})
+	err = render.Render(w, r, &message)
 	if err != nil {
 		slog.Error("render error", err)
 	}
@@ -97,9 +98,9 @@ func updateMessageHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
-			httperrors.NotFound(w, r)
+			_ = render.Render(w, r, errs.ErrNotFound)
 		default:
-			httperrors.ServerError(w, r, err)
+			_ = render.Render(w, r, errs.ErrServerError(err))
 		}
 
 		return
@@ -107,14 +108,14 @@ func updateMessageHandler(w http.ResponseWriter, r *http.Request) {
 
 	if r.Header.Get("X-Expected-Version") != "" {
 		if strconv.FormatInt(int64(message.Version), 32) != r.Header.Get("X-Expected-Version") {
-			httperrors.EditConflict(w, r)
+			_ = render.Render(w, r, errs.ErrEditConflict)
 			return
 		}
 	}
 
 	render.Status(r, http.StatusCreated)
 
-	err = render.Render(w, r, messageResponsePayload{message})
+	err = render.Render(w, r, &message)
 	if err != nil {
 		slog.Error("render error", err)
 	}
@@ -135,9 +136,9 @@ func deleteMessageHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
-			httperrors.NotFound(w, r)
+			_ = render.Render(w, r, errs.ErrNotFound)
 		default:
-			httperrors.ServerError(w, r, err)
+			_ = render.Render(w, r, errs.ErrServerError(err))
 		}
 
 		return
@@ -145,7 +146,7 @@ func deleteMessageHandler(w http.ResponseWriter, r *http.Request) {
 
 	render.Status(r, http.StatusCreated)
 
-	err = render.Render(w, r, stringResponsePayload{"message successfully deleted"})
+	err = render.Render(w, r, responses.StringResponsePayload{Message: "message successfully deleted"})
 	if err != nil {
 		slog.Error("render error", err)
 	}
@@ -169,20 +170,20 @@ func listUserMessagesHandler(w http.ResponseWriter, r *http.Request) {
 		Limit:  p.Pagination.Limit(),
 	})
 	if err != nil {
-		httperrors.ServerError(w, r, err)
+		_ = render.Render(w, r, errs.ErrServerError(err))
 		return
 	}
 
 	count, err := q.GetUserMessageCount(r.Context(), user.ID)
 	if err != nil {
-		httperrors.ServerError(w, r, err)
+		_ = render.Render(w, r, errs.ErrServerError(err))
 		return
 	}
 
 	metadata := p.Pagination.CalculateMetadata(count, p.v)
 
 	if p.v.HasErrors() {
-		httperrors.FailedValidation(w, r, p.v)
+		_ = render.Render(w, r, errs.ErrFailedValidation(p.v))
 		return
 	}
 

@@ -2,22 +2,27 @@ package main
 
 import (
 	"expvar"
-	"net/http"
-
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
+	"github.com/go-chi/render"
 	"github.com/seanflannery10/core/internal/services/messages"
 	"github.com/seanflannery10/core/internal/services/tokens"
 	"github.com/seanflannery10/core/internal/services/users"
-	"github.com/seanflannery10/core/pkg/httperrors"
+	"github.com/seanflannery10/core/pkg/errs"
 	"github.com/seanflannery10/core/pkg/middleware"
+	"net/http"
 )
 
 func (app *application) routes() http.Handler {
 	r := chi.NewRouter()
 
-	r.NotFound(httperrors.NotFound)
-	r.MethodNotAllowed(httperrors.MethodNotAllowed)
+	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
+		_ = render.Render(w, r, errs.ErrNotFound)
+	})
+
+	r.MethodNotAllowed(func(w http.ResponseWriter, r *http.Request) {
+		_ = render.Render(w, r, errs.ErrMethodNotAllowed)
+	})
 
 	r.Use(middleware.Metrics)
 	r.Use(middleware.RecoverPanic)

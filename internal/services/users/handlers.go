@@ -8,7 +8,7 @@ import (
 	"github.com/seanflannery10/core/internal/data"
 	"github.com/seanflannery10/core/pkg/errs"
 	"github.com/seanflannery10/core/pkg/helpers"
-	"github.com/seanflannery10/core/pkg/httperrors"
+	"github.com/seanflannery10/core/pkg/responses"
 	"github.com/seanflannery10/core/pkg/validator"
 	"golang.org/x/exp/slog"
 )
@@ -53,7 +53,7 @@ func createUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	render.Status(r, http.StatusCreated)
 
-	err = render.Render(w, r, userResponsePayload{user})
+	err = render.Render(w, r, &user)
 	if err != nil {
 		slog.Error("render error", err)
 		return
@@ -98,7 +98,7 @@ func activateUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	render.Status(r, http.StatusOK)
 
-	err = render.Render(w, r, userResponsePayload{user})
+	err = render.Render(w, r, &user)
 	if err != nil {
 		slog.Error("render error", err)
 		return
@@ -124,7 +124,7 @@ func updateUserPasswordHandler(w http.ResponseWriter, r *http.Request) {
 
 	err = user.SetPassword(p.Password)
 	if err != nil {
-		httperrors.ServerError(w, r, err)
+		_ = render.Render(w, r, errs.ErrServerError(err))
 		return
 	}
 
@@ -149,7 +149,7 @@ func updateUserPasswordHandler(w http.ResponseWriter, r *http.Request) {
 
 	render.Status(r, http.StatusOK)
 
-	err = render.Render(w, r, stringResponsePayload{"your password was successfully reset"})
+	err = render.Render(w, r, responses.StringResponsePayload{Message: "your password was successfully reset"})
 	if err != nil {
 		slog.Error("render error", err)
 		return

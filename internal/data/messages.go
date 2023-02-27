@@ -1,6 +1,14 @@
 package data
 
-import "github.com/seanflannery10/core/pkg/validator"
+import (
+	"net/http"
+
+	"github.com/seanflannery10/core/pkg/validator"
+)
+
+func (m *Message) Render(_ http.ResponseWriter, _ *http.Request) error {
+	return nil
+}
 
 func ValidateMessage(v *validator.Validator, message string) {
 	v.Check(message != "", "message", "must be provided")

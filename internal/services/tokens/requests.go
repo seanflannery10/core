@@ -38,3 +38,18 @@ func (p *createPasswordResetTokenPayload) Bind(_ *http.Request) error {
 
 	return nil
 }
+
+type createActivationTokenPayload struct {
+	Email string `json:"email"`
+	v     *validator.Validator
+}
+
+func (p *createActivationTokenPayload) Bind(_ *http.Request) error {
+	data.ValidateEmail(p.v, p.Email)
+
+	if p.v.HasErrors() {
+		return validator.ErrValidation
+	}
+
+	return nil
+}

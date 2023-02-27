@@ -3,8 +3,9 @@ package main
 import (
 	"net/http"
 
+	"github.com/go-chi/render"
+	"github.com/seanflannery10/core/pkg/errs"
 	"github.com/seanflannery10/core/pkg/helpers"
-	"github.com/seanflannery10/core/pkg/httperrors"
 )
 
 func (app *application) healthCheckHandler(w http.ResponseWriter, r *http.Request) {
@@ -17,6 +18,6 @@ func (app *application) healthCheckHandler(w http.ResponseWriter, r *http.Reques
 
 	err := helpers.WriteJSON(w, http.StatusOK, env)
 	if err != nil {
-		httperrors.ServerError(w, r, err)
+		_ = render.Render(w, r, errs.ErrServerError(err))
 	}
 }

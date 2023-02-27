@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base32"
+	"net/http"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
@@ -23,6 +24,15 @@ type TokenFull struct {
 	UserID    int64
 	Expiry    pgtype.Timestamptz
 	Scope     string
+}
+
+func (t *TokenFull) Render(_ http.ResponseWriter, _ *http.Request) error {
+	return nil
+}
+
+func ValidateTokenPlaintext(v *validator.Validator, tokenPlaintext string) {
+	v.Check(tokenPlaintext != "", "token", "must be provided")
+	v.Check(len(tokenPlaintext) == 26, "token", "must be 26 bytes long")
 }
 
 func (q *Queries) CreateTokenHelper(ctx context.Context, uid int64, ttl time.Duration, s string) (TokenFull, error) {
@@ -55,9 +65,4 @@ func (q *Queries) CreateTokenHelper(ctx context.Context, uid int64, ttl time.Dur
 	}
 
 	return tokenPlaintext, nil
-}
-
-func ValidateTokenPlaintext(v *validator.Validator, tokenPlaintext string) {
-	v.Check(tokenPlaintext != "", "token", "must be provided")
-	v.Check(len(tokenPlaintext) == 26, "token", "must be 26 bytes long")
 }

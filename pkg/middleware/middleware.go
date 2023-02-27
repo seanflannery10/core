@@ -11,11 +11,12 @@ import (
 	"time"
 
 	"github.com/felixge/httpsnoop"
+	"github.com/go-chi/render"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/seanflannery10/core/internal/data"
+	"github.com/seanflannery10/core/pkg/errs"
 	"github.com/seanflannery10/core/pkg/helpers"
-	"github.com/seanflannery10/core/pkg/httperrors"
 	"github.com/seanflannery10/core/pkg/mailer"
 	"github.com/seanflannery10/core/pkg/validator"
 )
@@ -56,7 +57,7 @@ func Authenticate(next http.Handler) http.Handler {
 
 		headerParts := strings.Split(authorizationHeader, " ")
 		if len(headerParts) != 2 || headerParts[0] != "Bearer" {
-			httperrors.InvalidAuthenticationToken(w, r)
+			_ = render.Render(w, r, errs.ErrInvalidAuthenticationToken())
 			return
 		}
 
@@ -68,7 +69,7 @@ func Authenticate(next http.Handler) http.Handler {
 		v.Check(len(token) == 26, "token", "must be 26 bytes long")
 
 		if v.HasErrors() {
-			httperrors.InvalidAuthenticationToken(w, r)
+			_ = render.Render(w, r, errs.ErrInvalidAuthenticationToken())
 			return
 		}
 
@@ -84,9 +85,9 @@ func Authenticate(next http.Handler) http.Handler {
 		if err != nil {
 			switch {
 			case errors.Is(err, pgx.ErrNoRows):
-				httperrors.InvalidAuthenticationToken(w, r)
+				_ = render.Render(w, r, errs.ErrInvalidAuthenticationToken())
 			default:
-				httperrors.ServerError(w, r, err)
+				_ = render.Render(w, r, errs.ErrServerError(err))
 			}
 			return
 		}
@@ -102,7 +103,7 @@ func RequireAuthenticatedUser(next http.Handler) http.Handler {
 		user := helpers.ContextGetUser(r)
 
 		if user.IsAnonymous() {
-			httperrors.AuthenticationRequired(w, r)
+			_ = render.Render(w, r, errs.ErrAuthenticationRequired)
 			return
 		}
 
@@ -132,7 +133,7 @@ func RecoverPanic(next http.Handler) http.Handler {
 			if rvr := recover(); rvr != nil {
 				err, _ := rvr.(error)
 				if !errors.Is(err, http.ErrAbortHandler) {
-					httperrors.ServerError(w, r, err)
+					_ = render.Render(w, r, errs.ErrServerError(err))
 				}
 			}
 		}()
