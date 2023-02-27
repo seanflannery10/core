@@ -123,7 +123,7 @@ type createActivationTokenPayload struct {
 	v     *validator.Validator
 }
 
-func (p *createActivationTokenPayload) Bind(r *http.Request) error {
+func (p *createActivationTokenPayload) Bind(_ *http.Request) error {
 	data.ValidateEmail(p.v, p.Email)
 
 	if p.v.HasErrors() {

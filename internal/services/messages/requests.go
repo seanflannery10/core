@@ -14,7 +14,7 @@ type createMessageHandlerPayload struct {
 	v       *validator.Validator
 }
 
-func (p *createMessageHandlerPayload) Bind(r *http.Request) error {
+func (p *createMessageHandlerPayload) Bind(_ *http.Request) error {
 	data.ValidateMessage(p.v, p.Message)
 
 	if p.v.HasErrors() {
