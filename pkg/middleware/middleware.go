@@ -6,6 +6,7 @@ import (
 	"errors"
 	"expvar"
 	"net/http"
+	"runtime/debug"
 	"strconv"
 	"strings"
 	"time"
@@ -19,6 +20,7 @@ import (
 	"github.com/seanflannery10/core/pkg/helpers"
 	"github.com/seanflannery10/core/pkg/mailer"
 	"github.com/seanflannery10/core/pkg/validator"
+	"golang.org/x/exp/slog"
 )
 
 func SetQueriesCtx(q *data.Queries) func(next http.Handler) http.Handler {
@@ -89,6 +91,7 @@ func Authenticate(next http.Handler) http.Handler {
 			default:
 				_ = render.Render(w, r, errs.ErrServerError(err))
 			}
+
 			return
 		}
 
@@ -131,10 +134,19 @@ func RecoverPanic(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if rvr := recover(); rvr != nil {
-				err, _ := rvr.(error)
-				if !errors.Is(err, http.ErrAbortHandler) {
-					_ = render.Render(w, r, errs.ErrServerError(err))
+				if rvr == http.ErrAbortHandler { //nolint:goerr113
+					panic(rvr)
 				}
+
+				slog.Log(r.Context(), slog.LevelError, "panic recovery error", "error", rvr, "stack", string(debug.Stack()))
+
+				if r.Header.Get("Connection") != "Upgrade" {
+					w.WriteHeader(http.StatusInternalServerError)
+				}
+
+				render.JSON(w, r, &errs.ErrResponse{
+					Message: "the server encountered a problem and could not process your json",
+				})
 			}
 		}()
 

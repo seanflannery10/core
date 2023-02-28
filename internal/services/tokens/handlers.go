@@ -11,15 +11,12 @@ import (
 	"github.com/seanflannery10/core/pkg/errs"
 	"github.com/seanflannery10/core/pkg/helpers"
 	"github.com/seanflannery10/core/pkg/validator"
-	"golang.org/x/exp/slog"
 )
 
 func createAuthTokenHandler(w http.ResponseWriter, r *http.Request) {
 	p := &createAuthTokenPayload{v: validator.New()}
 
-	err := render.Bind(r, p)
-	if err != nil {
-		helpers.CheckBindErr(w, r, p.v, err)
+	if helpers.CheckAndBind(w, r, p, p.v) {
 		return
 	}
 
@@ -56,18 +53,13 @@ func createAuthTokenHandler(w http.ResponseWriter, r *http.Request) {
 
 	render.Status(r, http.StatusCreated)
 
-	err = render.Render(w, r, &token)
-	if err != nil {
-		slog.Error("render error", err)
-	}
+	helpers.RenderAndCheck(w, r, &token)
 }
 
 func createPasswordResetTokenHandler(w http.ResponseWriter, r *http.Request) {
 	p := &createPasswordResetTokenPayload{v: validator.New()}
 
-	err := render.Bind(r, p)
-	if err != nil {
-		helpers.CheckBindErr(w, r, p.v, err)
+	if helpers.CheckAndBind(w, r, p, p.v) {
 		return
 	}
 
@@ -111,18 +103,13 @@ func createPasswordResetTokenHandler(w http.ResponseWriter, r *http.Request) {
 
 	render.Status(r, http.StatusCreated)
 
-	err = render.Render(w, r, &token)
-	if err != nil {
-		slog.Error("render error", err)
-	}
+	helpers.RenderAndCheck(w, r, &token)
 }
 
 func createActivationTokenHandler(w http.ResponseWriter, r *http.Request) {
 	p := &createActivationTokenPayload{v: validator.New()}
 
-	err := render.Bind(r, p)
-	if err != nil {
-		helpers.CheckBindErr(w, r, p.v, err)
+	if helpers.CheckAndBind(w, r, p, p.v) {
 		return
 	}
 
@@ -166,8 +153,5 @@ func createActivationTokenHandler(w http.ResponseWriter, r *http.Request) {
 
 	render.Status(r, http.StatusCreated)
 
-	err = render.Render(w, r, &token)
-	if err != nil {
-		slog.Error("render error", err)
-	}
+	helpers.RenderAndCheck(w, r, &token)
 }

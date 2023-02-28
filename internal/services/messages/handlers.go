@@ -13,15 +13,12 @@ import (
 	"github.com/seanflannery10/core/pkg/helpers"
 	"github.com/seanflannery10/core/pkg/responses"
 	"github.com/seanflannery10/core/pkg/validator"
-	"golang.org/x/exp/slog"
 )
 
 func createMessageHandler(w http.ResponseWriter, r *http.Request) {
 	p := &createMessageHandlerPayload{v: validator.New()}
 
-	err := render.Bind(r, p)
-	if err != nil {
-		helpers.CheckBindErr(w, r, p.v, err)
+	if helpers.CheckAndBind(w, r, p, p.v) {
 		return
 	}
 
@@ -43,18 +40,13 @@ func createMessageHandler(w http.ResponseWriter, r *http.Request) {
 
 	render.Status(r, http.StatusCreated)
 
-	err = render.Render(w, r, &message)
-	if err != nil {
-		slog.Error("render error", err)
-	}
+	helpers.RenderAndCheck(w, r, &message)
 }
 
 func showMessageHandler(w http.ResponseWriter, r *http.Request) {
 	p := &showMessagePayload{v: validator.New()}
 
-	err := render.Bind(r, p)
-	if err != nil {
-		helpers.CheckBindErr(w, r, p.v, err)
+	if helpers.CheckAndBind(w, r, p, p.v) {
 		return
 	}
 
@@ -74,18 +66,13 @@ func showMessageHandler(w http.ResponseWriter, r *http.Request) {
 
 	render.Status(r, http.StatusCreated)
 
-	err = render.Render(w, r, &message)
-	if err != nil {
-		slog.Error("render error", err)
-	}
+	helpers.RenderAndCheck(w, r, &message)
 }
 
 func updateMessageHandler(w http.ResponseWriter, r *http.Request) {
 	p := &updateMessagePayload{v: validator.New()}
 
-	err := render.Bind(r, p)
-	if err != nil {
-		helpers.CheckBindErr(w, r, p.v, err)
+	if helpers.CheckAndBind(w, r, p, p.v) {
 		return
 	}
 
@@ -115,24 +102,19 @@ func updateMessageHandler(w http.ResponseWriter, r *http.Request) {
 
 	render.Status(r, http.StatusCreated)
 
-	err = render.Render(w, r, &message)
-	if err != nil {
-		slog.Error("render error", err)
-	}
+	helpers.RenderAndCheck(w, r, &message)
 }
 
 func deleteMessageHandler(w http.ResponseWriter, r *http.Request) {
 	p := &deleteMessagePayload{v: validator.New()}
 
-	err := render.Bind(r, p)
-	if err != nil {
-		helpers.CheckBindErr(w, r, p.v, err)
+	if helpers.CheckAndBind(w, r, p, p.v) {
 		return
 	}
 
 	q := helpers.ContextGetQueries(r)
 
-	err = q.DeleteMessage(r.Context(), p.ID)
+	err := q.DeleteMessage(r.Context(), p.ID)
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
@@ -146,18 +128,13 @@ func deleteMessageHandler(w http.ResponseWriter, r *http.Request) {
 
 	render.Status(r, http.StatusCreated)
 
-	err = render.Render(w, r, responses.StringResponsePayload{Message: "message successfully deleted"})
-	if err != nil {
-		slog.Error("render error", err)
-	}
+	helpers.RenderAndCheck(w, r, responses.NewStringResponsePayload("message successfully deleted"))
 }
 
 func listUserMessagesHandler(w http.ResponseWriter, r *http.Request) {
 	p := &listUserMessagesPayload{v: validator.New()}
 
-	err := render.Bind(r, p)
-	if err != nil {
-		helpers.CheckBindErr(w, r, p.v, err)
+	if helpers.CheckAndBind(w, r, p, p.v) {
 		return
 	}
 
@@ -189,8 +166,5 @@ func listUserMessagesHandler(w http.ResponseWriter, r *http.Request) {
 
 	render.Status(r, http.StatusCreated)
 
-	err = render.Render(w, r, messagesResponsePayload{messages, metadata})
-	if err != nil {
-		slog.Error("render error", err)
-	}
+	helpers.RenderAndCheck(w, r, &messagesResponsePayload{messages, metadata})
 }

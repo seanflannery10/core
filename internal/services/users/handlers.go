@@ -10,15 +10,12 @@ import (
 	"github.com/seanflannery10/core/pkg/helpers"
 	"github.com/seanflannery10/core/pkg/responses"
 	"github.com/seanflannery10/core/pkg/validator"
-	"golang.org/x/exp/slog"
 )
 
 func createUserHandler(w http.ResponseWriter, r *http.Request) {
 	p := &createUserPayload{v: validator.New()}
 
-	err := render.Bind(r, p)
-	if err != nil {
-		helpers.CheckBindErr(w, r, p.v, err)
+	if helpers.CheckAndBind(w, r, p, p.v) {
 		return
 	}
 
@@ -53,19 +50,13 @@ func createUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	render.Status(r, http.StatusCreated)
 
-	err = render.Render(w, r, &user)
-	if err != nil {
-		slog.Error("render error", err)
-		return
-	}
+	helpers.RenderAndCheck(w, r, &user)
 }
 
 func activateUserHandler(w http.ResponseWriter, r *http.Request) {
 	p := &activateUserPayload{v: validator.New()}
 
-	err := render.Bind(r, p)
-	if err != nil {
-		helpers.CheckBindErr(w, r, p.v, err)
+	if helpers.CheckAndBind(w, r, p, p.v) {
 		return
 	}
 
@@ -98,19 +89,13 @@ func activateUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	render.Status(r, http.StatusOK)
 
-	err = render.Render(w, r, &user)
-	if err != nil {
-		slog.Error("render error", err)
-		return
-	}
+	helpers.RenderAndCheck(w, r, &user)
 }
 
 func updateUserPasswordHandler(w http.ResponseWriter, r *http.Request) {
 	p := &updateUserPasswordPayload{v: validator.New()}
 
-	err := render.Bind(r, p)
-	if err != nil {
-		helpers.CheckBindErr(w, r, p.v, err)
+	if helpers.CheckAndBind(w, r, p, p.v) {
 		return
 	}
 
@@ -149,9 +134,5 @@ func updateUserPasswordHandler(w http.ResponseWriter, r *http.Request) {
 
 	render.Status(r, http.StatusOK)
 
-	err = render.Render(w, r, responses.StringResponsePayload{Message: "your password was successfully reset"})
-	if err != nil {
-		slog.Error("render error", err)
-		return
-	}
+	helpers.RenderAndCheck(w, r, responses.NewStringResponsePayload("your password was successfully reset"))
 }

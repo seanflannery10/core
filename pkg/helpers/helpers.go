@@ -14,6 +14,7 @@ import (
 	"github.com/seanflannery10/core/pkg/errs"
 	"github.com/seanflannery10/core/pkg/mailer"
 	"github.com/seanflannery10/core/pkg/validator"
+	"golang.org/x/exp/slog"
 )
 
 var ErrInvalidIDParameter = errors.New("invalid id parameter")
@@ -53,18 +54,32 @@ func ContextGetMailer(r *http.Request) mailer.Mailer {
 	return m
 }
 
-func CheckBindErr(w http.ResponseWriter, r *http.Request, v *validator.Validator, err error) {
-	switch {
-	case errors.Is(err, validator.ErrValidation):
-		_ = render.Render(w, r, errs.ErrFailedValidation(v))
-	case errors.Is(err, ErrInvalidIDParameter):
-		_ = render.Render(w, r, errs.ErrNotFound)
-	default:
-		_ = render.Render(w, r, errs.ErrBadRequest(err))
+func CheckAndBind(w http.ResponseWriter, r *http.Request, b render.Binder, v *validator.Validator) bool {
+	err := render.Bind(r, b)
+	if err != nil {
+		switch {
+		case errors.Is(err, validator.ErrValidation):
+			_ = render.Render(w, r, errs.ErrFailedValidation(v))
+		case errors.Is(err, ErrInvalidIDParameter):
+			_ = render.Render(w, r, errs.ErrNotFound)
+		default:
+			_ = render.Render(w, r, errs.ErrBadRequest(err))
+		}
+
+		return true
+	}
+
+	return false
+}
+
+func RenderAndCheck(w http.ResponseWriter, r *http.Request, b render.Renderer) {
+	err := render.Render(w, r, b)
+	if err != nil {
+		slog.Error("render error", err)
 	}
 }
 
-func ErrFuncWrapper(er errs.ErrResponse) func(w http.ResponseWriter, r *http.Request) {
+func ErrFuncWrapper(er *errs.ErrResponse) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		_ = render.Render(w, r, er)
 	}

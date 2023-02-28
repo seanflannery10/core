@@ -13,12 +13,13 @@ SMTP_PASSWORD = os.getenv('SMTP_PASSWORD')
 load('ext://tests/golang', 'test_go')
 test_go('test-core-cmd', './cmd/...', './cmd')
 test_go('test-core-internal', './internal/...', './internal')
+test_go('test-core-pkg', './pkg/...', './pkg')
 
 # Build App
 local_resource(
   'core-compile',
   'CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -gcflags="all=-N -l" -o ./bin/api ./cmd/api',
-   deps=['./cmd/api/', './internal/'],
+   deps=['./cmd/api/', './internal/', './pkg'],
 )
 
 # Run App

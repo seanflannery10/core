@@ -16,32 +16,32 @@ type ErrResponse struct {
 	ValidatorErrors map[string]string `json:"errors,omitempty"`
 }
 
-func (e ErrResponse) Render(_ http.ResponseWriter, r *http.Request) error {
-	render.Status(r, e.Code)
+func (err ErrResponse) Render(_ http.ResponseWriter, r *http.Request) error {
+	render.Status(r, err.Code)
 	return nil
 }
 
-var ErrNotFound = ErrResponse{
+var ErrNotFound = &ErrResponse{
 	Code:    http.StatusNotFound,
 	Message: "the requested resource could not be found",
 }
 
-var ErrMethodNotAllowed = ErrResponse{
+var ErrMethodNotAllowed = &ErrResponse{
 	Code:    http.StatusMethodNotAllowed,
 	Message: "the used method is not supported for this resource",
 }
 
-var ErrEditConflict = ErrResponse{
+var ErrEditConflict = &ErrResponse{
 	Code:    http.StatusConflict,
 	Message: "unable to update the record due to an edit conflict, please try again",
 }
 
-var ErrInvalidCredentials = ErrResponse{
+var ErrInvalidCredentials = &ErrResponse{
 	Code:    http.StatusUnauthorized,
 	Message: "invalid authentication credentials",
 }
 
-var ErrAuthenticationRequired = ErrResponse{
+var ErrAuthenticationRequired = &ErrResponse{
 	Code:    http.StatusUnauthorized,
 	Message: "you must be authenticated to access this resource",
 }
@@ -50,14 +50,14 @@ func ErrInvalidAuthenticationToken() render.Renderer {
 	headers := make(http.Header)
 	headers.Set("WWW-Authenticate", "Bearer")
 
-	return ErrResponse{
+	return &ErrResponse{
 		Code:    http.StatusUnauthorized,
 		Message: "invalid or missing authentication token",
 	}
 }
 
 func ErrFailedValidation(v *validator.Validator) render.Renderer {
-	return ErrResponse{
+	return &ErrResponse{
 		Code:            http.StatusUnprocessableEntity,
 		Message:         "validation failed",
 		ValidatorErrors: v.Errors,
@@ -65,7 +65,7 @@ func ErrFailedValidation(v *validator.Validator) render.Renderer {
 }
 
 func ErrBadRequest(err error) render.Renderer {
-	return ErrResponse{
+	return &ErrResponse{
 		Err:       err,
 		Code:      http.StatusBadRequest,
 		Message:   "bad request",
@@ -76,7 +76,7 @@ func ErrBadRequest(err error) render.Renderer {
 func ErrServerError(err error) render.Renderer {
 	slog.Error("server error", err)
 
-	return ErrResponse{
+	return &ErrResponse{
 		Code:    http.StatusInternalServerError,
 		Message: "the server encountered a problem and could not process your json",
 	}

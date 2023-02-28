@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/cors"
 	"github.com/seanflannery10/core/internal/services/messages"
 	"github.com/seanflannery10/core/internal/services/tokens"
 	"github.com/seanflannery10/core/internal/services/users"
@@ -27,9 +26,9 @@ func (app *application) routes() http.Handler {
 	r.Use(middleware.SetMailerCtx(app.mailer))
 	r.Use(middleware.Authenticate)
 
-	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins: []string{"https://*", "http://*"},
-	}))
+	// r.Use(cors.Handler(cors.Options{
+	//	AllowedOrigins: []string{"https://*", "http://*"},
+	// }))
 
 	r.Get("/debug/vars", expvar.Handler().ServeHTTP)
 

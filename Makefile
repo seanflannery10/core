@@ -1,5 +1,3 @@
-include .env
-
 # ==================================================================================== #
 # HELPERS
 # ==================================================================================== #
@@ -65,9 +63,9 @@ down:
 ## migrations: apply db migrations
 .PHONY: migrations
 migrations:
-	dbmate -d "./sql/migrations" --url ${DB_URL} up
+	dbmate -d "./sql/migrations" --url "postgres://postgres:test@localhost:5432/test?sslmode=disable" up
 
 ## psql: connect to the database using psql
 .PHONY: psql
 psql:
-	psql ${DB_URL}
+	psql "postgres://postgres:test@localhost:5432/test?sslmode=disable"
