@@ -54,12 +54,12 @@ func ContextGetMailer(r *http.Request) mailer.Mailer {
 	return m
 }
 
-func CheckAndBind(w http.ResponseWriter, r *http.Request, b render.Binder, v *validator.Validator) bool {
+func CheckAndBind(w http.ResponseWriter, r *http.Request, b render.Binder) bool {
 	err := render.Bind(r, b)
 	if err != nil {
 		switch {
-		case errors.Is(err, validator.ErrValidation):
-			_ = render.Render(w, r, errs.ErrFailedValidation(v))
+		case errors.As(err, &validator.ErrValidation):
+			_ = render.Render(w, r, errs.ErrFailedValidation(validator.ErrValidation.Errors))
 		case errors.Is(err, ErrInvalidIDParameter):
 			_ = render.Render(w, r, errs.ErrNotFound)
 		default:

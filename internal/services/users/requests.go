@@ -14,16 +14,17 @@ type createUserPayload struct {
 	Email        string `json:"email"`
 	Password     string `json:"password"`
 	PasswordHash []byte
-	v            *validator.Validator
 }
 
 func (p *createUserPayload) Bind(r *http.Request) error {
-	data.ValidateName(p.v, p.Name)
-	data.ValidateEmail(p.v, p.Email)
-	data.ValidatePasswordPlaintext(p.v, p.Password)
+	v := validator.New()
 
-	if p.v.HasErrors() {
-		return validator.ErrValidation
+	data.ValidateName(v, p.Name)
+	data.ValidateEmail(v, p.Email)
+	data.ValidatePasswordPlaintext(v, p.Password)
+
+	if v.HasErrors() {
+		return validator.NewValidationError(v.Errors)
 	}
 
 	queries := helpers.ContextGetQueries(r)
@@ -34,8 +35,8 @@ func (p *createUserPayload) Bind(r *http.Request) error {
 	}
 
 	if ok {
-		p.v.AddError("email", "a user with this email address already exists")
-		return validator.ErrValidation
+		v.AddError("email", "a user with this email address already exists")
+		return validator.NewValidationError(v.Errors)
 	}
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(p.Password), 14)
@@ -50,13 +51,14 @@ func (p *createUserPayload) Bind(r *http.Request) error {
 
 type activateUserPayload struct {
 	TokenPlaintext string `json:"token"`
-	v              *validator.Validator
 }
 
 func (p *activateUserPayload) Bind(_ *http.Request) error {
-	data.ValidateTokenPlaintext(p.v, p.TokenPlaintext)
+	v := validator.New()
 
-	if p.v.HasErrors() {
+	data.ValidateTokenPlaintext(v, p.TokenPlaintext)
+
+	if v.HasErrors() {
 		return validator.ErrValidation
 	}
 
@@ -66,14 +68,15 @@ func (p *activateUserPayload) Bind(_ *http.Request) error {
 type updateUserPasswordPayload struct {
 	Password       string `json:"password"`
 	TokenPlaintext string `json:"token"`
-	v              *validator.Validator
 }
 
 func (p *updateUserPasswordPayload) Bind(_ *http.Request) error {
-	data.ValidatePasswordPlaintext(p.v, p.Password)
-	data.ValidateTokenPlaintext(p.v, p.TokenPlaintext)
+	v := validator.New()
 
-	if p.v.HasErrors() {
+	data.ValidatePasswordPlaintext(v, p.Password)
+	data.ValidateTokenPlaintext(v, p.TokenPlaintext)
+
+	if v.HasErrors() {
 		return validator.ErrValidation
 	}
 

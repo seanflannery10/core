@@ -16,9 +16,9 @@ import (
 )
 
 func createMessageHandler(w http.ResponseWriter, r *http.Request) {
-	p := &createMessageHandlerPayload{v: validator.New()}
+	p := &createMessageHandlerPayload{}
 
-	if helpers.CheckAndBind(w, r, p, p.v) {
+	if helpers.CheckAndBind(w, r, p) {
 		return
 	}
 
@@ -44,9 +44,9 @@ func createMessageHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func showMessageHandler(w http.ResponseWriter, r *http.Request) {
-	p := &showMessagePayload{v: validator.New()}
+	p := &showMessagePayload{}
 
-	if helpers.CheckAndBind(w, r, p, p.v) {
+	if helpers.CheckAndBind(w, r, p) {
 		return
 	}
 
@@ -70,9 +70,9 @@ func showMessageHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func updateMessageHandler(w http.ResponseWriter, r *http.Request) {
-	p := &updateMessagePayload{v: validator.New()}
+	p := &updateMessagePayload{}
 
-	if helpers.CheckAndBind(w, r, p, p.v) {
+	if helpers.CheckAndBind(w, r, p) {
 		return
 	}
 
@@ -106,9 +106,9 @@ func updateMessageHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func deleteMessageHandler(w http.ResponseWriter, r *http.Request) {
-	p := &deleteMessagePayload{v: validator.New()}
+	p := &deleteMessagePayload{}
 
-	if helpers.CheckAndBind(w, r, p, p.v) {
+	if helpers.CheckAndBind(w, r, p) {
 		return
 	}
 
@@ -132,9 +132,10 @@ func deleteMessageHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func listUserMessagesHandler(w http.ResponseWriter, r *http.Request) {
-	p := &listUserMessagesPayload{v: validator.New()}
+	p := &listUserMessagesPayload{}
+	v := validator.New()
 
-	if helpers.CheckAndBind(w, r, p, p.v) {
+	if helpers.CheckAndBind(w, r, p) {
 		return
 	}
 
@@ -157,10 +158,10 @@ func listUserMessagesHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	metadata := p.Pagination.CalculateMetadata(count, p.v)
+	metadata := p.Pagination.CalculateMetadata(count, v)
 
-	if p.v.HasErrors() {
-		_ = render.Render(w, r, errs.ErrFailedValidation(p.v))
+	if v.HasErrors() {
+		_ = render.Render(w, r, errs.ErrFailedValidation(v.Errors))
 		return
 	}
 

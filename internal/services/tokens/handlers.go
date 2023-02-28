@@ -14,9 +14,9 @@ import (
 )
 
 func createAuthTokenHandler(w http.ResponseWriter, r *http.Request) {
-	p := &createAuthTokenPayload{v: validator.New()}
+	p := &createAuthTokenPayload{}
 
-	if helpers.CheckAndBind(w, r, p, p.v) {
+	if helpers.CheckAndBind(w, r, p) {
 		return
 	}
 
@@ -57,9 +57,10 @@ func createAuthTokenHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func createPasswordResetTokenHandler(w http.ResponseWriter, r *http.Request) {
-	p := &createPasswordResetTokenPayload{v: validator.New()}
+	p := &createPasswordResetTokenPayload{}
+	v := validator.New()
 
-	if helpers.CheckAndBind(w, r, p, p.v) {
+	if helpers.CheckAndBind(w, r, p) {
 		return
 	}
 
@@ -69,8 +70,8 @@ func createPasswordResetTokenHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
-			p.v.AddError("email", "no matching email address found")
-			_ = render.Render(w, r, errs.ErrFailedValidation(p.v))
+			v.AddError("email", "no matching email address found")
+			_ = render.Render(w, r, errs.ErrFailedValidation(v.Errors))
 		default:
 			_ = render.Render(w, r, errs.ErrServerError(err))
 		}
@@ -79,8 +80,8 @@ func createPasswordResetTokenHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !user.Activated {
-		p.v.AddError("email", "user account must be activated")
-		_ = render.Render(w, r, errs.ErrFailedValidation(p.v))
+		v.AddError("email", "user account must be activated")
+		_ = render.Render(w, r, errs.ErrFailedValidation(v.Errors))
 
 		return
 	}
@@ -107,9 +108,10 @@ func createPasswordResetTokenHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func createActivationTokenHandler(w http.ResponseWriter, r *http.Request) {
-	p := &createActivationTokenPayload{v: validator.New()}
+	p := &createActivationTokenPayload{}
+	v := validator.New()
 
-	if helpers.CheckAndBind(w, r, p, p.v) {
+	if helpers.CheckAndBind(w, r, p) {
 		return
 	}
 
@@ -119,8 +121,8 @@ func createActivationTokenHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
-			p.v.AddError("email", "no matching email address found")
-			_ = render.Render(w, r, errs.ErrFailedValidation(p.v))
+			v.AddError("email", "no matching email address found")
+			_ = render.Render(w, r, errs.ErrFailedValidation(v.Errors))
 		default:
 			_ = render.Render(w, r, errs.ErrServerError(err))
 		}
@@ -129,8 +131,9 @@ func createActivationTokenHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if user.Activated {
-		p.v.AddError("email", "user has already been activated")
-		_ = render.Render(w, r, errs.ErrFailedValidation(p.v))
+		v := validator.New()
+		v.AddError("email", "user has already been activated")
+		_ = render.Render(w, r, errs.ErrFailedValidation(v.Errors))
 
 		return
 	}

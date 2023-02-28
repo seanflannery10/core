@@ -9,13 +9,12 @@ import (
 	"github.com/seanflannery10/core/pkg/errs"
 	"github.com/seanflannery10/core/pkg/helpers"
 	"github.com/seanflannery10/core/pkg/responses"
-	"github.com/seanflannery10/core/pkg/validator"
 )
 
 func createUserHandler(w http.ResponseWriter, r *http.Request) {
-	p := &createUserPayload{v: validator.New()}
+	p := &createUserPayload{}
 
-	if helpers.CheckAndBind(w, r, p, p.v) {
+	if helpers.CheckAndBind(w, r, p) {
 		return
 	}
 
@@ -54,9 +53,9 @@ func createUserHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func activateUserHandler(w http.ResponseWriter, r *http.Request) {
-	p := &activateUserPayload{v: validator.New()}
+	p := &activateUserPayload{}
 
-	if helpers.CheckAndBind(w, r, p, p.v) {
+	if helpers.CheckAndBind(w, r, p) {
 		return
 	}
 
@@ -93,9 +92,9 @@ func activateUserHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func updateUserPasswordHandler(w http.ResponseWriter, r *http.Request) {
-	p := &updateUserPasswordPayload{v: validator.New()}
+	p := &updateUserPasswordPayload{}
 
-	if helpers.CheckAndBind(w, r, p, p.v) {
+	if helpers.CheckAndBind(w, r, p) {
 		return
 	}
 

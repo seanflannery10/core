@@ -11,14 +11,15 @@ import (
 
 type createMessageHandlerPayload struct {
 	Message string `json:"message"`
-	v       *validator.Validator
 }
 
 func (p *createMessageHandlerPayload) Bind(_ *http.Request) error {
-	data.ValidateMessage(p.v, p.Message)
+	v := validator.New()
 
-	if p.v.HasErrors() {
-		return validator.ErrValidation
+	data.ValidateMessage(v, p.Message)
+
+	if v.HasErrors() {
+		return validator.NewValidationError(v.Errors)
 	}
 
 	return nil
@@ -26,7 +27,6 @@ func (p *createMessageHandlerPayload) Bind(_ *http.Request) error {
 
 type showMessagePayload struct {
 	ID int64
-	v  *validator.Validator
 }
 
 func (p *showMessagePayload) Bind(r *http.Request) error {
@@ -43,13 +43,14 @@ func (p *showMessagePayload) Bind(r *http.Request) error {
 type updateMessagePayload struct {
 	Message string `json:"message"`
 	ID      int64
-	v       *validator.Validator
 }
 
 func (p *updateMessagePayload) Bind(r *http.Request) error {
-	data.ValidateMessage(p.v, p.Message)
+	v := validator.New()
 
-	if p.v.HasErrors() {
+	data.ValidateMessage(v, p.Message)
+
+	if v.HasErrors() {
 		return validator.ErrValidation
 	}
 
@@ -65,7 +66,6 @@ func (p *updateMessagePayload) Bind(r *http.Request) error {
 
 type deleteMessagePayload struct {
 	ID int64
-	v  *validator.Validator
 }
 
 func (p *deleteMessagePayload) Bind(r *http.Request) error {
@@ -81,15 +81,16 @@ func (p *deleteMessagePayload) Bind(r *http.Request) error {
 
 type listUserMessagesPayload struct {
 	pagination.Pagination
-	v *validator.Validator
 }
 
 func (p *listUserMessagesPayload) Bind(r *http.Request) error {
-	p.Pagination = pagination.New(r, p.v)
+	v := validator.New()
 
-	pagination.ValidatePagination(p.v, p.Pagination)
+	p.Pagination = pagination.New(r, v)
 
-	if p.v.HasErrors() {
+	pagination.ValidatePagination(v, p.Pagination)
+
+	if v.HasErrors() {
 		return validator.ErrValidation
 	}
 

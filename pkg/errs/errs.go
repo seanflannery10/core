@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/go-chi/render"
-	"github.com/seanflannery10/core/pkg/validator"
 	"golang.org/x/exp/slog"
 )
 
@@ -56,11 +55,11 @@ func ErrInvalidAuthenticationToken() render.Renderer {
 	}
 }
 
-func ErrFailedValidation(v *validator.Validator) render.Renderer {
+func ErrFailedValidation(validatorErrors map[string]string) render.Renderer {
 	return &ErrResponse{
 		Code:            http.StatusUnprocessableEntity,
 		Message:         "validation failed",
-		ValidatorErrors: v.Errors,
+		ValidatorErrors: validatorErrors,
 	}
 }
 

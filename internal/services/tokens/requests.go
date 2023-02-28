@@ -10,14 +10,15 @@ import (
 type createAuthTokenPayload struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
-	v        *validator.Validator
 }
 
 func (p *createAuthTokenPayload) Bind(_ *http.Request) error {
-	data.ValidateEmail(p.v, p.Email)
-	data.ValidatePasswordPlaintext(p.v, p.Password)
+	v := validator.New()
 
-	if p.v.HasErrors() {
+	data.ValidateEmail(v, p.Email)
+	data.ValidatePasswordPlaintext(v, p.Password)
+
+	if v.HasErrors() {
 		return validator.ErrValidation
 	}
 
@@ -26,13 +27,14 @@ func (p *createAuthTokenPayload) Bind(_ *http.Request) error {
 
 type createPasswordResetTokenPayload struct {
 	Email string `json:"email"`
-	v     *validator.Validator
 }
 
 func (p *createPasswordResetTokenPayload) Bind(_ *http.Request) error {
-	data.ValidateEmail(p.v, p.Email)
+	v := validator.New()
 
-	if p.v.HasErrors() {
+	data.ValidateEmail(v, p.Email)
+
+	if v.HasErrors() {
 		return validator.ErrValidation
 	}
 
@@ -41,13 +43,14 @@ func (p *createPasswordResetTokenPayload) Bind(_ *http.Request) error {
 
 type createActivationTokenPayload struct {
 	Email string `json:"email"`
-	v     *validator.Validator
 }
 
 func (p *createActivationTokenPayload) Bind(_ *http.Request) error {
-	data.ValidateEmail(p.v, p.Email)
+	v := validator.New()
 
-	if p.v.HasErrors() {
+	data.ValidateEmail(v, p.Email)
+
+	if v.HasErrors() {
 		return validator.ErrValidation
 	}
 

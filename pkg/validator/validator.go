@@ -1,9 +1,5 @@
 package validator
 
-import "errors"
-
-var ErrValidation = errors.New("validation error")
-
 type Validator struct {
 	Errors map[string]string
 }
