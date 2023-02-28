@@ -95,9 +95,9 @@ func Authenticate(next http.Handler) http.Handler {
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), helpers.UserContextKey, user)
+		r = r.WithContext(context.WithValue(r.Context(), helpers.UserContextKey, user))
 
-		next.ServeHTTP(w, r.WithContext(ctx))
+		next.ServeHTTP(w, r)
 	})
 }
 

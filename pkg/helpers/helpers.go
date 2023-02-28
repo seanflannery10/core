@@ -27,13 +27,13 @@ const (
 	UserContextKey    = contextKey("user")
 )
 
-func ContextGetUser(r *http.Request) *data.User {
-	u, ok := r.Context().Value(UserContextKey).(*data.User)
+func ContextGetMailer(r *http.Request) mailer.Mailer {
+	m, ok := r.Context().Value(MailerContextKey).(mailer.Mailer)
 	if !ok {
-		panic("missing user value in request context")
+		panic("missing mailer value in request context")
 	}
 
-	return u
+	return m
 }
 
 func ContextGetQueries(r *http.Request) *data.Queries {
@@ -45,13 +45,13 @@ func ContextGetQueries(r *http.Request) *data.Queries {
 	return q
 }
 
-func ContextGetMailer(r *http.Request) mailer.Mailer {
-	m, ok := r.Context().Value(MailerContextKey).(mailer.Mailer)
+func ContextGetUser(r *http.Request) data.User {
+	u, ok := r.Context().Value(UserContextKey).(data.User)
 	if !ok {
-		panic("missing mailer value in request context")
+		panic("missing user value in request context")
 	}
 
-	return m
+	return u
 }
 
 func CheckAndBind(w http.ResponseWriter, r *http.Request, b render.Binder) bool {
@@ -72,8 +72,8 @@ func CheckAndBind(w http.ResponseWriter, r *http.Request, b render.Binder) bool 
 	return false
 }
 
-func RenderAndCheck(w http.ResponseWriter, r *http.Request, b render.Renderer) {
-	err := render.Render(w, r, b)
+func RenderAndCheck(w http.ResponseWriter, r *http.Request, ren render.Renderer) {
+	err := render.Render(w, r, ren)
 	if err != nil {
 		slog.Error("render error", err)
 	}
