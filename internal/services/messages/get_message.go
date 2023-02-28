@@ -10,11 +10,11 @@ import (
 	"github.com/seanflannery10/core/pkg/helpers"
 )
 
-type showMessagePayload struct {
+type getMessagePayload struct {
 	ID int64
 }
 
-func (p *showMessagePayload) Bind(r *http.Request) error {
+func (p *getMessagePayload) Bind(r *http.Request) error {
 	id, err := helpers.ReadIDParam(r)
 	if err != nil {
 		return err
@@ -25,8 +25,8 @@ func (p *showMessagePayload) Bind(r *http.Request) error {
 	return nil
 }
 
-func ShowMessageHandler(w http.ResponseWriter, r *http.Request) {
-	p := &showMessagePayload{}
+func GetMessageHandler(w http.ResponseWriter, r *http.Request) {
+	p := &getMessagePayload{}
 
 	if helpers.CheckAndBind(w, r, p) {
 		return

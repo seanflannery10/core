@@ -11,11 +11,11 @@ import (
 	"github.com/seanflannery10/core/pkg/validator"
 )
 
-type listMessagesUserPayload struct {
+type getMessagesUserPayload struct {
 	pagination.Pagination
 }
 
-func (p *listMessagesUserPayload) Bind(r *http.Request) error {
+func (p *getMessagesUserPayload) Bind(r *http.Request) error {
 	v := validator.New()
 
 	p.Pagination = pagination.New(r, v)
@@ -29,17 +29,8 @@ func (p *listMessagesUserPayload) Bind(r *http.Request) error {
 	return nil
 }
 
-type messagesResponsePayload struct {
-	Messages []data.Message
-	Metadata pagination.Metadata
-}
-
-func (p messagesResponsePayload) Render(_ http.ResponseWriter, _ *http.Request) error {
-	return nil
-}
-
-func ListMessagesUserHandler(w http.ResponseWriter, r *http.Request) {
-	p := &listMessagesUserPayload{}
+func GetMessagesUserHandler(w http.ResponseWriter, r *http.Request) {
+	p := &getMessagesUserPayload{}
 	v := validator.New()
 
 	if helpers.CheckAndBind(w, r, p) {
@@ -75,4 +66,13 @@ func ListMessagesUserHandler(w http.ResponseWriter, r *http.Request) {
 	render.Status(r, http.StatusCreated)
 
 	helpers.RenderAndCheck(w, r, &messagesResponsePayload{messages, metadata})
+}
+
+type messagesResponsePayload struct {
+	Messages []data.Message
+	Metadata pagination.Metadata
+}
+
+func (p messagesResponsePayload) Render(_ http.ResponseWriter, _ *http.Request) error {
+	return nil
 }

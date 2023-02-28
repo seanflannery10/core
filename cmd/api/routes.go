@@ -35,11 +35,11 @@ func (app *application) routes() http.Handler {
 	r.Route("/v1/messages", func(r chi.Router) {
 		r.Use(middleware.RequireAuthenticatedUser)
 
-		r.Get("/", messages.ListMessagesUserHandler)
+		r.Get("/", messages.GetMessagesUserHandler)
 		r.Post("/", messages.CreateMessageHandler)
 
 		r.Route("/{id}", func(r chi.Router) {
-			r.Get("/", messages.ShowMessageHandler)
+			r.Get("/", messages.GetMessageHandler)
 			r.Patch("/", messages.UpdateMessageHandler)
 			r.Delete("/", messages.DeleteMessageHandler)
 		})
