@@ -10,13 +10,21 @@ import (
 type ErrResponse struct {
 	Err             error             `json:"-"`
 	Code            int               `json:"-"`
+	Headers         http.Header       `json:"-"`
 	Message         string            `json:"message"`
 	ErrorText       string            `json:"error,omitempty"`
 	ValidatorErrors map[string]string `json:"errors,omitempty"`
 }
 
-func (err ErrResponse) Render(_ http.ResponseWriter, r *http.Request) error {
+func (err ErrResponse) Render(w http.ResponseWriter, r *http.Request) error {
 	render.Status(r, err.Code)
+
+	if len(err.Headers) != 0 {
+		for key, value := range err.Headers {
+			w.Header()[key] = value
+		}
+	}
+
 	return nil
 }
 
@@ -52,6 +60,7 @@ func ErrInvalidAuthenticationToken() render.Renderer {
 	return &ErrResponse{
 		Code:    http.StatusUnauthorized,
 		Message: "invalid or missing authentication token",
+		Headers: headers,
 	}
 }
 

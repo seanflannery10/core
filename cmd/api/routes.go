@@ -32,9 +32,30 @@ func (app *application) routes() http.Handler {
 
 	r.Get("/debug/vars", expvar.Handler().ServeHTTP)
 
-	r.Mount("/v1/messages", messages.Router())
-	r.Mount("/v1/users", users.Router())
-	r.Mount("/v1/tokens", tokens.Router())
+	r.Route("/v1/messages", func(r chi.Router) {
+		r.Use(middleware.RequireAuthenticatedUser)
+
+		r.Get("/", messages.ListMessagesUserHandler)
+		r.Post("/", messages.CreateMessageHandler)
+
+		r.Route("/{id}", func(r chi.Router) {
+			r.Get("/", messages.ShowMessageHandler)
+			r.Patch("/", messages.UpdateMessageHandler)
+			r.Delete("/", messages.DeleteMessageHandler)
+		})
+	})
+
+	r.Route("/v1/users", func(r chi.Router) {
+		r.Post("/register", users.CreateUserHandler)
+		r.Put("/activate", users.ActivateUserHandler)
+		r.Put("/update-password", users.UpdateUserPasswordHandler)
+	})
+
+	r.Route("/v1/tokens", func(r chi.Router) {
+		r.Post("/authentication", tokens.CreateTokenAuthHandler)
+		r.Put("/activation", tokens.CreateTokenActivationHandler)
+		r.Put("/password-reset", tokens.CreateTokenPasswordResetHandler)
+	})
 
 	return r
 }

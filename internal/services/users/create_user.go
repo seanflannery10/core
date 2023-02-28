@@ -2,8 +2,11 @@ package users
 
 import (
 	"net/http"
+	"time"
 
+	"github.com/go-chi/render"
 	"github.com/seanflannery10/core/internal/data"
+	"github.com/seanflannery10/core/pkg/errs"
 	"github.com/seanflannery10/core/pkg/helpers"
 	"github.com/seanflannery10/core/pkg/validator"
 	"golang.org/x/crypto/bcrypt"
@@ -49,36 +52,43 @@ func (p *createUserPayload) Bind(r *http.Request) error {
 	return nil
 }
 
-type activateUserPayload struct {
-	TokenPlaintext string `json:"token"`
-}
+func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
+	p := &createUserPayload{}
 
-func (p *activateUserPayload) Bind(_ *http.Request) error {
-	v := validator.New()
-
-	data.ValidateTokenPlaintext(v, p.TokenPlaintext)
-
-	if v.HasErrors() {
-		return validator.ErrValidation
+	if helpers.CheckAndBind(w, r, p) {
+		return
 	}
 
-	return nil
-}
+	queries := helpers.ContextGetQueries(r)
 
-type updateUserPasswordPayload struct {
-	Password       string `json:"password"`
-	TokenPlaintext string `json:"token"`
-}
-
-func (p *updateUserPasswordPayload) Bind(_ *http.Request) error {
-	v := validator.New()
-
-	data.ValidatePasswordPlaintext(v, p.Password)
-	data.ValidateTokenPlaintext(v, p.TokenPlaintext)
-
-	if v.HasErrors() {
-		return validator.ErrValidation
+	user, err := queries.CreateUser(r.Context(), data.CreateUserParams{
+		Name:         p.Name,
+		Email:        p.Email,
+		PasswordHash: p.PasswordHash,
+		Activated:    false,
+	})
+	if err != nil {
+		_ = render.Render(w, r, errs.ErrServerError(err))
+		return
 	}
 
-	return nil
+	token, err := queries.CreateTokenHelper(r.Context(), user.ID, 3*24*time.Hour, data.ScopeActivation)
+	if err != nil {
+		_ = render.Render(w, r, errs.ErrServerError(err))
+		return
+	}
+
+	mailer := helpers.ContextGetMailer(r)
+
+	err = mailer.Send(user.Email, "token_activation.tmpl", map[string]any{
+		"activationToken": token.Plaintext,
+	})
+	if err != nil {
+		_ = render.Render(w, r, errs.ErrServerError(err))
+		return
+	}
+
+	render.Status(r, http.StatusCreated)
+
+	helpers.RenderAndCheck(w, r, &user)
 }
