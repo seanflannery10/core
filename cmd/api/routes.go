@@ -45,16 +45,16 @@ func (app *application) routes() http.Handler {
 		})
 	})
 
-	r.Route("/v1/users", func(r chi.Router) {
-		r.Post("/register", users.CreateUserHandler)
-		r.Put("/activate", users.ActivateUserHandler)
-		r.Put("/update-password", users.UpdateUserPasswordHandler)
-	})
-
 	r.Route("/v1/tokens", func(r chi.Router) {
 		r.Post("/authentication", tokens.CreateTokenAuthHandler)
 		r.Put("/activation", tokens.CreateTokenActivationHandler)
 		r.Put("/password-reset", tokens.CreateTokenPasswordResetHandler)
+	})
+
+	r.Route("/v1/users", func(r chi.Router) {
+		r.Post("/register", users.CreateUserHandler)
+		r.Put("/activate", users.ActivateUserHandler)
+		r.Put("/update-password", users.UpdateUserPasswordHandler)
 	})
 
 	return r

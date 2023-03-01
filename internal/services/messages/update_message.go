@@ -15,7 +15,7 @@ import (
 
 type updateMessagePayload struct {
 	Message string `json:"message"`
-	ID      int64
+	ID      int64  `json:"-"`
 }
 
 func (p *updateMessagePayload) Bind(r *http.Request) error {

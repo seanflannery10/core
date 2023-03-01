@@ -11,7 +11,7 @@ import (
 )
 
 type getMessagePayload struct {
-	ID int64
+	ID int64 `json:"-"`
 }
 
 func (p *getMessagePayload) Bind(r *http.Request) error {

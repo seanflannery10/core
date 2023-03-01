@@ -48,8 +48,6 @@ func CreateMessageHandler(w http.ResponseWriter, r *http.Request) {
 
 	r.Header.Set("Location", fmt.Sprintf("/v1/messages/%d", message.ID))
 
-	w.WriteHeader(http.StatusInternalServerError)
-
 	render.Status(r, http.StatusCreated)
 
 	helpers.RenderAndCheck(w, r, &message)

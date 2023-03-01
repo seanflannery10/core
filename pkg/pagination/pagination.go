@@ -10,8 +10,9 @@ import (
 )
 
 type Pagination struct {
-	Page     int
-	PageSize int
+	Page      int
+	PageSize  int
+	Validator *validator.Validator
 }
 
 type Metadata struct {
@@ -22,37 +23,40 @@ type Metadata struct {
 	TotalRecords int `json:"total_records"`
 }
 
-func New(r *http.Request, v *validator.Validator) Pagination {
+func New(r *http.Request) Pagination {
+	v := validator.New()
+
 	return Pagination{
-		Page:     helpers.ReadIntParam(r.URL.Query(), "page", 1, v),
-		PageSize: helpers.ReadIntParam(r.URL.Query(), "page_size", 20, v),
+		Page:      helpers.ReadIntParam(r.URL.Query(), "page", 1, v),
+		PageSize:  helpers.ReadIntParam(r.URL.Query(), "page_size", 20, v),
+		Validator: v,
 	}
 }
 
-func (f *Pagination) Limit() int32 {
-	return int32(f.PageSize)
+func (p *Pagination) Limit() int32 {
+	return int32(p.PageSize)
 }
 
-func (f *Pagination) Offset() int32 {
-	return int32((f.Page - 1) * f.PageSize)
+func (p *Pagination) Offset() int32 {
+	return int32((p.Page - 1) * p.PageSize)
 }
 
-func (f *Pagination) CalculateMetadata(totalRecords int64, v *validator.Validator) Metadata {
+func (p *Pagination) CalculateMetadata(totalRecords int64) Metadata {
 	if totalRecords == 0 {
 		return Metadata{}
 	}
 
 	metadata := Metadata{
-		CurrentPage:  f.Page,
-		PageSize:     f.PageSize,
+		CurrentPage:  p.Page,
+		PageSize:     p.PageSize,
 		FirstPage:    1,
-		LastPage:     int(math.Ceil(float64(totalRecords) / float64(f.PageSize))),
+		LastPage:     int(math.Ceil(float64(totalRecords) / float64(p.PageSize))),
 		TotalRecords: int(totalRecords),
 	}
 
-	if f.Page > metadata.LastPage {
+	if p.Page > metadata.LastPage {
 		msg := fmt.Sprintf("must be equal or lower than the last page value of %d", metadata.LastPage)
-		v.AddError("page", msg)
+		p.Validator.AddError("page", msg)
 
 		return Metadata{}
 	}
@@ -60,9 +64,9 @@ func (f *Pagination) CalculateMetadata(totalRecords int64, v *validator.Validato
 	return metadata
 }
 
-func ValidatePagination(v *validator.Validator, p Pagination) {
-	v.Check(p.Page > 0, "page", "must be greater than zero")
-	v.Check(p.Page <= 10_000_000, "page", "must be a maximum of 10 million")
-	v.Check(p.PageSize > 0, "page_size", "size must be greater than zero")
-	v.Check(p.PageSize <= 100, "page_size", "size must be a maximum of 100")
+func (p *Pagination) Validate() {
+	p.Validator.Check(p.Page > 0, "page", "must be greater than zero")
+	p.Validator.Check(p.Page <= 10_000_000, "page", "must be a maximum of 10 million")
+	p.Validator.Check(p.PageSize > 0, "page_size", "size must be greater than zero")
+	p.Validator.Check(p.PageSize <= 100, "page_size", "size must be a maximum of 100")
 }

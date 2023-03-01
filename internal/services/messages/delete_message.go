@@ -12,7 +12,7 @@ import (
 )
 
 type deleteMessagePayload struct {
-	ID int64
+	ID int64 `json:"-"`
 }
 
 func (p *deleteMessagePayload) Bind(r *http.Request) error {

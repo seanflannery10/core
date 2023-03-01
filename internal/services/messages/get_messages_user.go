@@ -7,31 +7,26 @@ import (
 	"github.com/seanflannery10/core/internal/data"
 	"github.com/seanflannery10/core/pkg/errs"
 	"github.com/seanflannery10/core/pkg/helpers"
-	"github.com/seanflannery10/core/pkg/pagination"
+	pagination "github.com/seanflannery10/core/pkg/pagination"
 	"github.com/seanflannery10/core/pkg/validator"
 )
 
 type getMessagesUserPayload struct {
-	pagination.Pagination
+	pagination.Pagination `json:"-"`
 }
 
 func (p *getMessagesUserPayload) Bind(r *http.Request) error {
-	v := validator.New()
+	p.Pagination.Validate()
 
-	p.Pagination = pagination.New(r, v)
-
-	pagination.ValidatePagination(v, p.Pagination)
-
-	if v.HasErrors() {
-		return validator.NewValidationError(v.Errors)
+	if p.Pagination.Validator.HasErrors() {
+		return validator.NewValidationError(p.Pagination.Validator.Errors)
 	}
 
 	return nil
 }
 
 func GetMessagesUserHandler(w http.ResponseWriter, r *http.Request) {
-	p := &getMessagesUserPayload{}
-	v := validator.New()
+	p := &getMessagesUserPayload{Pagination: pagination.New(r)}
 
 	if helpers.CheckAndBind(w, r, p) {
 		return
@@ -56,21 +51,21 @@ func GetMessagesUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	metadata := p.Pagination.CalculateMetadata(count, v)
+	metadata := p.Pagination.CalculateMetadata(count)
 
-	if v.HasErrors() {
-		_ = render.Render(w, r, errs.ErrFailedValidation(v.Errors))
+	if p.Pagination.Validator.HasErrors() {
+		_ = render.Render(w, r, errs.ErrFailedValidation(p.Pagination.Validator.Errors))
 		return
 	}
 
 	render.Status(r, http.StatusCreated)
 
-	helpers.RenderAndCheck(w, r, &messagesResponsePayload{messages, metadata})
+	helpers.RenderAndCheck(w, r, &messagesResponsePayload{Messages: messages, Metadata: metadata})
 }
 
 type messagesResponsePayload struct {
-	Messages []data.Message
-	Metadata pagination.Metadata
+	Messages []data.Message      `json:"messages"`
+	Metadata pagination.Metadata `json:"metadata"`
 }
 
 func (p messagesResponsePayload) Render(_ http.ResponseWriter, _ *http.Request) error {

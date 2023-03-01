@@ -16,7 +16,7 @@ type createUserPayload struct {
 	Name         string `json:"name"`
 	Email        string `json:"email"`
 	Password     string `json:"password"`
-	PasswordHash []byte
+	PasswordHash []byte `json:"-"`
 }
 
 func (p *createUserPayload) Bind(r *http.Request) error {
