@@ -10,6 +10,7 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/go-chi/docgen"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/seanflannery10/core/internal/data"
 	"github.com/seanflannery10/core/pkg/helpers"
@@ -24,25 +25,22 @@ type Config struct {
 		Port int    `env:"PORT,default=4000"`
 		Env  string `env:"ENV,default=dev"`
 	}
-	SMTP struct {
-		Host     string `env:"SMTP_HOST,default=smtp.mailtrap.io"`
-		Port     int    `env:"SMTP_PORT,default=25"`
-		Username string `env:"SMTP_USERNAME"`
-		Password string `env:"SMTP_PASSWORD"`
-		Sender   string `env:"SMTP_SENDER,default=Test <no-reply@testdomain.com>"`
-	}
 	DB struct {
-		DSN string `env:"DB_DSN"`
+		DSN string `env:"DB_DSN,default=postgres://postgres:test@localhost:5432/test?sslmode=disable"`
 	}
+	SMTP mailer.SMTP
 }
 
 type application struct {
-	config  Config
-	mailer  mailer.Mailer
-	queries *data.Queries
+	Config  Config
+	Mailer  mailer.Mailer
+	Queries *data.Queries
 }
 
 func main() {
+	app := &application{}
+
+	generateRoutes := flag.Bool("routes", false, "Generate router documentation")
 	displayVersion := flag.Bool("version", false, "Display version and exit")
 	flag.Parse()
 
@@ -51,23 +49,31 @@ func main() {
 		os.Exit(0)
 	}
 
-	slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stdout)))
+	if *generateRoutes {
+		routesMD := []byte(docgen.MarkdownRoutesDoc(app.routes(), docgen.MarkdownOpts{
+			ProjectPath: "github.com/seanflannery10/core",
+			Intro:       "Routes for core API",
+		}))
 
-	cfg := Config{}
+		err := os.WriteFile("routes.md", routesMD, 0o644) //nolint:gosec
+		if err != nil {
+			log.Fatal(err)
+		}
 
-	err := envconfig.Process(context.Background(), &cfg)
-	if err != nil {
-		log.Fatal(err)
+		os.Exit(0)
 	}
 
-	if cfg.DB.DSN == "" {
-		log.Fatal("DB_DSN Missing")
+	slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stdout)))
+
+	err := envconfig.Process(context.Background(), &app.Config)
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	dbpool, err := pgxpool.New(ctx, cfg.DB.DSN)
+	dbpool, err := pgxpool.New(ctx, app.Config.DB.DSN)
 	if err != nil {
 		log.Fatal(err) // nolint:gocritic
 	}
@@ -81,18 +87,15 @@ func main() {
 	expvar.Publish("timestamp", expvar.Func(func() any { return time.Now().Unix() }))
 	expvar.Publish("database", expvar.Func(func() any { return dbpool.Stat() }))
 
-	m, err := mailer.New(cfg.SMTP.Host, cfg.SMTP.Port, cfg.SMTP.Username, cfg.SMTP.Password, cfg.SMTP.Sender)
+	m, err := mailer.New(app.Config.SMTP)
 	if err != nil {
 		log.Fatal(err, nil)
 	}
 
-	app := &application{
-		config:  cfg,
-		mailer:  m,
-		queries: data.New(dbpool),
-	}
+	app.Mailer = m
+	app.Queries = data.New(dbpool)
 
-	err = server.Serve(app.config.Connection.Port, app.routes())
+	err = server.Serve(app.Config.Connection.Port, app.routes())
 	if err != nil {
 		log.Fatal(err)
 	}

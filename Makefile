@@ -18,6 +18,7 @@ help:
 tidy:
 	sqlc compile --experimental
 	sqlc generate --experimental
+	go run ./cmd/api --generateRoutes
 	go mod tidy -v
 
 ## audit: run quality control checks
@@ -40,7 +41,7 @@ upgrade:
 .PHONY: build
 build: tidy
 	go mod verify
-	ko build ./cmd/ephr
+	ko build ./cmd/api
 
 # ==================================================================================== #
 # DEV
@@ -63,7 +64,7 @@ down:
 ## migrations: apply db migrations
 .PHONY: migrations
 migrations:
-	dbmate -d "./sql/migrations" --url "postgres://postgres:test@localhost:5432/test?sslmode=disable" up
+	dbmate -d "./db/migrations" --url "postgres://postgres:test@localhost:5432/test?sslmode=disable" up
 
 ## psql: connect to the database using psql
 .PHONY: psql

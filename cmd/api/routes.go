@@ -2,7 +2,6 @@ package main
 
 import (
 	"expvar"
-	"net/http"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/seanflannery10/core/internal/services/messages"
@@ -13,7 +12,7 @@ import (
 	"github.com/seanflannery10/core/pkg/middleware"
 )
 
-func (app *application) routes() http.Handler {
+func (app *application) routes() *chi.Mux {
 	r := chi.NewRouter()
 
 	r.NotFound(helpers.ErrFuncWrapper(errs.ErrNotFound))
@@ -22,8 +21,8 @@ func (app *application) routes() http.Handler {
 	r.Use(middleware.Metrics)
 	r.Use(middleware.RecoverPanic)
 
-	r.Use(middleware.SetQueriesCtx(app.queries))
-	r.Use(middleware.SetMailerCtx(app.mailer))
+	r.Use(middleware.SetQueriesCtx(app.Queries))
+	r.Use(middleware.SetMailerCtx(app.Mailer))
 	r.Use(middleware.Authenticate)
 
 	// r.Use(cors.Handler(cors.Options{
