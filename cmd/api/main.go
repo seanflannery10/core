@@ -11,14 +11,17 @@ import (
 	"time"
 
 	"github.com/go-chi/docgen"
-	_ "github.com/honeycombio/honeycomb-opentelemetry-go"
-	"github.com/honeycombio/otel-launcher-go/launcher"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/seanflannery10/core/internal/data"
 	"github.com/seanflannery10/core/pkg/helpers"
 	"github.com/seanflannery10/core/pkg/mailer"
 	"github.com/seanflannery10/core/pkg/server"
 	"github.com/sethvargo/go-envconfig"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
+	"go.opentelemetry.io/otel/propagation"
+	"go.opentelemetry.io/otel/sdk/trace"
 	"golang.org/x/exp/slog"
 )
 
@@ -38,6 +41,8 @@ type application struct {
 	Mailer  mailer.Mailer
 	Queries *data.Queries
 }
+
+var ctx = context.Background()
 
 func main() {
 	app := &application{}
@@ -67,22 +72,40 @@ func main() {
 
 	slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stdout)))
 
-	otelShutdown, err := launcher.ConfigureOpenTelemetry()
+	client := otlptracegrpc.NewClient()
+
+	exp, err := otlptrace.New(ctx, client)
 	if err != nil {
-		log.Fatalf("error setting up OTel SDK - %e", err)
+		log.Fatalf("failed to initialize exporter: %e", err)
 	}
 
-	defer otelShutdown()
+	tp := trace.NewTracerProvider(
+		trace.WithBatcher(exp),
+	)
 
-	err = envconfig.Process(context.Background(), &app.Config)
+	defer func() {
+		_ = exp.Shutdown(ctx)
+		_ = tp.Shutdown(ctx)
+	}()
+
+	otel.SetTracerProvider(tp)
+
+	otel.SetTextMapPropagator(
+		propagation.NewCompositeTextMapPropagator(
+			propagation.TraceContext{},
+			propagation.Baggage{},
+		),
+	)
+
+	err = envconfig.Process(ctx, &app.Config)
 	if err != nil {
 		log.Fatal(err) // nolint:gocritic
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctxTimeout, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	dbpool, err := pgxpool.New(ctx, app.Config.DB.DSN)
+	dbpool, err := pgxpool.New(ctxTimeout, app.Config.DB.DSN)
 	if err != nil {
 		log.Fatal(err) // nolint:gocritic
 	}

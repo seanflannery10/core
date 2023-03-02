@@ -46,12 +46,12 @@ Routes for core API
 	- [RequireAuthenticatedUser]()
 	- **/{id}**
 		- **/**
-			- _DELETE_
-				- [DeleteMessageHandler]()
 			- _GET_
 				- [GetMessageHandler]()
 			- _PATCH_
 				- [UpdateMessageHandler]()
+			- _DELETE_
+				- [DeleteMessageHandler]()
 
 </details>
 <details>
@@ -121,7 +121,7 @@ Routes for core API
 - **/v1/users**
 	- **/register**
 		- _POST_
-			- []()
+			- [CreateUserHandler]()
 
 </details>
 <details>
