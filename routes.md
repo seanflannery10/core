@@ -28,10 +28,10 @@ Routes for core API
 - **/v1/messages**
 	- [RequireAuthenticatedUser]()
 	- **/**
-		- _POST_
-			- [CreateMessageHandler]()
 		- _GET_
 			- [GetMessagesUserHandler]()
+		- _POST_
+			- [CreateMessageHandler]()
 
 </details>
 <details>
@@ -46,12 +46,12 @@ Routes for core API
 	- [RequireAuthenticatedUser]()
 	- **/{id}**
 		- **/**
-			- _PATCH_
-				- [UpdateMessageHandler]()
 			- _DELETE_
 				- [DeleteMessageHandler]()
 			- _GET_
 				- [GetMessageHandler]()
+			- _PATCH_
+				- [UpdateMessageHandler]()
 
 </details>
 <details>
