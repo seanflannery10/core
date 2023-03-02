@@ -14,6 +14,7 @@ import (
 	"github.com/seanflannery10/core/pkg/errs"
 	"github.com/seanflannery10/core/pkg/mailer"
 	"github.com/seanflannery10/core/pkg/validator"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"golang.org/x/exp/slog"
 )
 
@@ -118,6 +119,11 @@ func ReadIntParam(qs url.Values, key string, defaultValue int, v *validator.Vali
 	}
 
 	return i
+}
+
+func OTelHandler(handler func(http.ResponseWriter, *http.Request), operation string) http.Handler {
+	handlerFunc := http.HandlerFunc(handler)
+	return otelhttp.NewHandler(handlerFunc, operation)
 }
 
 func GetVersion() string {

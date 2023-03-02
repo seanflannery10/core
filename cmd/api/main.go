@@ -11,6 +11,8 @@ import (
 	"time"
 
 	"github.com/go-chi/docgen"
+	_ "github.com/honeycombio/honeycomb-opentelemetry-go"
+	"github.com/honeycombio/otel-launcher-go/launcher"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/seanflannery10/core/internal/data"
 	"github.com/seanflannery10/core/pkg/helpers"
@@ -65,9 +67,16 @@ func main() {
 
 	slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stdout)))
 
-	err := envconfig.Process(context.Background(), &app.Config)
+	otelShutdown, err := launcher.ConfigureOpenTelemetry()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("error setting up OTel SDK - %e", err)
+	}
+
+	defer otelShutdown()
+
+	err = envconfig.Process(context.Background(), &app.Config)
+	if err != nil {
+		log.Fatal(err) // nolint:gocritic
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)

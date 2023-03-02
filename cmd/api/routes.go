@@ -51,7 +51,8 @@ func (app *application) routes() *chi.Mux {
 	})
 
 	r.Route("/v1/users", func(r chi.Router) {
-		r.Post("/register", users.CreateUserHandler)
+		r.Method("POST", "/register", helpers.OTelHandler(users.CreateUserHandler, "CreateUser"))
+		// r.Post("/register", users.CreateUserHandler)
 		r.Put("/activate", users.ActivateUserHandler)
 		r.Put("/update-password", users.UpdateUserPasswordHandler)
 	})

@@ -18,7 +18,7 @@ help:
 tidy:
 	sqlc compile --experimental
 	sqlc generate --experimental
-	go run ./cmd/api --generateRoutes
+	go run ./cmd/api --routes
 	go mod tidy -v
 
 ## audit: run quality control checks
