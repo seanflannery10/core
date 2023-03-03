@@ -28,10 +28,10 @@ Routes for core API
 - **/v1/messages**
 	- [RequireAuthenticatedUser]()
 	- **/**
-		- _GET_
-			- [GetMessagesUserHandler]()
 		- _POST_
 			- [CreateMessageHandler]()
+		- _GET_
+			- [GetMessagesUserHandler]()
 
 </details>
 <details>
@@ -121,7 +121,7 @@ Routes for core API
 - **/v1/users**
 	- **/register**
 		- _POST_
-			- [CreateUserHandler]()
+			- []()
 
 </details>
 <details>

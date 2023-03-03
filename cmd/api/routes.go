@@ -4,6 +4,7 @@ import (
 	"expvar"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/seanflannery10/core/internal/data"
 	"github.com/seanflannery10/core/internal/services/messages"
 	"github.com/seanflannery10/core/internal/services/tokens"
 	"github.com/seanflannery10/core/internal/services/users"
@@ -21,8 +22,8 @@ func (app *application) routes() *chi.Mux {
 	r.Use(middleware.Metrics)
 	r.Use(middleware.RecoverPanic)
 
-	r.Use(middleware.SetQueriesCtx(app.Queries))
-	r.Use(middleware.SetMailerCtx(app.Mailer))
+	r.Use(middleware.SetQueriesCtx(data.New(app.dbpool)))
+	r.Use(middleware.SetMailerCtx(app.mailer))
 	r.Use(middleware.Authenticate)
 
 	// r.Use(cors.Handler(cors.Options{
@@ -51,8 +52,8 @@ func (app *application) routes() *chi.Mux {
 	})
 
 	r.Route("/v1/users", func(r chi.Router) {
-		r.Method("POST", "/register", helpers.OTelHandler(users.CreateUserHandler, "CreateUser"))
-		// r.Post("/register", users.CreateUserHandler)
+
+		r.Post("/register", users.CreateUserHandler)
 		r.Put("/activate", users.ActivateUserHandler)
 		r.Put("/update-password", users.UpdateUserPasswordHandler)
 	})
