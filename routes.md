@@ -9,6 +9,7 @@ Routes for core API
 
 - [Metrics]()
 - [RecoverPanic]()
+- [Middleware.func1]()
 - [SetQueriesCtx.func1]()
 - [SetMailerCtx.func1]()
 - [Authenticate]()
@@ -22,16 +23,17 @@ Routes for core API
 
 - [Metrics]()
 - [RecoverPanic]()
+- [Middleware.func1]()
 - [SetQueriesCtx.func1]()
 - [SetMailerCtx.func1]()
 - [Authenticate]()
 - **/v1/messages**
 	- [RequireAuthenticatedUser]()
 	- **/**
-		- _POST_
-			- [CreateMessageHandler]()
 		- _GET_
 			- [GetMessagesUserHandler]()
+		- _POST_
+			- [CreateMessageHandler]()
 
 </details>
 <details>
@@ -39,6 +41,7 @@ Routes for core API
 
 - [Metrics]()
 - [RecoverPanic]()
+- [Middleware.func1]()
 - [SetQueriesCtx.func1]()
 - [SetMailerCtx.func1]()
 - [Authenticate]()
@@ -59,6 +62,7 @@ Routes for core API
 
 - [Metrics]()
 - [RecoverPanic]()
+- [Middleware.func1]()
 - [SetQueriesCtx.func1]()
 - [SetMailerCtx.func1]()
 - [Authenticate]()
@@ -73,6 +77,7 @@ Routes for core API
 
 - [Metrics]()
 - [RecoverPanic]()
+- [Middleware.func1]()
 - [SetQueriesCtx.func1]()
 - [SetMailerCtx.func1]()
 - [Authenticate]()
@@ -87,6 +92,7 @@ Routes for core API
 
 - [Metrics]()
 - [RecoverPanic]()
+- [Middleware.func1]()
 - [SetQueriesCtx.func1]()
 - [SetMailerCtx.func1]()
 - [Authenticate]()
@@ -101,6 +107,7 @@ Routes for core API
 
 - [Metrics]()
 - [RecoverPanic]()
+- [Middleware.func1]()
 - [SetQueriesCtx.func1]()
 - [SetMailerCtx.func1]()
 - [Authenticate]()
@@ -115,13 +122,14 @@ Routes for core API
 
 - [Metrics]()
 - [RecoverPanic]()
+- [Middleware.func1]()
 - [SetQueriesCtx.func1]()
 - [SetMailerCtx.func1]()
 - [Authenticate]()
 - **/v1/users**
 	- **/register**
 		- _POST_
-			- []()
+			- [CreateUserHandler]()
 
 </details>
 <details>
@@ -129,6 +137,7 @@ Routes for core API
 
 - [Metrics]()
 - [RecoverPanic]()
+- [Middleware.func1]()
 - [SetQueriesCtx.func1]()
 - [SetMailerCtx.func1]()
 - [Authenticate]()

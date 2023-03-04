@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"expvar"
 	"flag"
 	"fmt"
@@ -12,14 +13,16 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/seanflannery10/core/pkg/helpers"
 	"github.com/seanflannery10/core/pkg/mailer"
+	"github.com/seanflannery10/core/pkg/telemetry"
 	"github.com/sethvargo/go-envconfig"
 	"golang.org/x/exp/slog"
 )
 
 type Config struct {
 	Connection struct {
-		Port int    `env:"PORT,default=4000"`
-		Env  string `env:"ENV,default=dev"`
+		Port         int    `env:"PORT,default=4000"`
+		Env          string `env:"ENV,default=dev"`
+		OTelEndpoint string `env:"OTEL_EXPORTER_OTLP_ENDPOINT,default=api.honeycomb.io:443"`
 	}
 	DB struct {
 		DSN string `env:"DB_DSN,default=postgres://postgres:test@localhost:5432/test?sslmode=disable"`
@@ -54,26 +57,35 @@ func (app *application) init() {
 
 	slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stdout)))
 
-	err := envconfig.Process(ctx, &app.config)
+	err := envconfig.Process(context.Background(), &app.config)
 	if err != nil {
 		slog.Error("unable to process env config", err)
 		os.Exit(1)
 	}
 
-	m, err := mailer.New(app.config.SMTP)
+	cfg := app.config
+
+	m, err := mailer.New(cfg.SMTP)
 	if err != nil {
 		slog.Error("unable to create mailer", err)
 		os.Exit(1)
 	}
 
-	dbpool, err := pgxpool.New(ctx, app.config.DB.DSN)
+	dbpool, err := pgxpool.New(context.Background(), cfg.DB.DSN)
 	if err != nil {
 		slog.Error("unable to create connection pool", err)
 		os.Exit(1)
 	}
 
+	tp, err := telemetry.New(cfg.Connection.OTelEndpoint, cfg.Connection.Env)
+	if err != nil {
+		slog.Error("unable to start telemetry", err)
+		os.Exit(1)
+	}
+
 	app.dbpool = dbpool
 	app.mailer = m
+	app.tp = tp
 
 	expvar.NewString("version").Set(helpers.GetVersion())
 	expvar.Publish("goroutines", expvar.Func(func() any { return runtime.NumGoroutine() }))

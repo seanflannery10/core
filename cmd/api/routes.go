@@ -4,6 +4,7 @@ import (
 	"expvar"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/riandyrn/otelchi"
 	"github.com/seanflannery10/core/internal/data"
 	"github.com/seanflannery10/core/internal/services/messages"
 	"github.com/seanflannery10/core/internal/services/tokens"
@@ -21,6 +22,8 @@ func (app *application) routes() *chi.Mux {
 
 	r.Use(middleware.Metrics)
 	r.Use(middleware.RecoverPanic)
+
+	r.Use(otelchi.Middleware("core", otelchi.WithChiRoutes(r)))
 
 	r.Use(middleware.SetQueriesCtx(data.New(app.dbpool)))
 	r.Use(middleware.SetMailerCtx(app.mailer))
@@ -52,7 +55,6 @@ func (app *application) routes() *chi.Mux {
 	})
 
 	r.Route("/v1/users", func(r chi.Router) {
-
 		r.Post("/register", users.CreateUserHandler)
 		r.Put("/activate", users.ActivateUserHandler)
 		r.Put("/update-password", users.UpdateUserPasswordHandler)
