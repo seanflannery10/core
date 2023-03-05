@@ -77,7 +77,7 @@ func (app *application) init() {
 		os.Exit(1)
 	}
 
-	tp, err := telemetry.New(cfg.Connection.OTelEndpoint, cfg.Connection.Env)
+	tel, err := telemetry.NewTracerProviders(cfg.Connection.OTelEndpoint, cfg.Connection.Env)
 	if err != nil {
 		slog.Error("unable to start telemetry", err)
 		os.Exit(1)
@@ -85,7 +85,7 @@ func (app *application) init() {
 
 	app.dbpool = dbpool
 	app.mailer = m
-	app.tp = tp
+	app.tracerProviders = tel
 
 	expvar.NewString("version").Set(helpers.GetVersion())
 	expvar.Publish("goroutines", expvar.Func(func() any { return runtime.NumGoroutine() }))

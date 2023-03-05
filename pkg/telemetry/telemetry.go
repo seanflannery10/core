@@ -17,12 +17,17 @@ import (
 	oteltrace "go.opentelemetry.io/otel/trace"
 )
 
-func New(endpoint, env string) (*sdktrace.TracerProvider, error) {
+type TracerProviders struct {
+	Standard *sdktrace.TracerProvider
+	Error    *sdktrace.TracerProvider
+}
+
+func NewTracerProviders(endpoint, env string) (TracerProviders, error) {
 	exp, err := otlptrace.New(context.Background(), otlptracegrpc.NewClient(
 		otlptracegrpc.WithEndpoint(endpoint),
 	))
 	if err != nil {
-		return nil, err
+		return TracerProviders{}, err
 	}
 
 	res, err := resource.Merge(resource.Default(), resource.NewWithAttributes(
@@ -31,16 +36,8 @@ func New(endpoint, env string) (*sdktrace.TracerProvider, error) {
 		semconv.ServiceNameKey.String("core"),
 		attribute.String("environment", env)))
 	if err != nil {
-		return nil, err
+		return TracerProviders{}, err
 	}
-
-	tp := sdktrace.NewTracerProvider(
-		sdktrace.WithSampler(sdktrace.TraceIDRatioBased(1)),
-		sdktrace.WithBatcher(exp),
-		sdktrace.WithResource(res),
-	)
-
-	otel.SetTracerProvider(tp)
 
 	otel.SetTextMapPropagator(
 		propagation.NewCompositeTextMapPropagator(
@@ -49,15 +46,27 @@ func New(endpoint, env string) (*sdktrace.TracerProvider, error) {
 		),
 	)
 
-	return tp, nil
+	telemetry := TracerProviders{}
+
+	telemetry.Standard = sdktrace.NewTracerProvider(
+		sdktrace.WithSampler(sdktrace.TraceIDRatioBased(1)),
+		sdktrace.WithBatcher(exp),
+		sdktrace.WithResource(res),
+	)
+
+	telemetry.Error = sdktrace.NewTracerProvider(
+		sdktrace.WithSampler(sdktrace.AlwaysSample()),
+		sdktrace.WithBatcher(exp),
+		sdktrace.WithResource(res),
+	)
+
+	return telemetry, err
 }
 
-func TraceHandler(ctx context.Context, r *http.Request, tp *sdktrace.TracerProvider) oteltrace.Span {
-	tracer := tp.Tracer("core")
-
+func NewTrace(r *http.Request, tracer oteltrace.Tracer) oteltrace.Span {
 	spanName := ""
 
-	routePattern := chi.RouteContext(r.Context()).RoutePattern() //nolint:contextcheck
+	routePattern := chi.RouteContext(r.Context()).RoutePattern()
 
 	if routePattern == "" {
 		spanName = "/"
@@ -67,19 +76,12 @@ func TraceHandler(ctx context.Context, r *http.Request, tp *sdktrace.TracerProvi
 
 	spanName = r.Method + " " + spanName
 
-	_, span := tracer.Start(ctx, spanName,
+	_, span := tracer.Start(r.Context(), spanName,
 		oteltrace.WithSpanKind(oteltrace.SpanKindServer),
 	)
 
 	span.SetAttributes(semconv.HTTPRouteKey.String(routePattern))
 	span.SetName(spanName)
-
-	//// set status code attribute
-	// span.SetAttributes(semconv.HTTPStatusCodeKey.Int(rrw.status))
-	//
-	//// set span status
-	// spanStatus, spanMessage := semconv.SpanStatusFromHTTPStatusCode(rrw.status)
-	// span.SetStatus(spanStatus, spanMessage)
 
 	return span
 }
