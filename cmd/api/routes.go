@@ -21,33 +21,33 @@ func (app *application) routes() *chi.Mux {
 	r.Use(middleware.Metrics)
 	r.Use(middleware.RecoverPanic)
 
-	r.Use(middleware.Authenticate)
+	r.Use(middleware.Authenticate(app.env))
 
 	r.Get("/debug/vars", expvar.Handler().ServeHTTP)
 
 	r.Route("/v1/messages", func(r chi.Router) {
 		r.Use(middleware.RequireAuthenticatedUser)
 
-		r.Get("/", messages.GetMessagesUserHandler)
-		r.Post("/", messages.CreateMessageHandler)
+		r.Get("/", messages.GetMessagesUserHandler(app.env))
+		r.Post("/", messages.CreateMessageHandler(app.env))
 
 		r.Route("/{id}", func(r chi.Router) {
-			r.Get("/", messages.GetMessageHandler)
-			r.Patch("/", messages.UpdateMessageHandler)
-			r.Delete("/", messages.DeleteMessageHandler)
+			r.Get("/", messages.GetMessageHandler(app.env))
+			r.Patch("/", messages.UpdateMessageHandler(app.env))
+			r.Delete("/", messages.DeleteMessageHandler(app.env))
 		})
 	})
 
 	r.Route("/v1/tokens", func(r chi.Router) {
-		r.Post("/authentication", tokens.CreateTokenAuthHandler)
-		r.Put("/activation", tokens.CreateTokenActivationHandler)
-		r.Put("/password-reset", tokens.CreateTokenPasswordResetHandler)
+		r.Post("/authentication", tokens.CreateTokenAuthHandler(app.env))
+		r.Put("/activation", tokens.CreateTokenActivationHandler(app.env))
+		r.Put("/password-reset", tokens.CreateTokenPasswordResetHandler(app.env))
 	})
 
 	r.Route("/v1/users", func(r chi.Router) {
 		r.Post("/register", users.CreateUserHandler(app.env))
 		r.Put("/activate", users.ActivateUserHandler(app.env))
-		r.Put("/update-password", users.UpdateUserPasswordHandler)
+		r.Put("/update-password", users.UpdateUserPasswordHandler(app.env))
 	})
 
 	return r

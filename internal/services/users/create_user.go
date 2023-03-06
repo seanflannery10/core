@@ -56,7 +56,6 @@ func (p *createUserPayload) Bind(r *http.Request) error {
 
 func CreateUserHandler(env *services.Env) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-
 		p := &createUserPayload{env: env}
 
 		if helpers.CheckAndBind(w, r, p) {

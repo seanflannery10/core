@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-chi/render"
 	"github.com/seanflannery10/core/internal/data"
+	"github.com/seanflannery10/core/internal/services"
 	"github.com/seanflannery10/core/pkg/errs"
 	"github.com/seanflannery10/core/pkg/helpers"
 	"github.com/seanflannery10/core/pkg/responses"
@@ -29,47 +30,47 @@ func (p *updateUserPasswordPayload) Bind(_ *http.Request) error {
 	return nil
 }
 
-func UpdateUserPasswordHandler(w http.ResponseWriter, r *http.Request) {
-	p := &updateUserPasswordPayload{}
+func UpdateUserPasswordHandler(env *services.Env) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		p := &updateUserPasswordPayload{}
 
-	if helpers.CheckAndBind(w, r, p) {
-		return
+		if helpers.CheckAndBind(w, r, p) {
+			return
+		}
+
+		user, err := env.Queries.GetUserFromTokenHelper(r.Context(), p.TokenPlaintext, data.ScopePasswordReset)
+		if err != nil {
+			_ = render.Render(w, r, errs.ErrServerError(err))
+			return
+		}
+
+		err = user.SetPassword(p.Password)
+		if err != nil {
+			_ = render.Render(w, r, errs.ErrServerError(err))
+			return
+		}
+
+		user, err = env.Queries.UpdateUser(r.Context(), data.UpdateUserParams{
+			UpdatePasswordHash: true,
+			PasswordHash:       user.PasswordHash,
+			ID:                 user.ID,
+			Version:            user.Version,
+		})
+		if err != nil {
+			_ = render.Render(w, r, errs.ErrServerError(err))
+			return
+		}
+
+		err = env.Queries.DeleteAllTokensForUser(r.Context(), data.DeleteAllTokensForUserParams{
+			Scope:  data.ScopePasswordReset,
+			UserID: user.ID,
+		})
+		if err != nil {
+			_ = render.Render(w, r, errs.ErrServerError(err))
+		}
+
+		render.Status(r, http.StatusOK)
+
+		helpers.RenderAndCheck(w, r, responses.NewStringResponsePayload("your password was successfully reset"))
 	}
-
-	queries := helpers.ContextGetQueries(r)
-
-	user, err := queries.GetUserFromTokenHelper(r.Context(), p.TokenPlaintext, data.ScopePasswordReset)
-	if err != nil {
-		_ = render.Render(w, r, errs.ErrServerError(err))
-		return
-	}
-
-	err = user.SetPassword(p.Password)
-	if err != nil {
-		_ = render.Render(w, r, errs.ErrServerError(err))
-		return
-	}
-
-	user, err = queries.UpdateUser(r.Context(), data.UpdateUserParams{
-		UpdatePasswordHash: true,
-		PasswordHash:       user.PasswordHash,
-		ID:                 user.ID,
-		Version:            user.Version,
-	})
-	if err != nil {
-		_ = render.Render(w, r, errs.ErrServerError(err))
-		return
-	}
-
-	err = queries.DeleteAllTokensForUser(r.Context(), data.DeleteAllTokensForUserParams{
-		Scope:  data.ScopePasswordReset,
-		UserID: user.ID,
-	})
-	if err != nil {
-		_ = render.Render(w, r, errs.ErrServerError(err))
-	}
-
-	render.Status(r, http.StatusOK)
-
-	helpers.RenderAndCheck(w, r, responses.NewStringResponsePayload("your password was successfully reset"))
 }

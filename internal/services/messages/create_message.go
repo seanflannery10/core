@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-chi/render"
 	"github.com/seanflannery10/core/internal/data"
+	"github.com/seanflannery10/core/internal/services"
 	"github.com/seanflannery10/core/pkg/errs"
 	"github.com/seanflannery10/core/pkg/helpers"
 	"github.com/seanflannery10/core/pkg/validator"
@@ -27,28 +28,29 @@ func (p *createMessageHandlerPayload) Bind(_ *http.Request) error {
 	return nil
 }
 
-func CreateMessageHandler(w http.ResponseWriter, r *http.Request) {
-	p := &createMessageHandlerPayload{}
+func CreateMessageHandler(env *services.Env) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		p := &createMessageHandlerPayload{}
 
-	if helpers.CheckAndBind(w, r, p) {
-		return
+		if helpers.CheckAndBind(w, r, p) {
+			return
+		}
+
+		user := helpers.ContextGetUser(r)
+
+		message, err := env.Queries.CreateMessage(r.Context(), data.CreateMessageParams{
+			Message: p.Message,
+			UserID:  user.ID,
+		})
+		if err != nil {
+			_ = render.Render(w, r, errs.ErrServerError(err))
+			return
+		}
+
+		r.Header.Set("Location", fmt.Sprintf("/v1/messages/%d", message.ID))
+
+		render.Status(r, http.StatusCreated)
+
+		helpers.RenderAndCheck(w, r, &message)
 	}
-
-	q := helpers.ContextGetQueries(r)
-	user := helpers.ContextGetUser(r)
-
-	message, err := q.CreateMessage(r.Context(), data.CreateMessageParams{
-		Message: p.Message,
-		UserID:  user.ID,
-	})
-	if err != nil {
-		_ = render.Render(w, r, errs.ErrServerError(err))
-		return
-	}
-
-	r.Header.Set("Location", fmt.Sprintf("/v1/messages/%d", message.ID))
-
-	render.Status(r, http.StatusCreated)
-
-	helpers.RenderAndCheck(w, r, &message)
 }

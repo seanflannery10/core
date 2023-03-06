@@ -9,7 +9,7 @@ Routes for core API
 
 - [Metrics]()
 - [RecoverPanic]()
-- [Authenticate]()
+- [Authenticate.func1]()
 - **/debug/vars**
 	- _GET_
 		- [ttp.Handler.ServeHTTP-fm]()
@@ -20,14 +20,14 @@ Routes for core API
 
 - [Metrics]()
 - [RecoverPanic]()
-- [Authenticate]()
+- [Authenticate.func1]()
 - **/v1/messages**
 	- [RequireAuthenticatedUser]()
 	- **/**
 		- _POST_
-			- [CreateMessageHandler]()
+			- [CreateMessageHandler.func1]()
 		- _GET_
-			- [GetMessagesUserHandler]()
+			- [GetMessagesUserHandler.func1]()
 
 </details>
 <details>
@@ -35,17 +35,17 @@ Routes for core API
 
 - [Metrics]()
 - [RecoverPanic]()
-- [Authenticate]()
+- [Authenticate.func1]()
 - **/v1/messages**
 	- [RequireAuthenticatedUser]()
 	- **/{id}**
 		- **/**
-			- _PATCH_
-				- [UpdateMessageHandler]()
-			- _DELETE_
-				- [DeleteMessageHandler]()
 			- _GET_
-				- [GetMessageHandler]()
+				- [GetMessageHandler.func1]()
+			- _PATCH_
+				- [UpdateMessageHandler.func1]()
+			- _DELETE_
+				- [DeleteMessageHandler.func1]()
 
 </details>
 <details>
@@ -53,11 +53,11 @@ Routes for core API
 
 - [Metrics]()
 - [RecoverPanic]()
-- [Authenticate]()
+- [Authenticate.func1]()
 - **/v1/tokens**
 	- **/activation**
 		- _PUT_
-			- [CreateTokenActivationHandler]()
+			- [CreateTokenActivationHandler.func1]()
 
 </details>
 <details>
@@ -65,11 +65,11 @@ Routes for core API
 
 - [Metrics]()
 - [RecoverPanic]()
-- [Authenticate]()
+- [Authenticate.func1]()
 - **/v1/tokens**
 	- **/authentication**
 		- _POST_
-			- [CreateTokenAuthHandler]()
+			- [CreateTokenAuthHandler.func1]()
 
 </details>
 <details>
@@ -77,11 +77,11 @@ Routes for core API
 
 - [Metrics]()
 - [RecoverPanic]()
-- [Authenticate]()
+- [Authenticate.func1]()
 - **/v1/tokens**
 	- **/password-reset**
 		- _PUT_
-			- [CreateTokenPasswordResetHandler]()
+			- [CreateTokenPasswordResetHandler.func1]()
 
 </details>
 <details>
@@ -89,7 +89,7 @@ Routes for core API
 
 - [Metrics]()
 - [RecoverPanic]()
-- [Authenticate]()
+- [Authenticate.func1]()
 - **/v1/users**
 	- **/activate**
 		- _PUT_
@@ -101,7 +101,7 @@ Routes for core API
 
 - [Metrics]()
 - [RecoverPanic]()
-- [Authenticate]()
+- [Authenticate.func1]()
 - **/v1/users**
 	- **/register**
 		- _POST_
@@ -113,11 +113,11 @@ Routes for core API
 
 - [Metrics]()
 - [RecoverPanic]()
-- [Authenticate]()
+- [Authenticate.func1]()
 - **/v1/users**
 	- **/update-password**
 		- _PUT_
-			- [UpdateUserPasswordHandler]()
+			- [UpdateUserPasswordHandler.func1]()
 
 </details>
 

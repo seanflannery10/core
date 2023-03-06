@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-chi/render"
 	"github.com/seanflannery10/core/internal/data"
+	"github.com/seanflannery10/core/internal/services"
 	"github.com/seanflannery10/core/pkg/errs"
 	"github.com/seanflannery10/core/pkg/helpers"
 	pagination "github.com/seanflannery10/core/pkg/pagination"
@@ -25,42 +26,43 @@ func (p *getMessagesUserPayload) Bind(r *http.Request) error {
 	return nil
 }
 
-func GetMessagesUserHandler(w http.ResponseWriter, r *http.Request) {
-	p := &getMessagesUserPayload{Pagination: pagination.New(r)}
+func GetMessagesUserHandler(env *services.Env) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		p := &getMessagesUserPayload{Pagination: pagination.New(r)}
 
-	if helpers.CheckAndBind(w, r, p) {
-		return
+		if helpers.CheckAndBind(w, r, p) {
+			return
+		}
+
+		user := helpers.ContextGetUser(r)
+
+		messages, err := env.Queries.GetUserMessages(r.Context(), data.GetUserMessagesParams{
+			UserID: user.ID,
+			Offset: p.Pagination.Offset(),
+			Limit:  p.Pagination.Limit(),
+		})
+		if err != nil {
+			_ = render.Render(w, r, errs.ErrServerError(err))
+			return
+		}
+
+		count, err := env.Queries.GetUserMessageCount(r.Context(), user.ID)
+		if err != nil {
+			_ = render.Render(w, r, errs.ErrServerError(err))
+			return
+		}
+
+		metadata := p.Pagination.CalculateMetadata(count)
+
+		if p.Pagination.Validator.HasErrors() {
+			_ = render.Render(w, r, errs.ErrFailedValidation(p.Pagination.Validator.Errors))
+			return
+		}
+
+		render.Status(r, http.StatusCreated)
+
+		helpers.RenderAndCheck(w, r, &messagesResponsePayload{Messages: messages, Metadata: metadata})
 	}
-
-	q := helpers.ContextGetQueries(r)
-	user := helpers.ContextGetUser(r)
-
-	messages, err := q.GetUserMessages(r.Context(), data.GetUserMessagesParams{
-		UserID: user.ID,
-		Offset: p.Pagination.Offset(),
-		Limit:  p.Pagination.Limit(),
-	})
-	if err != nil {
-		_ = render.Render(w, r, errs.ErrServerError(err))
-		return
-	}
-
-	count, err := q.GetUserMessageCount(r.Context(), user.ID)
-	if err != nil {
-		_ = render.Render(w, r, errs.ErrServerError(err))
-		return
-	}
-
-	metadata := p.Pagination.CalculateMetadata(count)
-
-	if p.Pagination.Validator.HasErrors() {
-		_ = render.Render(w, r, errs.ErrFailedValidation(p.Pagination.Validator.Errors))
-		return
-	}
-
-	render.Status(r, http.StatusCreated)
-
-	helpers.RenderAndCheck(w, r, &messagesResponsePayload{Messages: messages, Metadata: metadata})
 }
 
 type messagesResponsePayload struct {

@@ -23,58 +23,63 @@ import (
 	"golang.org/x/exp/slog"
 )
 
-func Authenticate(next http.Handler, env *services.Env) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Add("Vary", "Authorization")
+func Authenticate(env *services.Env) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		fn := func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Add("Vary", "Authorization")
 
-		authorizationHeader := r.Header.Get("Authorization")
+			authorizationHeader := r.Header.Get("Authorization")
 
-		if authorizationHeader == "" {
-			ctx := context.WithValue(r.Context(), helpers.UserContextKey, data.AnonymousUser)
-			next.ServeHTTP(w, r.WithContext(ctx))
-			return
-		}
+			if authorizationHeader == "" {
+				ctx := context.WithValue(r.Context(), helpers.UserContextKey, data.AnonymousUser)
+				next.ServeHTTP(w, r.WithContext(ctx))
 
-		headerParts := strings.Split(authorizationHeader, " ")
-		if len(headerParts) != 2 || headerParts[0] != "Bearer" {
-			_ = render.Render(w, r, errs.ErrInvalidAuthenticationToken())
-			return
-		}
-
-		token := headerParts[1]
-
-		v := validator.New()
-
-		v.Check(token != "", "token", "must be provided")
-		v.Check(len(token) == 26, "token", "must be 26 bytes long")
-
-		if v.HasErrors() {
-			_ = render.Render(w, r, errs.ErrInvalidAuthenticationToken())
-			return
-		}
-
-		tokenHash := sha256.Sum256([]byte(token))
-
-		user, err := env.Queries.GetUserFromToken(r.Context(), data.GetUserFromTokenParams{
-			Hash:   tokenHash[:],
-			Scope:  data.ScopeAuthentication,
-			Expiry: pgtype.Timestamptz{Time: time.Now(), Valid: true},
-		})
-		if err != nil {
-			switch {
-			case errors.Is(err, pgx.ErrNoRows):
-				_ = render.Render(w, r, errs.ErrInvalidAuthenticationToken())
-			default:
-				_ = render.Render(w, r, errs.ErrServerError(err))
+				return
 			}
 
-			return
+			headerParts := strings.Split(authorizationHeader, " ")
+			if len(headerParts) != 2 || headerParts[0] != "Bearer" {
+				_ = render.Render(w, r, errs.ErrInvalidAuthenticationToken())
+				return
+			}
+
+			token := headerParts[1]
+
+			v := validator.New()
+
+			v.Check(token != "", "token", "must be provided")
+			v.Check(len(token) == 26, "token", "must be 26 bytes long")
+
+			if v.HasErrors() {
+				_ = render.Render(w, r, errs.ErrInvalidAuthenticationToken())
+				return
+			}
+
+			tokenHash := sha256.Sum256([]byte(token))
+
+			user, err := env.Queries.GetUserFromToken(r.Context(), data.GetUserFromTokenParams{
+				Hash:   tokenHash[:],
+				Scope:  data.ScopeAuthentication,
+				Expiry: pgtype.Timestamptz{Time: time.Now(), Valid: true},
+			})
+			if err != nil {
+				switch {
+				case errors.Is(err, pgx.ErrNoRows):
+					_ = render.Render(w, r, errs.ErrInvalidAuthenticationToken())
+				default:
+					_ = render.Render(w, r, errs.ErrServerError(err))
+				}
+
+				return
+			}
+
+			r = r.WithContext(context.WithValue(r.Context(), helpers.UserContextKey, user))
+
+			next.ServeHTTP(w, r)
 		}
 
-		r = r.WithContext(context.WithValue(r.Context(), helpers.UserContextKey, user))
-
-		next.ServeHTTP(w, r)
-	})
+		return http.HandlerFunc(fn)
+	}
 }
 
 func RequireAuthenticatedUser(next http.Handler) http.Handler {
