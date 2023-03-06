@@ -2,9 +2,7 @@ package telemetry
 
 import (
 	"context"
-	"net/http"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/seanflannery10/core/pkg/helpers"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -14,7 +12,6 @@ import (
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.17.0"
-	oteltrace "go.opentelemetry.io/otel/trace"
 )
 
 type TracerProviders struct {
@@ -61,27 +58,4 @@ func NewTracerProviders(endpoint, env string) (TracerProviders, error) {
 	)
 
 	return telemetry, err
-}
-
-func NewTrace(r *http.Request, tracer oteltrace.Tracer) oteltrace.Span {
-	spanName := ""
-
-	routePattern := chi.RouteContext(r.Context()).RoutePattern()
-
-	if routePattern == "" {
-		spanName = "/"
-	} else {
-		spanName = routePattern
-	}
-
-	spanName = r.Method + " " + spanName
-
-	_, span := tracer.Start(r.Context(), spanName,
-		oteltrace.WithSpanKind(oteltrace.SpanKindServer),
-	)
-
-	span.SetAttributes(semconv.HTTPRouteKey.String(routePattern))
-	span.SetName(spanName)
-
-	return span
 }

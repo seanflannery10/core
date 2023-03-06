@@ -11,6 +11,8 @@ import (
 
 	"github.com/go-chi/docgen"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/seanflannery10/core/internal/data"
+	"github.com/seanflannery10/core/internal/services"
 	"github.com/seanflannery10/core/pkg/helpers"
 	"github.com/seanflannery10/core/pkg/mailer"
 	"github.com/seanflannery10/core/pkg/telemetry"
@@ -19,15 +21,11 @@ import (
 )
 
 type Config struct {
-	Connection struct {
-		Port         int    `env:"PORT,default=4000"`
-		Env          string `env:"ENV,default=dev"`
-		OTelEndpoint string `env:"OTEL_EXPORTER_OTLP_ENDPOINT,default=api.honeycomb.io:443"`
-	}
-	DB struct {
-		DSN string `env:"DB_DSN,default=postgres://postgres:test@localhost:5432/test?sslmode=disable"`
-	}
-	SMTP mailer.SMTP
+	Port         int    `env:"PORT,default=4000"`
+	Env          string `env:"ENV,default=dev"`
+	OTelEndpoint string `env:"OTEL_EXPORTER_OTLP_ENDPOINT,default=api.honeycomb.io:443"`
+	DSN          string `env:"DB_DSN,default=postgres://postgres:test@localhost:5432/test?sslmode=disable"`
+	SMTP         mailer.SMTP
 }
 
 func (app *application) init() {
@@ -71,21 +69,29 @@ func (app *application) init() {
 		os.Exit(1)
 	}
 
-	dbpool, err := pgxpool.New(context.Background(), cfg.DB.DSN)
+	dbpool, err := pgxpool.New(context.Background(), cfg.DSN)
 	if err != nil {
 		slog.Error("unable to create connection pool", err)
 		os.Exit(1)
 	}
 
-	tel, err := telemetry.NewTracerProviders(cfg.Connection.OTelEndpoint, cfg.Connection.Env)
+	tps, err := telemetry.NewTracerProviders(cfg.OTelEndpoint, cfg.Env)
 	if err != nil {
 		slog.Error("unable to start telemetry", err)
 		os.Exit(1)
 	}
 
 	app.dbpool = dbpool
-	app.mailer = m
-	app.tracerProviders = tel
+	app.tracerProviders = tps
+
+	app.env = &services.Env{
+		Queries: data.New(dbpool),
+		Mailer:  m,
+		Tracers: telemetry.Tracers{
+			Standard: tps.Standard.Tracer("core-std"),
+			Error:    tps.Error.Tracer("core-err"),
+		},
+	}
 
 	expvar.NewString("version").Set(helpers.GetVersion())
 	expvar.Publish("goroutines", expvar.Func(func() any { return runtime.NumGoroutine() }))

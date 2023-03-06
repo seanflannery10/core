@@ -9,9 +9,6 @@ Routes for core API
 
 - [Metrics]()
 - [RecoverPanic]()
-- [Middleware.func1]()
-- [SetQueriesCtx.func1]()
-- [SetMailerCtx.func1]()
 - [Authenticate]()
 - **/debug/vars**
 	- _GET_
@@ -23,17 +20,14 @@ Routes for core API
 
 - [Metrics]()
 - [RecoverPanic]()
-- [Middleware.func1]()
-- [SetQueriesCtx.func1]()
-- [SetMailerCtx.func1]()
 - [Authenticate]()
 - **/v1/messages**
 	- [RequireAuthenticatedUser]()
 	- **/**
-		- _GET_
-			- [GetMessagesUserHandler]()
 		- _POST_
 			- [CreateMessageHandler]()
+		- _GET_
+			- [GetMessagesUserHandler]()
 
 </details>
 <details>
@@ -41,20 +35,17 @@ Routes for core API
 
 - [Metrics]()
 - [RecoverPanic]()
-- [Middleware.func1]()
-- [SetQueriesCtx.func1]()
-- [SetMailerCtx.func1]()
 - [Authenticate]()
 - **/v1/messages**
 	- [RequireAuthenticatedUser]()
 	- **/{id}**
 		- **/**
-			- _GET_
-				- [GetMessageHandler]()
 			- _PATCH_
 				- [UpdateMessageHandler]()
 			- _DELETE_
 				- [DeleteMessageHandler]()
+			- _GET_
+				- [GetMessageHandler]()
 
 </details>
 <details>
@@ -62,9 +53,6 @@ Routes for core API
 
 - [Metrics]()
 - [RecoverPanic]()
-- [Middleware.func1]()
-- [SetQueriesCtx.func1]()
-- [SetMailerCtx.func1]()
 - [Authenticate]()
 - **/v1/tokens**
 	- **/activation**
@@ -77,9 +65,6 @@ Routes for core API
 
 - [Metrics]()
 - [RecoverPanic]()
-- [Middleware.func1]()
-- [SetQueriesCtx.func1]()
-- [SetMailerCtx.func1]()
 - [Authenticate]()
 - **/v1/tokens**
 	- **/authentication**
@@ -92,9 +77,6 @@ Routes for core API
 
 - [Metrics]()
 - [RecoverPanic]()
-- [Middleware.func1]()
-- [SetQueriesCtx.func1]()
-- [SetMailerCtx.func1]()
 - [Authenticate]()
 - **/v1/tokens**
 	- **/password-reset**
@@ -107,14 +89,11 @@ Routes for core API
 
 - [Metrics]()
 - [RecoverPanic]()
-- [Middleware.func1]()
-- [SetQueriesCtx.func1]()
-- [SetMailerCtx.func1]()
 - [Authenticate]()
 - **/v1/users**
 	- **/activate**
 		- _PUT_
-			- [ActivateUserHandler]()
+			- [ActivateUserHandler.func1]()
 
 </details>
 <details>
@@ -122,14 +101,11 @@ Routes for core API
 
 - [Metrics]()
 - [RecoverPanic]()
-- [Middleware.func1]()
-- [SetQueriesCtx.func1]()
-- [SetMailerCtx.func1]()
 - [Authenticate]()
 - **/v1/users**
 	- **/register**
 		- _POST_
-			- [CreateUserHandler]()
+			- [CreateUserHandler.func1]()
 
 </details>
 <details>
@@ -137,9 +113,6 @@ Routes for core API
 
 - [Metrics]()
 - [RecoverPanic]()
-- [Middleware.func1]()
-- [SetQueriesCtx.func1]()
-- [SetMailerCtx.func1]()
 - [Authenticate]()
 - **/v1/users**
 	- **/update-password**

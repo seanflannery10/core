@@ -12,9 +12,7 @@ import (
 	"github.com/go-chi/render"
 	"github.com/seanflannery10/core/internal/data"
 	"github.com/seanflannery10/core/pkg/errs"
-	"github.com/seanflannery10/core/pkg/mailer"
 	"github.com/seanflannery10/core/pkg/validator"
-	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"golang.org/x/exp/slog"
 )
 
@@ -22,29 +20,7 @@ var ErrInvalidIDParameter = errors.New("invalid id parameter")
 
 type contextKey string
 
-const (
-	MailerContextKey  = contextKey("mailer")
-	QueriesContextKey = contextKey("queries")
-	UserContextKey    = contextKey("user")
-)
-
-func ContextGetMailer(r *http.Request) mailer.Mailer {
-	m, ok := r.Context().Value(MailerContextKey).(mailer.Mailer)
-	if !ok {
-		panic("missing mailer value in request context")
-	}
-
-	return m
-}
-
-func ContextGetQueries(r *http.Request) *data.Queries {
-	q, ok := r.Context().Value(QueriesContextKey).(*data.Queries)
-	if !ok {
-		panic("missing queries value in request context")
-	}
-
-	return q
-}
+const UserContextKey = contextKey("user")
 
 func ContextGetUser(r *http.Request) data.User {
 	u, ok := r.Context().Value(UserContextKey).(data.User)
@@ -119,11 +95,6 @@ func ReadIntParam(qs url.Values, key string, defaultValue int, v *validator.Vali
 	}
 
 	return i
-}
-
-func OTelHandler(handler func(http.ResponseWriter, *http.Request), operation string) http.Handler {
-	handlerFunc := http.HandlerFunc(handler)
-	return otelhttp.NewHandler(handlerFunc, operation)
 }
 
 func GetVersion() string {

@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-chi/render"
 	"github.com/seanflannery10/core/internal/data"
+	"github.com/seanflannery10/core/internal/services"
 	"github.com/seanflannery10/core/pkg/errs"
 	"github.com/seanflannery10/core/pkg/helpers"
 	"github.com/seanflannery10/core/pkg/validator"
@@ -17,6 +18,7 @@ type createUserPayload struct {
 	Email        string `json:"email"`
 	Password     string `json:"password"`
 	PasswordHash []byte `json:"-"`
+	env          *services.Env
 }
 
 func (p *createUserPayload) Bind(r *http.Request) error {
@@ -30,7 +32,7 @@ func (p *createUserPayload) Bind(r *http.Request) error {
 		return validator.NewValidationError(v.Errors)
 	}
 
-	queries := helpers.ContextGetQueries(r)
+	queries := p.env.Queries
 
 	ok, err := queries.CheckUser(r.Context(), p.Email)
 	if err != nil {
@@ -52,43 +54,42 @@ func (p *createUserPayload) Bind(r *http.Request) error {
 	return nil
 }
 
-func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
-	p := &createUserPayload{}
+func CreateUserHandler(env *services.Env) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
 
-	if helpers.CheckAndBind(w, r, p) {
-		return
+		p := &createUserPayload{env: env}
+
+		if helpers.CheckAndBind(w, r, p) {
+			return
+		}
+
+		user, err := env.Queries.CreateUser(r.Context(), data.CreateUserParams{
+			Name:         p.Name,
+			Email:        p.Email,
+			PasswordHash: p.PasswordHash,
+			Activated:    false,
+		})
+		if err != nil {
+			_ = render.Render(w, r, errs.ErrServerError(err))
+			return
+		}
+
+		token, err := env.Queries.CreateTokenHelper(r.Context(), user.ID, 3*24*time.Hour, data.ScopeActivation)
+		if err != nil {
+			_ = render.Render(w, r, errs.ErrServerError(err))
+			return
+		}
+
+		err = env.Mailer.Send(user.Email, "token_activation.tmpl", map[string]any{
+			"activationToken": token.Plaintext,
+		})
+		if err != nil {
+			_ = render.Render(w, r, errs.ErrServerError(err))
+			return
+		}
+
+		render.Status(r, http.StatusCreated)
+
+		helpers.RenderAndCheck(w, r, &user)
 	}
-
-	queries := helpers.ContextGetQueries(r)
-
-	user, err := queries.CreateUser(r.Context(), data.CreateUserParams{
-		Name:         p.Name,
-		Email:        p.Email,
-		PasswordHash: p.PasswordHash,
-		Activated:    false,
-	})
-	if err != nil {
-		_ = render.Render(w, r, errs.ErrServerError(err))
-		return
-	}
-
-	token, err := queries.CreateTokenHelper(r.Context(), user.ID, 3*24*time.Hour, data.ScopeActivation)
-	if err != nil {
-		_ = render.Render(w, r, errs.ErrServerError(err))
-		return
-	}
-
-	mailer := helpers.ContextGetMailer(r)
-
-	err = mailer.Send(user.Email, "token_activation.tmpl", map[string]any{
-		"activationToken": token.Plaintext,
-	})
-	if err != nil {
-		_ = render.Render(w, r, errs.ErrServerError(err))
-		return
-	}
-
-	render.Status(r, http.StatusCreated)
-
-	helpers.RenderAndCheck(w, r, &user)
 }

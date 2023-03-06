@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-chi/render"
 	"github.com/seanflannery10/core/internal/data"
+	"github.com/seanflannery10/core/internal/services"
 	"github.com/seanflannery10/core/pkg/errs"
 	"github.com/seanflannery10/core/pkg/helpers"
 	"github.com/seanflannery10/core/pkg/validator"
@@ -26,41 +27,41 @@ func (p *activateUserPayload) Bind(_ *http.Request) error {
 	return nil
 }
 
-func ActivateUserHandler(w http.ResponseWriter, r *http.Request) {
-	p := &activateUserPayload{}
+func ActivateUserHandler(env *services.Env) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		p := &activateUserPayload{}
 
-	if helpers.CheckAndBind(w, r, p) {
-		return
+		if helpers.CheckAndBind(w, r, p) {
+			return
+		}
+
+		user, err := env.Queries.GetUserFromTokenHelper(r.Context(), p.TokenPlaintext, data.ScopeActivation)
+		if err != nil {
+			_ = render.Render(w, r, errs.ErrServerError(err))
+			return
+		}
+
+		user, err = env.Queries.UpdateUser(r.Context(), data.UpdateUserParams{
+			UpdateActivated: true,
+			Activated:       true,
+			ID:              user.ID,
+			Version:         user.Version,
+		})
+		if err != nil {
+			_ = render.Render(w, r, errs.ErrServerError(err))
+			return
+		}
+
+		err = env.Queries.DeleteAllTokensForUser(r.Context(), data.DeleteAllTokensForUserParams{
+			Scope:  data.ScopeActivation,
+			UserID: user.ID,
+		})
+		if err != nil {
+			_ = render.Render(w, r, errs.ErrServerError(err))
+		}
+
+		render.Status(r, http.StatusOK)
+
+		helpers.RenderAndCheck(w, r, &user)
 	}
-
-	queries := helpers.ContextGetQueries(r)
-
-	user, err := queries.GetUserFromTokenHelper(r.Context(), p.TokenPlaintext, data.ScopeActivation)
-	if err != nil {
-		_ = render.Render(w, r, errs.ErrServerError(err))
-		return
-	}
-
-	user, err = queries.UpdateUser(r.Context(), data.UpdateUserParams{
-		UpdateActivated: true,
-		Activated:       true,
-		ID:              user.ID,
-		Version:         user.Version,
-	})
-	if err != nil {
-		_ = render.Render(w, r, errs.ErrServerError(err))
-		return
-	}
-
-	err = queries.DeleteAllTokensForUser(r.Context(), data.DeleteAllTokensForUserParams{
-		Scope:  data.ScopeActivation,
-		UserID: user.ID,
-	})
-	if err != nil {
-		_ = render.Render(w, r, errs.ErrServerError(err))
-	}
-
-	render.Status(r, http.StatusOK)
-
-	helpers.RenderAndCheck(w, r, &user)
 }

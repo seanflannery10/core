@@ -16,36 +16,14 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/seanflannery10/core/internal/data"
+	"github.com/seanflannery10/core/internal/services"
 	"github.com/seanflannery10/core/pkg/errs"
 	"github.com/seanflannery10/core/pkg/helpers"
-	"github.com/seanflannery10/core/pkg/mailer"
 	"github.com/seanflannery10/core/pkg/validator"
 	"golang.org/x/exp/slog"
 )
 
-func SetQueriesCtx(q *data.Queries) func(next http.Handler) http.Handler {
-	return func(next http.Handler) http.Handler {
-		fn := func(w http.ResponseWriter, r *http.Request) {
-			r = r.WithContext(context.WithValue(r.Context(), helpers.QueriesContextKey, q))
-			next.ServeHTTP(w, r)
-		}
-
-		return http.HandlerFunc(fn)
-	}
-}
-
-func SetMailerCtx(m mailer.Mailer) func(next http.Handler) http.Handler {
-	return func(next http.Handler) http.Handler {
-		fn := func(w http.ResponseWriter, r *http.Request) {
-			r = r.WithContext(context.WithValue(r.Context(), helpers.MailerContextKey, m))
-			next.ServeHTTP(w, r)
-		}
-
-		return http.HandlerFunc(fn)
-	}
-}
-
-func Authenticate(next http.Handler) http.Handler {
+func Authenticate(next http.Handler, env *services.Env) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Vary", "Authorization")
 
@@ -77,9 +55,7 @@ func Authenticate(next http.Handler) http.Handler {
 
 		tokenHash := sha256.Sum256([]byte(token))
 
-		queries := helpers.ContextGetQueries(r)
-
-		user, err := queries.GetUserFromToken(r.Context(), data.GetUserFromTokenParams{
+		user, err := env.Queries.GetUserFromToken(r.Context(), data.GetUserFromTokenParams{
 			Hash:   tokenHash[:],
 			Scope:  data.ScopeAuthentication,
 			Expiry: pgtype.Timestamptz{Time: time.Now(), Valid: true},
