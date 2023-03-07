@@ -115,6 +115,25 @@ func ReadIntParam(qs url.Values, key string, defaultValue int, v *validator.Vali
 	return i
 }
 
+func GetRoutePattern(r *http.Request) string {
+	rctx := chi.RouteContext(r.Context())
+	if pattern := rctx.RoutePattern(); pattern != "" {
+		return pattern
+	}
+
+	routePath := r.URL.Path
+	if r.URL.RawPath != "" {
+		routePath = r.URL.RawPath
+	}
+
+	tctx := chi.NewRouteContext()
+	if !rctx.Routes.Match(tctx, r.Method, routePath) {
+		return routePath
+	}
+
+	return tctx.RoutePattern()
+}
+
 func GetVersion() string {
 	var (
 		revision string

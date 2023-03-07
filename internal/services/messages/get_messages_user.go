@@ -16,7 +16,7 @@ type getMessagesUserPayload struct {
 	pagination.Pagination `json:"-"`
 }
 
-func (p *getMessagesUserPayload) Bind(r *http.Request) error {
+func (p *getMessagesUserPayload) Bind(_ *http.Request) error {
 	p.Pagination.Validate()
 
 	if p.Pagination.Validator.HasErrors() {
@@ -26,7 +26,7 @@ func (p *getMessagesUserPayload) Bind(r *http.Request) error {
 	return nil
 }
 
-func GetMessagesUserHandler(env *services.Env) http.HandlerFunc {
+func GetMessagesUserHandler(env services.Env) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		p := &getMessagesUserPayload{Pagination: pagination.New(r)}
 

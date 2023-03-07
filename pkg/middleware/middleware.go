@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/felixge/httpsnoop"
-	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -29,7 +28,7 @@ import (
 func StartSpan(env services.Env) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			routePattern := chi.RouteContext(r.Context()).RoutePattern()
+			routePattern := helpers.GetRoutePattern(r)
 			spanName := routePattern
 
 			if spanName == "" {
