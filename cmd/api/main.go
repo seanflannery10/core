@@ -6,15 +6,15 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/seanflannery10/core/internal/services"
 	"github.com/seanflannery10/core/pkg/server"
-	"github.com/seanflannery10/core/pkg/telemetry"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	"golang.org/x/exp/slog"
 )
 
 type application struct {
-	config          Config
-	tracerProviders telemetry.TracerProviders
-	dbpool          *pgxpool.Pool
-	env             *services.Env
+	config Config
+	dbpool *pgxpool.Pool
+	tp     *sdktrace.TracerProvider
+	env    services.Env
 }
 
 func main() {

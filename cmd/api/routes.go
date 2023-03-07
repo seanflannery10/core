@@ -14,27 +14,29 @@ import (
 
 func (app *application) routes() *chi.Mux {
 	r := chi.NewRouter()
+	env := app.env
 
 	r.NotFound(helpers.ErrFuncWrapper(errs.ErrNotFound))
 	r.MethodNotAllowed(helpers.ErrFuncWrapper(errs.ErrMethodNotAllowed))
 
+	r.Use(middleware.StartSpan(env))
 	r.Use(middleware.Metrics)
 	r.Use(middleware.RecoverPanic)
 
-	r.Use(middleware.Authenticate(app.env))
+	r.Use(middleware.Authenticate(env))
 
 	r.Get("/debug/vars", expvar.Handler().ServeHTTP)
 
 	r.Route("/v1/messages", func(r chi.Router) {
 		r.Use(middleware.RequireAuthenticatedUser)
 
-		r.Get("/", messages.GetMessagesUserHandler(app.env))
-		r.Post("/", messages.CreateMessageHandler(app.env))
+		r.Get("/", messages.GetMessagesUserHandler(env))
+		r.Post("/", messages.CreateMessageHandler(env))
 
 		r.Route("/{id}", func(r chi.Router) {
-			r.Get("/", messages.GetMessageHandler(app.env))
-			r.Patch("/", messages.UpdateMessageHandler(app.env))
-			r.Delete("/", messages.DeleteMessageHandler(app.env))
+			r.Get("/", messages.GetMessageHandler(env))
+			r.Patch("/", messages.UpdateMessageHandler(env))
+			r.Delete("/", messages.DeleteMessageHandler(env))
 		})
 	})
 

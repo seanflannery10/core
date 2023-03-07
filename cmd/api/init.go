@@ -75,22 +75,19 @@ func (app *application) init() {
 		os.Exit(1)
 	}
 
-	tps, err := telemetry.NewTracerProviders(cfg.OTelEndpoint, cfg.Env)
+	tp, err := telemetry.New(cfg.OTelEndpoint, cfg.Env)
 	if err != nil {
 		slog.Error("unable to start telemetry", err)
 		os.Exit(1)
 	}
 
 	app.dbpool = dbpool
-	app.tracerProviders = tps
+	app.tp = tp
 
-	app.env = &services.Env{
+	app.env = services.Env{
 		Queries: data.New(dbpool),
 		Mailer:  m,
-		Tracers: telemetry.Tracers{
-			Standard: tps.Standard.Tracer("core-std"),
-			Error:    tps.Error.Tracer("core-err"),
-		},
+		Tracer:  tp.Tracer("main"),
 	}
 
 	expvar.NewString("version").Set(helpers.GetVersion())

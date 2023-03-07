@@ -7,6 +7,7 @@ Routes for core API
 <details>
 <summary>`/debug/vars`</summary>
 
+- [StartSpan.func1]()
 - [Metrics]()
 - [RecoverPanic]()
 - [Authenticate.func1]()
@@ -18,21 +19,23 @@ Routes for core API
 <details>
 <summary>`/v1/messages`</summary>
 
+- [StartSpan.func1]()
 - [Metrics]()
 - [RecoverPanic]()
 - [Authenticate.func1]()
 - **/v1/messages**
 	- [RequireAuthenticatedUser]()
 	- **/**
-		- _POST_
-			- [CreateMessageHandler.func1]()
 		- _GET_
 			- [GetMessagesUserHandler.func1]()
+		- _POST_
+			- [CreateMessageHandler.func1]()
 
 </details>
 <details>
 <summary>`/v1/messages/{id}`</summary>
 
+- [StartSpan.func1]()
 - [Metrics]()
 - [RecoverPanic]()
 - [Authenticate.func1]()
@@ -40,17 +43,18 @@ Routes for core API
 	- [RequireAuthenticatedUser]()
 	- **/{id}**
 		- **/**
-			- _GET_
-				- [GetMessageHandler.func1]()
 			- _PATCH_
 				- [UpdateMessageHandler.func1]()
 			- _DELETE_
 				- [DeleteMessageHandler.func1]()
+			- _GET_
+				- [GetMessageHandler.func1]()
 
 </details>
 <details>
 <summary>`/v1/tokens/activation`</summary>
 
+- [StartSpan.func1]()
 - [Metrics]()
 - [RecoverPanic]()
 - [Authenticate.func1]()
@@ -63,6 +67,7 @@ Routes for core API
 <details>
 <summary>`/v1/tokens/authentication`</summary>
 
+- [StartSpan.func1]()
 - [Metrics]()
 - [RecoverPanic]()
 - [Authenticate.func1]()
@@ -75,6 +80,7 @@ Routes for core API
 <details>
 <summary>`/v1/tokens/password-reset`</summary>
 
+- [StartSpan.func1]()
 - [Metrics]()
 - [RecoverPanic]()
 - [Authenticate.func1]()
@@ -87,6 +93,7 @@ Routes for core API
 <details>
 <summary>`/v1/users/activate`</summary>
 
+- [StartSpan.func1]()
 - [Metrics]()
 - [RecoverPanic]()
 - [Authenticate.func1]()
@@ -99,6 +106,7 @@ Routes for core API
 <details>
 <summary>`/v1/users/register`</summary>
 
+- [StartSpan.func1]()
 - [Metrics]()
 - [RecoverPanic]()
 - [Authenticate.func1]()
@@ -111,6 +119,7 @@ Routes for core API
 <details>
 <summary>`/v1/users/update-password`</summary>
 
+- [StartSpan.func1]()
 - [Metrics]()
 - [RecoverPanic]()
 - [Authenticate.func1]()

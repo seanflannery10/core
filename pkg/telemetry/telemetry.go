@@ -14,17 +14,12 @@ import (
 	semconv "go.opentelemetry.io/otel/semconv/v1.17.0"
 )
 
-type TracerProviders struct {
-	Standard *sdktrace.TracerProvider
-	Error    *sdktrace.TracerProvider
-}
-
-func NewTracerProviders(endpoint, env string) (TracerProviders, error) {
+func New(endpoint, env string) (*sdktrace.TracerProvider, error) {
 	exp, err := otlptrace.New(context.Background(), otlptracegrpc.NewClient(
 		otlptracegrpc.WithEndpoint(endpoint),
 	))
 	if err != nil {
-		return TracerProviders{}, err
+		return nil, err
 	}
 
 	res, err := resource.Merge(resource.Default(), resource.NewWithAttributes(
@@ -33,8 +28,14 @@ func NewTracerProviders(endpoint, env string) (TracerProviders, error) {
 		semconv.ServiceNameKey.String("core"),
 		attribute.String("environment", env)))
 	if err != nil {
-		return TracerProviders{}, err
+		return nil, err
 	}
+
+	tp := sdktrace.NewTracerProvider(
+		sdktrace.WithSampler(sdktrace.AlwaysSample()),
+		sdktrace.WithBatcher(exp),
+		sdktrace.WithResource(res),
+	)
 
 	otel.SetTextMapPropagator(
 		propagation.NewCompositeTextMapPropagator(
@@ -43,19 +44,7 @@ func NewTracerProviders(endpoint, env string) (TracerProviders, error) {
 		),
 	)
 
-	telemetry := TracerProviders{}
+	otel.SetTracerProvider(tp)
 
-	telemetry.Standard = sdktrace.NewTracerProvider(
-		sdktrace.WithSampler(sdktrace.TraceIDRatioBased(1)),
-		sdktrace.WithBatcher(exp),
-		sdktrace.WithResource(res),
-	)
-
-	telemetry.Error = sdktrace.NewTracerProvider(
-		sdktrace.WithSampler(sdktrace.AlwaysSample()),
-		sdktrace.WithBatcher(exp),
-		sdktrace.WithResource(res),
-	)
-
-	return telemetry, err
+	return tp, err
 }

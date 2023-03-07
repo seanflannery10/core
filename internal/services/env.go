@@ -3,11 +3,11 @@ package services
 import (
 	"github.com/seanflannery10/core/internal/data"
 	"github.com/seanflannery10/core/pkg/mailer"
-	"github.com/seanflannery10/core/pkg/telemetry"
+	oteltrace "go.opentelemetry.io/otel/trace"
 )
 
 type Env struct {
 	Queries *data.Queries
 	Mailer  mailer.Mailer
-	Tracers telemetry.Tracers
+	Tracer  oteltrace.Tracer
 }

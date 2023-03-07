@@ -27,7 +27,7 @@ func (p *activateUserPayload) Bind(_ *http.Request) error {
 	return nil
 }
 
-func ActivateUserHandler(env *services.Env) http.HandlerFunc {
+func ActivateUserHandler(env services.Env) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		p := &activateUserPayload{}
 

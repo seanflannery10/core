@@ -13,6 +13,8 @@ import (
 	"github.com/seanflannery10/core/internal/data"
 	"github.com/seanflannery10/core/pkg/errs"
 	"github.com/seanflannery10/core/pkg/validator"
+	semconv "go.opentelemetry.io/otel/semconv/v1.12.0"
+	oteltrace "go.opentelemetry.io/otel/trace"
 	"golang.org/x/exp/slog"
 )
 
@@ -20,7 +22,9 @@ var ErrInvalidIDParameter = errors.New("invalid id parameter")
 
 type contextKey string
 
-const UserContextKey = contextKey("user")
+const (
+	UserContextKey = contextKey("user")
+)
 
 func ContextGetUser(r *http.Request) data.User {
 	u, ok := r.Context().Value(UserContextKey).(data.User)
@@ -50,10 +54,24 @@ func CheckAndBind(w http.ResponseWriter, r *http.Request, b render.Binder) bool 
 }
 
 func RenderAndCheck(w http.ResponseWriter, r *http.Request, ren render.Renderer) {
+	span := oteltrace.SpanFromContext(r.Context())
+
+	status, ok := r.Context().Value(render.StatusCtxKey).(int)
+	if !ok {
+		panic("missing status value in request context")
+	}
+
+	span.SetAttributes(semconv.HTTPStatusCodeKey.Int(status))
+
+	spanStatus, spanMessage := semconv.SpanStatusFromHTTPStatusCode(status)
+	span.SetStatus(spanStatus, spanMessage)
+
 	err := render.Render(w, r, ren)
 	if err != nil {
 		slog.Error("render error", err)
 	}
+
+	span.End()
 }
 
 func ErrFuncWrapper(er *errs.ErrResponse) func(w http.ResponseWriter, r *http.Request) {

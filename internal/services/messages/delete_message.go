@@ -27,7 +27,7 @@ func (p *deleteMessagePayload) Bind(r *http.Request) error {
 	return nil
 }
 
-func DeleteMessageHandler(env *services.Env) http.HandlerFunc {
+func DeleteMessageHandler(env services.Env) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		p := &deleteMessagePayload{}
 

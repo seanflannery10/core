@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/felixge/httpsnoop"
+	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -20,12 +21,43 @@ import (
 	"github.com/seanflannery10/core/pkg/errs"
 	"github.com/seanflannery10/core/pkg/helpers"
 	"github.com/seanflannery10/core/pkg/validator"
+	semconv "go.opentelemetry.io/otel/semconv/v1.12.0"
+	oteltrace "go.opentelemetry.io/otel/trace"
 	"golang.org/x/exp/slog"
 )
 
-func Authenticate(env *services.Env) func(next http.Handler) http.Handler {
+func StartSpan(env services.Env) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
-		fn := func(w http.ResponseWriter, r *http.Request) {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			routePattern := chi.RouteContext(r.Context()).RoutePattern()
+			spanName := routePattern
+
+			if spanName == "" {
+				spanName = "/"
+			}
+
+			spanName = r.Method + " " + spanName
+
+			_, span := env.Tracer.Start(r.Context(), spanName,
+				oteltrace.WithAttributes(semconv.NetAttributesFromHTTPRequest("tcp", r)...),
+				oteltrace.WithAttributes(semconv.EndUserAttributesFromHTTPRequest(r)...),
+				oteltrace.WithAttributes(semconv.HTTPServerAttributesFromHTTPRequest("core", routePattern, r)...),
+				oteltrace.WithSpanKind(oteltrace.SpanKindServer),
+			)
+
+			span.SetAttributes(semconv.HTTPRouteKey.String(routePattern))
+			span.SetName(spanName)
+
+			r = r.WithContext(oteltrace.ContextWithSpan(r.Context(), span))
+
+			next.ServeHTTP(w, r)
+		})
+	}
+}
+
+func Authenticate(env services.Env) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Add("Vary", "Authorization")
 
 			authorizationHeader := r.Header.Get("Authorization")
@@ -76,9 +108,7 @@ func Authenticate(env *services.Env) func(next http.Handler) http.Handler {
 			r = r.WithContext(context.WithValue(r.Context(), helpers.UserContextKey, user))
 
 			next.ServeHTTP(w, r)
-		}
-
-		return http.HandlerFunc(fn)
+		})
 	}
 }
 

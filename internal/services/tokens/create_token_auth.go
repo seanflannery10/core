@@ -32,7 +32,7 @@ func (p *createTokenAuthPayload) Bind(_ *http.Request) error {
 	return nil
 }
 
-func CreateTokenAuthHandler(env *services.Env) http.HandlerFunc {
+func CreateTokenAuthHandler(env services.Env) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		p := &createTokenAuthPayload{}
 
