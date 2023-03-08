@@ -55,26 +55,31 @@ func (err ErrResponse) Render(w http.ResponseWriter, r *http.Request) error {
 }
 
 var ErrNotFound = &ErrResponse{
+	AppCode:        0,
 	HTTPStatusCode: http.StatusNotFound,
 	Message:        "the requested resource could not be found",
 }
 
 var ErrMethodNotAllowed = &ErrResponse{
+	AppCode:        0,
 	HTTPStatusCode: http.StatusMethodNotAllowed,
 	Message:        "the used method is not supported for this resource",
 }
 
 var ErrEditConflict = &ErrResponse{
+	AppCode:        0,
 	HTTPStatusCode: http.StatusConflict,
 	Message:        "unable to update the record due to an edit conflict, please try again",
 }
 
 var ErrInvalidCredentials = &ErrResponse{
+	AppCode:        0,
 	HTTPStatusCode: http.StatusUnauthorized,
 	Message:        "invalid authentication credentials",
 }
 
 var ErrAuthenticationRequired = &ErrResponse{
+	AppCode:        0,
 	HTTPStatusCode: http.StatusUnauthorized,
 	Message:        "you must be authenticated to access this resource",
 }
@@ -84,6 +89,7 @@ func ErrInvalidAuthenticationToken() render.Renderer {
 	headers.Set("WWW-Authenticate", "Bearer")
 
 	return &ErrResponse{
+		AppCode:        0,
 		HTTPStatusCode: http.StatusUnauthorized,
 		Message:        "invalid or missing authentication token",
 		Headers:        headers,
@@ -92,6 +98,7 @@ func ErrInvalidAuthenticationToken() render.Renderer {
 
 func ErrFailedValidation(validatorErrors map[string]string) render.Renderer {
 	return &ErrResponse{
+		AppCode:         0,
 		HTTPStatusCode:  http.StatusUnprocessableEntity,
 		Message:         "validation failed",
 		ValidatorErrors: validatorErrors,
@@ -101,6 +108,7 @@ func ErrFailedValidation(validatorErrors map[string]string) render.Renderer {
 func ErrBadRequest(err error) render.Renderer {
 	return &ErrResponse{
 		Err:            err,
+		AppCode:        0,
 		HTTPStatusCode: http.StatusBadRequest,
 		Message:        "bad request",
 		ErrorText:      err.Error(),
@@ -111,6 +119,7 @@ func ErrServerError(err error) render.Renderer {
 	slog.Error("server error", err)
 
 	return &ErrResponse{
+		AppCode:        1,
 		HTTPStatusCode: http.StatusInternalServerError,
 		Message:        "the server encountered a problem and could not process your json",
 	}

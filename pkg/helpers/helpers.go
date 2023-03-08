@@ -62,9 +62,7 @@ func RenderAndCheck(w http.ResponseWriter, r *http.Request, ren render.Renderer)
 	}
 
 	span.SetAttributes(semconv.HTTPStatusCodeKey.Int(status))
-
-	spanStatus, spanMessage := semconv.SpanStatusFromHTTPStatusCode(status)
-	span.SetStatus(spanStatus, spanMessage)
+	span.SetStatus(0, "")
 
 	err := render.Render(w, r, ren)
 	if err != nil {
