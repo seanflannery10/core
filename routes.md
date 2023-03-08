@@ -43,12 +43,12 @@ Routes for core API
 	- [RequireAuthenticatedUser]()
 	- **/{id}**
 		- **/**
-			- _DELETE_
-				- [DeleteMessageHandler.func1]()
 			- _GET_
 				- [GetMessageHandler.func1]()
 			- _PATCH_
 				- [UpdateMessageHandler.func1]()
+			- _DELETE_
+				- [DeleteMessageHandler.func1]()
 
 </details>
 <details>
