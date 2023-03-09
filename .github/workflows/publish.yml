@@ -7,9 +7,8 @@ on:
 
 permissions:
   contents: read
-  packages:
-   - write
-   - delete
+  packages: write
+
 
 jobs:
   publish:
