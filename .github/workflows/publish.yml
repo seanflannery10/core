@@ -27,4 +27,4 @@ jobs:
         uses: imjasonh/setup-ko@v0.6
 
       - name: Build container image
-        run: ko build ./cmd/api
+        run: ko build ./cmd/api --bare

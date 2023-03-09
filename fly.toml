@@ -4,7 +4,7 @@ kill_timeout = 5
 processes = []
 
 [build]
-  image = "ghcr.io/seanflannery10/core/api-f9a8efd29a6d7b1ae5fd079d89efded9:latest"
+  image = "ghcr.io/seanflannery10/core:latest"
 
 [env]
   PORT = "8080"
