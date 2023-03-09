@@ -24,7 +24,7 @@ type Config struct {
 	Port         int    `env:"PORT,default=4000"`
 	Env          string `env:"ENV,default=dev"`
 	OTelEndpoint string `env:"OTEL_EXPORTER_OTLP_ENDPOINT,default=api.honeycomb.io:443"`
-	DSN          string `env:"DB_DSN,default=postgres://postgres:test@localhost:5432/test?sslmode=disable"`
+	DSN          string `env:"DATABASE_URL,default=postgres://postgres:test@localhost:5432/test?sslmode=disable"`
 	SMTP         mailer.SMTP
 }
 

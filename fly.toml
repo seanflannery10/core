@@ -1,3 +1,5 @@
+# fly.toml file generated for core-8585 on 2023-03-08T21:41:04-05:00
+
 app = "core-8585"
 kill_signal = "SIGINT"
 kill_timeout = 5

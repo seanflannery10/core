@@ -48,7 +48,7 @@ metadata:
   labels:
     app: core
 data:
-  DB_DSN: 'postgres://{USER}:{PASS}@postgres:5432/{DB}?sslmode=disable'
+  DATABASE_URL: 'postgres://{USER}:{PASS}@postgres:5432/{DB}?sslmode=disable'
   SMTP_USERNAME: {SMTP_USERNAME}
   SMTP_PASSWORD: {SMTP_PASSWORD}
   OTEL_SERVICE_NAME: "core"
