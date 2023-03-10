@@ -26,10 +26,10 @@ Routes for core API
 - **/v1/messages**
 	- [RequireAuthenticatedUser]()
 	- **/**
-		- _GET_
-			- [GetMessagesUserHandler.func1]()
 		- _POST_
 			- [CreateMessageHandler.func1]()
+		- _GET_
+			- [GetMessagesUserHandler.func1]()
 
 </details>
 <details>
@@ -43,12 +43,12 @@ Routes for core API
 	- [RequireAuthenticatedUser]()
 	- **/{id}**
 		- **/**
-			- _GET_
-				- [GetMessageHandler.func1]()
 			- _PATCH_
 				- [UpdateMessageHandler.func1]()
 			- _DELETE_
 				- [DeleteMessageHandler.func1]()
+			- _GET_
+				- [GetMessageHandler.func1]()
 
 </details>
 <details>

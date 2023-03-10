@@ -1,0 +1,55 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  GREETING: Hello, World!
+
+dotenv: ['.env']
+
+tasks:
+  default:
+    cmds:
+      - echo "{{.GREETING}}"
+    silent: true
+
+  go:tidy:
+    cmds:
+      - sqlc compile --experimental
+      - sqlc generate --experimental
+      - go run ./cmd/api --routes
+      - go mod tidy -v
+
+  go:audit:
+    cmds:
+      - golangci-lint run --fix
+      - go test -race -vet=off ./...
+      - go mod verify
+
+  go:upgrade:
+    cmds:
+      - go get -u ./...
+
+  tilt:up:
+    cmds:
+      - tilt up
+
+  tilt:down:
+    cmds:
+      - tilt down --delete-namespaces
+
+  db:migrations:
+    cmds:
+      - dbmate -d "./db/migrations" --url $DATABASE_URL up
+
+  db:psql:
+    cmds:
+      - psql $DATABASE_URL
+
+  fly:deploy:
+    cmds:
+      - flyctl deploy
+
+  fly:proxy:
+    cmds:
+      - flyctl proxy 5432 --app core-8585-db
