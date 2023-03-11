@@ -21,6 +21,7 @@ tasks:
       - go mod tidy -v
 
   go:audit:
+    deps: [go:tidy]
     cmds:
       - golangci-lint run --fix
       - go test -race -vet=off ./...
