@@ -6,7 +6,7 @@ on:
 
 jobs:
   test:
-    name: Test Go Code
+    name: Test Go Cod
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
