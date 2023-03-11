@@ -12,61 +12,18 @@ permissions:
   contents: read
   packages: write
 
-
 jobs:
   lint:
-    name: Lint
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Set up Go
-        uses: actions/setup-go@v3
-        with:
-          go-version: ${{env.GO_VERSION}}
-
-      - name: Lint code
-        uses: golangci/golangci-lint-action@08e2f20817b15149a52b5b3ebe7de50aff2ba8c5 # V3.4.0
-        # https://api.github.com/repos/golangci/golangci-lint-action/tags
+    uses: ./.github/workflows/reusable/lint.yml
+    with:
+      go-version: ${{ vars.GO_VERSION }}
 
   test:
-    name: Test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+    uses: ./.github/workflows/reusable/test.yml
+    with:
+      go-version: ${{ vars.GO_VERSION }}
 
-      - name: Set up Go
-        uses: actions/setup-go@v3
-        with:
-          go-version: ${{env.GO_VERSION}}
-
-      - name: Test code
-        run: go test -race -vet=off ./...
-
-      - name: Verify code
-        run: go mod verify
-
-      - name: Build code
-        run: go build ./...
-
-  publish:
-    name: Publish
-    needs: [lint, test]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Set up Go
-        uses: actions/setup-go@v3
-        with:
-          go-version: ${{env.GO_VERSION}}
-
-      - name: Setup ko
-        uses: ko-build/setup-ko@ace48d793556083a76f1e3e6068850c1f4a369aa # v0.6
-        # https://api.github.com/repos/ko-build/setup-ko/tags
-
-      - name: Build container image
-        run: ko build ./cmd/api --bare
+  build-image:
+    uses: ./.github/workflows/reusable/build_image.yml
+    with:
+      go-version: ${{ vars.GO_VERSION }}
