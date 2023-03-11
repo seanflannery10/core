@@ -11,17 +11,11 @@ permissions:
 
 jobs:
   lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: ./.github/workflows/reusable-lint.yml
+    uses: ./.github/workflows/reusable-lint.yml
 
   test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: ./.github/workflows/reusable-test.yml
+    uses: ./.github/workflows/reusable-test.yml
 
   build:
-    runs-on: ubuntu-latest
+    uses: ./.github/workflows/reusable-build.yml
     needs: [lint, test]
-    steps:
-      - uses: ./.github/workflows/reusable-build.yml
