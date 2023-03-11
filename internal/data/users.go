@@ -9,7 +9,7 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/jackc/pgx/v5/pgtype"
-	"github.com/seanflannery10/core/pkg/validator"
+	"github.com/seanflannery10/core/internal/pkg/validator"
 	"golang.org/x/crypto/bcrypt"
 )
 

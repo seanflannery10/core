@@ -26,10 +26,10 @@ Routes for core API
 - **/v1/messages**
 	- [RequireAuthenticatedUser]()
 	- **/**
-		- _GET_
-			- [GetMessagesUserHandler.func1]()
 		- _POST_
 			- [CreateMessageHandler.func1]()
+		- _GET_
+			- [GetMessagesUserHandler.func1]()
 
 </details>
 <details>

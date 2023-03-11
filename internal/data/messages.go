@@ -3,7 +3,7 @@ package data
 import (
 	"net/http"
 
-	"github.com/seanflannery10/core/pkg/validator"
+	"github.com/seanflannery10/core/internal/pkg/validator"
 )
 
 func (m *Message) Render(_ http.ResponseWriter, _ *http.Request) error {

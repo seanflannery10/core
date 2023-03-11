@@ -5,8 +5,8 @@ import (
 	"math"
 	"net/http"
 
-	"github.com/seanflannery10/core/pkg/helpers"
-	"github.com/seanflannery10/core/pkg/validator"
+	"github.com/seanflannery10/core/internal/pkg/helpers"
+	"github.com/seanflannery10/core/internal/pkg/validator"
 )
 
 type Pagination struct {

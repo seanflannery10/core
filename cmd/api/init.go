@@ -12,10 +12,10 @@ import (
 	"github.com/go-chi/docgen"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/seanflannery10/core/internal/data"
+	"github.com/seanflannery10/core/internal/pkg/helpers"
+	"github.com/seanflannery10/core/internal/pkg/mailer"
+	"github.com/seanflannery10/core/internal/pkg/telemetry"
 	"github.com/seanflannery10/core/internal/services"
-	"github.com/seanflannery10/core/pkg/helpers"
-	"github.com/seanflannery10/core/pkg/mailer"
-	"github.com/seanflannery10/core/pkg/telemetry"
 	"github.com/sethvargo/go-envconfig"
 	"golang.org/x/exp/slog"
 )

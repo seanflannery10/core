@@ -38,5 +38,22 @@ jobs:
         with:
           package-name: 'core'
           package-type: 'container'
-          min-versions-to-keep: 5
+          min-versions-to-keep: 10
           delete-only-untagged-versions: 'true'
+
+  deploy:
+    needs: [build]
+    name: deploy application
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup flyctl
+        uses: superfly/flyctl-actions/setup-flyctl@adbb124b95f2e47566253d95497432c27f4bdd70
+        # https://api.github.com/repos/superfly/flyctl-actions/setup-flyctl/tags
+
+      - name: Deploy image to fly
+        run: flyctl deploy --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

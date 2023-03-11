@@ -3,7 +3,7 @@ package telemetry
 import (
 	"context"
 
-	"github.com/seanflannery10/core/pkg/helpers"
+	"github.com/seanflannery10/core/internal/pkg/helpers"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"

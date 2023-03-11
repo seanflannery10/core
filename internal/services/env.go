@@ -2,7 +2,7 @@ package services
 
 import (
 	"github.com/seanflannery10/core/internal/data"
-	"github.com/seanflannery10/core/pkg/mailer"
+	"github.com/seanflannery10/core/internal/pkg/mailer"
 	oteltrace "go.opentelemetry.io/otel/trace"
 )
 

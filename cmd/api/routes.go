@@ -2,14 +2,13 @@ package main
 
 import (
 	"expvar"
-
 	"github.com/go-chi/chi/v5"
+	"github.com/seanflannery10/core/internal/pkg/errs"
+	"github.com/seanflannery10/core/internal/pkg/helpers"
+	"github.com/seanflannery10/core/internal/pkg/middleware"
 	"github.com/seanflannery10/core/internal/services/messages"
 	"github.com/seanflannery10/core/internal/services/tokens"
 	"github.com/seanflannery10/core/internal/services/users"
-	"github.com/seanflannery10/core/pkg/errs"
-	"github.com/seanflannery10/core/pkg/helpers"
-	"github.com/seanflannery10/core/pkg/middleware"
 )
 
 func (app *application) routes() *chi.Mux {

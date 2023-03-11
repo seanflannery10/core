@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/seanflannery10/core/pkg/assert"
+	"github.com/seanflannery10/core/internal/pkg/assert"
 )
 
 var (

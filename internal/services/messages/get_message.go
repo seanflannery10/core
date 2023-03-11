@@ -6,9 +6,9 @@ import (
 
 	"github.com/go-chi/render"
 	"github.com/jackc/pgx/v5"
+	"github.com/seanflannery10/core/internal/pkg/errs"
+	"github.com/seanflannery10/core/internal/pkg/helpers"
 	"github.com/seanflannery10/core/internal/services"
-	"github.com/seanflannery10/core/pkg/errs"
-	"github.com/seanflannery10/core/pkg/helpers"
 )
 
 type getMessagePayload struct {

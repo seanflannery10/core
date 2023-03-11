@@ -3,7 +3,7 @@ package validator
 import (
 	"testing"
 
-	"github.com/seanflannery10/core/pkg/assert"
+	"github.com/seanflannery10/core/internal/pkg/assert"
 )
 
 func TestValidator(t *testing.T) {
