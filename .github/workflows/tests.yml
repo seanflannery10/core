@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    name: Build Code
+    name: Build Go Code
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -21,7 +21,7 @@ jobs:
         run: go build ./...
 
   test:
-    name: Test Code
+    name: Test Go Code
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -36,7 +36,7 @@ jobs:
         run: go test -race -vet=off ./...
 
   verify:
-    name: Verify Code
+    name: Verify Go Code
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
