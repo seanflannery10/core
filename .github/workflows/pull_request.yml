@@ -12,9 +12,9 @@ jobs:
   lint:
     uses: ./.github/workflows/reusable-lint.yml
     with:
-      go-version: ${{vars.GO_VERSION}}
+      go-version: ${{ env.GO_VERSION }}
 
   test:
     uses: ./.github/workflows/reusable-test.yml
     with:
-      go-version: ${{vars.GO_VERSION}}
+      go-version: ${{ env.GO_VERSION }}
