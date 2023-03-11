@@ -11,8 +11,8 @@ permissions:
 
 jobs:
   test:
-    name: Tests
-    uses: ./.github/workflows/tests.yml
+    name: Test
+    uses: ./.github/workflows/test.yml
 
   build:
     name: Build Docker Image

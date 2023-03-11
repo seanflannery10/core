@@ -1,0 +1,31 @@
+name: Test
+
+on:
+  workflow_call:
+  pull_request:
+
+jobs:
+  test:
+    name: Test Go Code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ vars.GO_VERSION }}
+
+      - name: Verify code
+        run: go mod verify
+
+      - name: Lint code
+        uses: golangci/golangci-lint-action@08e2f20817b15149a52b5b3ebe7de50aff2ba8c5 # V3.4.0
+        # https://api.github.com/repos/golangci/golangci-lint-action/tags
+
+      - name: Test code
+        run: go test -race -vet=off ./...
+
+      - name: Build code
+        run: go build ./...
