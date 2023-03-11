@@ -50,8 +50,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Setup flyctl
-        uses: superfly/flyctl-actions@adbb124b95f2e47566253d95497432c27f4bdd70/setup-flyctl
-        # https://api.github.com/repos/superfly/flyctl-actions/tags
+        uses: superfly/flyctl-actions/setup-flyctl@master
 
       - name: Deploy image to fly
         run: flyctl deploy --remote-only
