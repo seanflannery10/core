@@ -12,16 +12,10 @@ permissions:
 jobs:
   lint:
     uses: ./.github/workflows/reusable-lint.yml
-    with:
-      go-version: ${{ vars.GO_VERSION }}
 
   test:
     uses: ./.github/workflows/reusable-test.yml
-    with:
-      go-version: ${{ vars.GO_VERSION }}
 
   build:
     uses: ./.github/workflows/reusable-build.yml
     needs: [lint, test]
-    with:
-      go-version: ${{ vars.GO_VERSION }}

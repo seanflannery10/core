@@ -1,9 +1,5 @@
 on:
   workflow_call:
-    inputs:
-      go-version:
-        required: true
-        type: string
 
 jobs:
   build:
@@ -15,7 +11,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
-          go-version: ${{ inputs.go-version }}
+          go-version: ${{ vars.GO_VERSION }}
 
       - name: Setup ko
         uses: ko-build/setup-ko@ace48d793556083a76f1e3e6068850c1f4a369aa # v0.6

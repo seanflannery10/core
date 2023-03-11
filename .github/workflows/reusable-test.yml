@@ -1,9 +1,5 @@
 on:
   workflow_call:
-    inputs:
-      go-version:
-        required: true
-        type: string
 
 jobs:
   test:
@@ -15,7 +11,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
-          go-version: ${{ inputs.go-version }}
+          go-version: ${{ vars.GO_VERSION }}
 
       - name: Test code
         run: go test -race -vet=off ./...

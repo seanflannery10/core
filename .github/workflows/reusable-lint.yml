@@ -1,9 +1,5 @@
 on:
   workflow_call:
-    inputs:
-      go-version:
-        required: true
-        type: string
 
 jobs:
   lint:
@@ -15,7 +11,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
-          go-version: ${{ inputs.go-version }}
+          go-version: ${{ vars.GO_VERSION }}
 
       - name: Lint code
         uses: golangci/golangci-lint-action@08e2f20817b15149a52b5b3ebe7de50aff2ba8c5 # V3.4.0
