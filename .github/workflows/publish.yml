@@ -1,4 +1,4 @@
-name: Publish
+name: publish
 
 on:
   push:
@@ -10,12 +10,11 @@ permissions:
   packages: write
 
 jobs:
-  test:
-    name: Test
+  tests:
     uses: ./.github/workflows/test.yml
 
   build:
-    name: Build Docker Image
+    name: build docker image
     needs: [test]
     runs-on: ubuntu-latest
     steps:
@@ -33,3 +32,11 @@ jobs:
 
       - name: Build container image
         run: ko build ./cmd/api --bare
+
+      - name: Cleanup old container images
+        uses: actions/delete-package-versions@v4
+        with:
+          package-name: 'core'
+          package-type: 'container'
+          min-versions-to-keep: 10
+          delete-only-untagged-versions: 'true'
