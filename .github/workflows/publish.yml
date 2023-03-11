@@ -14,16 +14,16 @@ permissions:
 
 jobs:
   lint:
-    uses: ./.github/workflows/reusable/lint.yml
+    uses: ./.github/workflows/reusable-lint.yml
     with:
       go-version: ${{ vars.GO_VERSION }}
 
   test:
-    uses: ./.github/workflows/reusable/test.yml
+    uses: ./.github/workflows/reusable-test.yml
     with:
       go-version: ${{ vars.GO_VERSION }}
 
   build-image:
-    uses: ./.github/workflows/reusable/build_image.yml
+    uses: ./.github/workflows/reusable-build-image.yml
     with:
       go-version: ${{ vars.GO_VERSION }}
