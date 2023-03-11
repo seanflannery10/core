@@ -1,4 +1,4 @@
-name: Test
+name: Tests
 
 on:
   workflow_call:
@@ -6,6 +6,7 @@ on:
 
 jobs:
   build:
+    name: Build Code
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -20,6 +21,7 @@ jobs:
         run: go build ./...
 
   test:
+    name: Test Code
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -34,6 +36,7 @@ jobs:
         run: go test -race -vet=off ./...
 
   verify:
+    name: Verify Code
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -48,6 +51,7 @@ jobs:
         run: go mod verify
 
   lint:
+    name: Run Golangci-lint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository

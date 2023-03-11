@@ -11,9 +11,11 @@ permissions:
 
 jobs:
   test:
-    uses: ./.github/workflows/test.yml
+    name: Run Tests
+    uses: ./.github/workflows/tests.yml
 
   build:
+    name: Build Docker Image
     needs: [test]
     runs-on: ubuntu-latest
     steps:
