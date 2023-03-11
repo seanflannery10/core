@@ -4,9 +4,6 @@ on:
   push:
     tags: [ "-v*" ]
     branches: ['main']
-    
-env:
-  GO_VERSION: "1.20.X"
 
 permissions:
   contents: read
@@ -16,15 +13,15 @@ jobs:
   lint:
     uses: ./.github/workflows/reusable-lint.yml
     with:
-      go-version: "1.20.X"
+      go-version: ${{ vars.GO_VERSION }}
 
   test:
     uses: ./.github/workflows/reusable-test.yml
     with:
-      go-version: "1.20.X"
+      go-version: ${{ vars.GO_VERSION }}
 
-  build-image:
-    uses: ./.github/workflows/reusable-build-image.yml
+  build:
+    uses: ./.github/workflows/reusable-build.yml
     needs: [lint, test]
     with:
-      go-version: "1.20.X"
+      go-version: ${{ vars.GO_VERSION }}
