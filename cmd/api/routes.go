@@ -2,6 +2,7 @@ package main
 
 import (
 	"expvar"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/seanflannery10/core/internal/pkg/errs"
 	"github.com/seanflannery10/core/internal/pkg/helpers"
