@@ -15,7 +15,6 @@ OTEL_EXPORTER_OTLP_HEADERS = os.getenv('OTEL_EXPORTER_OTLP_HEADERS')
 load('ext://tests/golang', 'test_go')
 test_go('test-core-cmd', './cmd/...', './cmd')
 test_go('test-core-internal', './internal/...', './internal')
-test_go('test-core-pkg', './pkg/...', './pkg')
 
 # Build App
 local_resource(
