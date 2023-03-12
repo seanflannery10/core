@@ -4,6 +4,7 @@ import (
 	"expvar"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/cors"
 	"github.com/seanflannery10/core/internal/pkg/errs"
 	"github.com/seanflannery10/core/internal/pkg/helpers"
 	"github.com/seanflannery10/core/internal/pkg/middleware"
@@ -22,6 +23,8 @@ func (app *application) routes() *chi.Mux {
 	r.Use(middleware.StartSpan(env))
 	r.Use(middleware.Metrics)
 	r.Use(middleware.RecoverPanic)
+
+	r.Use(cors.Handler(cors.Options{AllowedOrigins: []string{"https://seanflannery.dev/"}}))
 
 	r.Use(middleware.Authenticate(env))
 
