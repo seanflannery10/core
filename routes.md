@@ -10,6 +10,7 @@ Routes for core API
 - [StartSpan.func1]()
 - [Metrics]()
 - [RecoverPanic]()
+- [o-chi/cors.(*Cors).Handler-fm]()
 - [Authenticate.func1]()
 - **/debug/vars**
 	- _GET_
@@ -22,14 +23,15 @@ Routes for core API
 - [StartSpan.func1]()
 - [Metrics]()
 - [RecoverPanic]()
+- [o-chi/cors.(*Cors).Handler-fm]()
 - [Authenticate.func1]()
 - **/v1/messages**
 	- [RequireAuthenticatedUser]()
 	- **/**
-		- _POST_
-			- [CreateMessageHandler.func1]()
 		- _GET_
 			- [GetMessagesUserHandler.func1]()
+		- _POST_
+			- [CreateMessageHandler.func1]()
 
 </details>
 <details>
@@ -38,12 +40,13 @@ Routes for core API
 - [StartSpan.func1]()
 - [Metrics]()
 - [RecoverPanic]()
+- [o-chi/cors.(*Cors).Handler-fm]()
 - [Authenticate.func1]()
 - **/v1/messages**
 	- [RequireAuthenticatedUser]()
 	- **/{id}**
 		- **/**
-			- _PATCH_
+			- _PUT_
 				- [UpdateMessageHandler.func1]()
 			- _DELETE_
 				- [DeleteMessageHandler.func1]()
@@ -52,29 +55,31 @@ Routes for core API
 
 </details>
 <details>
+<summary>`/v1/tokens/access`</summary>
+
+- [StartSpan.func1]()
+- [Metrics]()
+- [RecoverPanic]()
+- [o-chi/cors.(*Cors).Handler-fm]()
+- [Authenticate.func1]()
+- **/v1/tokens**
+	- **/access**
+		- _POST_
+			- [CreateTokenAccessHandler.func1]()
+
+</details>
+<details>
 <summary>`/v1/tokens/activation`</summary>
 
 - [StartSpan.func1]()
 - [Metrics]()
 - [RecoverPanic]()
+- [o-chi/cors.(*Cors).Handler-fm]()
 - [Authenticate.func1]()
 - **/v1/tokens**
 	- **/activation**
-		- _PUT_
-			- [CreateTokenActivationHandler.func1]()
-
-</details>
-<details>
-<summary>`/v1/tokens/authentication`</summary>
-
-- [StartSpan.func1]()
-- [Metrics]()
-- [RecoverPanic]()
-- [Authenticate.func1]()
-- **/v1/tokens**
-	- **/authentication**
 		- _POST_
-			- [CreateTokenAuthHandler.func1]()
+			- [CreateTokenActivationHandler.func1]()
 
 </details>
 <details>
@@ -83,11 +88,26 @@ Routes for core API
 - [StartSpan.func1]()
 - [Metrics]()
 - [RecoverPanic]()
+- [o-chi/cors.(*Cors).Handler-fm]()
 - [Authenticate.func1]()
 - **/v1/tokens**
 	- **/password-reset**
-		- _PUT_
+		- _POST_
 			- [CreateTokenPasswordResetHandler.func1]()
+
+</details>
+<details>
+<summary>`/v1/tokens/refresh`</summary>
+
+- [StartSpan.func1]()
+- [Metrics]()
+- [RecoverPanic]()
+- [o-chi/cors.(*Cors).Handler-fm]()
+- [Authenticate.func1]()
+- **/v1/tokens**
+	- **/refresh**
+		- _POST_
+			- [CreateTokenRefreshHandler.func1]()
 
 </details>
 <details>
@@ -96,10 +116,11 @@ Routes for core API
 - [StartSpan.func1]()
 - [Metrics]()
 - [RecoverPanic]()
+- [o-chi/cors.(*Cors).Handler-fm]()
 - [Authenticate.func1]()
 - **/v1/users**
 	- **/activate**
-		- _PUT_
+		- _PATCH_
 			- [ActivateUserHandler.func1]()
 
 </details>
@@ -109,6 +130,7 @@ Routes for core API
 - [StartSpan.func1]()
 - [Metrics]()
 - [RecoverPanic]()
+- [o-chi/cors.(*Cors).Handler-fm]()
 - [Authenticate.func1]()
 - **/v1/users**
 	- **/register**
@@ -122,12 +144,13 @@ Routes for core API
 - [StartSpan.func1]()
 - [Metrics]()
 - [RecoverPanic]()
+- [o-chi/cors.(*Cors).Handler-fm]()
 - [Authenticate.func1]()
 - **/v1/users**
 	- **/update-password**
-		- _PUT_
+		- _PATCH_
 			- [UpdateUserPasswordHandler.func1]()
 
 </details>
 
-Total # of routes: 9
+Total # of routes: 10

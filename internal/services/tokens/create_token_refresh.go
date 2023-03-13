@@ -1,6 +1,7 @@
 package tokens
 
 import (
+	"encoding/hex"
 	"errors"
 	"net/http"
 	"time"
@@ -8,18 +9,19 @@ import (
 	"github.com/go-chi/render"
 	"github.com/jackc/pgx/v5"
 	"github.com/seanflannery10/core/internal/data"
+	"github.com/seanflannery10/core/internal/pkg/cookies"
 	"github.com/seanflannery10/core/internal/pkg/errs"
 	"github.com/seanflannery10/core/internal/pkg/helpers"
 	"github.com/seanflannery10/core/internal/pkg/validator"
 	"github.com/seanflannery10/core/internal/services"
 )
 
-type createTokenAuthPayload struct {
+type createTokenRefreshPayload struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
-func (p *createTokenAuthPayload) Bind(_ *http.Request) error {
+func (p *createTokenRefreshPayload) Bind(_ *http.Request) error {
 	v := validator.New()
 
 	data.ValidateEmail(v, p.Email)
@@ -32,9 +34,9 @@ func (p *createTokenAuthPayload) Bind(_ *http.Request) error {
 	return nil
 }
 
-func CreateTokenAuthHandler(env services.Env) http.HandlerFunc {
+func CreateTokenRefreshHandler(env services.Env) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		p := &createTokenAuthPayload{}
+		p := &createTokenRefreshPayload{}
 
 		if helpers.CheckAndBind(w, r, p) {
 			return
@@ -63,7 +65,35 @@ func CreateTokenAuthHandler(env services.Env) http.HandlerFunc {
 			return
 		}
 
-		token, err := env.Queries.CreateTokenHelper(r.Context(), user.ID, 3*24*time.Hour, data.ScopeAuthentication)
+		refreshToken, err := env.Queries.CreateTokenHelper(r.Context(), user.ID, 30*24*time.Hour, data.ScopeRefresh)
+		if err != nil {
+			_ = render.Render(w, r, errs.ErrServerError(err))
+			return
+		}
+
+		cookie := http.Cookie{
+			Name:     "core_refresh_token",
+			Value:    refreshToken.Plaintext,
+			Path:     "/",
+			MaxAge:   int(30 * 24 * time.Hour),
+			HttpOnly: true,
+			Secure:   true,
+			SameSite: http.SameSiteLaxMode,
+		}
+
+		secret, err := hex.DecodeString(env.Config.SecretKey)
+		if err != nil {
+			_ = render.Render(w, r, errs.ErrServerError(err))
+			return
+		}
+
+		err = cookies.WriteEncrypted(w, cookie, secret)
+		if err != nil {
+			_ = render.Render(w, r, errs.ErrServerError(err))
+			return
+		}
+
+		scopeToken, err := env.Queries.CreateTokenHelper(r.Context(), user.ID, time.Hour, data.ScopeAccess)
 		if err != nil {
 			_ = render.Render(w, r, errs.ErrServerError(err))
 			return
@@ -71,6 +101,6 @@ func CreateTokenAuthHandler(env services.Env) http.HandlerFunc {
 
 		render.Status(r, http.StatusCreated)
 
-		helpers.RenderAndCheck(w, r, &token)
+		helpers.RenderAndCheck(w, r, &scopeToken)
 	}
 }

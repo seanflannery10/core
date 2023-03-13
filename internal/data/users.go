@@ -24,7 +24,7 @@ func (u *User) IsAnonymous() bool {
 }
 
 func (u *User) SetPassword(plaintextPassword string) error {
-	hash, err := bcrypt.GenerateFromPassword([]byte(plaintextPassword), 14)
+	hash, err := bcrypt.GenerateFromPassword([]byte(plaintextPassword), 13)
 	if err != nil {
 		return err
 	}

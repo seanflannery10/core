@@ -78,8 +78,7 @@ func Authenticate(env services.Env) func(next http.Handler) http.Handler {
 
 			v := validator.New()
 
-			v.Check(token != "", "token", "must be provided")
-			v.Check(len(token) == 26, "token", "must be 26 bytes long")
+			data.ValidateTokenPlaintext(v, token)
 
 			if v.HasErrors() {
 				_ = render.Render(w, r, errs.ErrInvalidAuthenticationToken())
@@ -90,7 +89,7 @@ func Authenticate(env services.Env) func(next http.Handler) http.Handler {
 
 			user, err := env.Queries.GetUserFromToken(r.Context(), data.GetUserFromTokenParams{
 				Hash:   tokenHash[:],
-				Scope:  data.ScopeAuthentication,
+				Scope:  data.ScopeAccess,
 				Expiry: pgtype.Timestamptz{Time: time.Now(), Valid: true},
 			})
 			if err != nil {

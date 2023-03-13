@@ -38,21 +38,22 @@ func (app *application) routes() *chi.Mux {
 
 		r.Route("/{id}", func(r chi.Router) {
 			r.Get("/", messages.GetMessageHandler(env))
-			r.Patch("/", messages.UpdateMessageHandler(env))
+			r.Put("/", messages.UpdateMessageHandler(env))
 			r.Delete("/", messages.DeleteMessageHandler(env))
 		})
 	})
 
 	r.Route("/v1/tokens", func(r chi.Router) {
-		r.Post("/authentication", tokens.CreateTokenAuthHandler(app.env))
-		r.Put("/activation", tokens.CreateTokenActivationHandler(app.env))
-		r.Put("/password-reset", tokens.CreateTokenPasswordResetHandler(app.env))
+		r.Post("/access", tokens.CreateTokenAccessHandler(app.env))
+		r.Post("/activation", tokens.CreateTokenActivationHandler(app.env))
+		r.Post("/password-reset", tokens.CreateTokenPasswordResetHandler(app.env))
+		r.Post("/refresh", tokens.CreateTokenRefreshHandler(app.env))
 	})
 
 	r.Route("/v1/users", func(r chi.Router) {
 		r.Post("/register", users.CreateUserHandler(app.env))
-		r.Put("/activate", users.ActivateUserHandler(app.env))
-		r.Put("/update-password", users.UpdateUserPasswordHandler(app.env))
+		r.Patch("/activate", users.ActivateUserHandler(app.env))
+		r.Patch("/update-password", users.UpdateUserPasswordHandler(app.env))
 	})
 
 	return r

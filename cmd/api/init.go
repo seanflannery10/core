@@ -20,14 +20,6 @@ import (
 	"golang.org/x/exp/slog"
 )
 
-type Config struct {
-	Port         int    `env:"PORT,default=4000"`
-	Env          string `env:"ENV,default=dev"`
-	OTelEndpoint string `env:"OTEL_EXPORTER_OTLP_ENDPOINT,default=api.honeycomb.io:443"`
-	DSN          string `env:"DATABASE_URL,default=postgres://postgres:test@localhost:5432/test?sslmode=disable"`
-	SMTP         mailer.SMTP
-}
-
 func (app *application) init() {
 	generateRoutes := flag.Bool("routes", false, "Generate router documentation")
 	displayVersion := flag.Bool("version", false, "Display version and exit")
@@ -69,7 +61,7 @@ func (app *application) init() {
 		os.Exit(1)
 	}
 
-	dbpool, err := pgxpool.New(context.Background(), cfg.DSN)
+	dbpool, err := pgxpool.New(context.Background(), cfg.DatabaseURL)
 	if err != nil {
 		slog.Error("unable to create connection pool", err)
 		os.Exit(1)

@@ -11,7 +11,7 @@ import (
 )
 
 type application struct {
-	config Config
+	config services.Config
 	dbpool *pgxpool.Pool
 	tp     *sdktrace.TracerProvider
 	env    services.Env
