@@ -24,7 +24,7 @@ func (app *application) routes() *chi.Mux {
 	r.Use(middleware.Metrics)
 	r.Use(middleware.RecoverPanic)
 
-	r.Use(cors.Handler(cors.Options{AllowedOrigins: []string{"https://*", "http://*"}}))
+	r.Use(cors.Handler(cors.Options{AllowedOrigins: []string{"https://*"}}))
 
 	r.Use(middleware.Authenticate(env))
 

@@ -21,14 +21,6 @@ import (
 	"golang.org/x/exp/slog"
 )
 
-type Config struct {
-	Port         int    `env:"PORT,default=4000"`
-	Env          string `env:"ENV,default=dev"`
-	OTelEndpoint string `env:"OTEL_EXPORTER_OTLP_ENDPOINT,default=api.honeycomb.io:443"`
-	DatabaseURL  string `env:"DATABASE_URL,default=postgres://postgres:test@localhost:5432/test?sslmode=disable"`
-	SMTP         mailer.SMTP
-}
-
 func (app *application) init() {
 	generateRoutes := flag.Bool("routes", false, "Generate router documentation")
 	displayVersion := flag.Bool("version", false, "Display version and exit")
@@ -54,11 +46,13 @@ func (app *application) init() {
 		os.Exit(0)
 	}
 
-	_, err := hex.DecodeString(os.Getenv("SECRET_KEY"))
+	secret, err := hex.DecodeString(os.Getenv("SECRET_KEY"))
 	if err != nil || os.Getenv("SECRET_KEY") == "" {
-		slog.Error("unable to decode secret", err)
+		slog.Error("unable to decode sercret", err)
 		os.Exit(1)
 	}
+
+	app.config.Secret = secret
 
 	slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stdout)))
 

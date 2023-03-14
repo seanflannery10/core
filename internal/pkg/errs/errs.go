@@ -72,6 +72,18 @@ var ErrEditConflict = &ErrResponse{
 	Message:        "unable to update the record due to an edit conflict, please try again",
 }
 
+var ErrCookieNotFound = &ErrResponse{
+	AppCode:        0,
+	HTTPStatusCode: http.StatusBadRequest,
+	Message:        "cookie not found",
+}
+
+var ErrInvalidCookie = &ErrResponse{
+	AppCode:        0,
+	HTTPStatusCode: http.StatusBadRequest,
+	Message:        "invalid cookie",
+}
+
 var ErrInvalidCredentials = &ErrResponse{
 	AppCode:        0,
 	HTTPStatusCode: http.StatusUnauthorized,

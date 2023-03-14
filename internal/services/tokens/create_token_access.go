@@ -25,17 +25,9 @@ func CreateTokenAccessHandler(env services.Env) http.HandlerFunc {
 		if err != nil {
 			switch {
 			case errors.Is(err, http.ErrNoCookie):
-				_ = render.Render(w, r, &errs.ErrResponse{
-					AppCode:        0,
-					HTTPStatusCode: http.StatusBadRequest,
-					Message:        "cookie not found",
-				})
+				_ = render.Render(w, r, errs.ErrCookieNotFound)
 			case errors.Is(err, cookies.ErrInvalidValue):
-				_ = render.Render(w, r, &errs.ErrResponse{
-					AppCode:        0,
-					HTTPStatusCode: http.StatusBadRequest,
-					Message:        "invalid cookie",
-				})
+				_ = render.Render(w, r, errs.ErrInvalidCookie)
 			default:
 				_ = render.Render(w, r, errs.ErrServerError(err))
 			}
@@ -49,7 +41,21 @@ func CreateTokenAccessHandler(env services.Env) http.HandlerFunc {
 			return
 		}
 
-		w, accessToken, err := createRefreshAndAccessTokens(w, r, env.Queries, user.ID)
+		sessionID, err := cookies.ReadEncrypted(r, "core_sessionid", env.Config.Secret)
+		if err != nil {
+			switch {
+			case errors.Is(err, http.ErrNoCookie):
+				_ = render.Render(w, r, errs.ErrCookieNotFound)
+			case errors.Is(err, cookies.ErrInvalidValue):
+				_ = render.Render(w, r, errs.ErrInvalidCookie)
+			default:
+				_ = render.Render(w, r, errs.ErrServerError(err))
+			}
+
+			return
+		}
+
+		w, accessToken, err := createRefreshAndAccessTokens(w, r, env.Queries, user.ID, sessionID)
 		if err != nil {
 			_ = render.Render(w, r, errs.ErrServerError(err))
 			return
