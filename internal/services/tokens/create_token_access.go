@@ -1,10 +1,8 @@
 package tokens
 
 import (
-	"encoding/hex"
 	"errors"
 	"net/http"
-	"os"
 
 	"github.com/go-chi/render"
 	"github.com/seanflannery10/core/internal/data"
@@ -16,12 +14,7 @@ import (
 
 func CreateTokenAccessHandler(env services.Env) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		secret, err := hex.DecodeString(os.Getenv("SECRET_KEY"))
-		if err != nil {
-			_ = render.Render(w, r, errs.ErrServerError(err))
-		}
-
-		refreshTokenPlaintext, err := cookies.ReadEncrypted(r, "core_refreshtoken", secret)
+		refreshTokenPlaintext, err := cookies.ReadEncrypted(r, cookieSessionID, env.Config.Secret)
 		if err != nil {
 			switch {
 			case errors.Is(err, http.ErrNoCookie):
@@ -41,7 +34,7 @@ func CreateTokenAccessHandler(env services.Env) http.HandlerFunc {
 			return
 		}
 
-		sessionID, err := cookies.ReadEncrypted(r, "core_sessionid", env.Config.Secret)
+		sessionID, err := cookies.ReadEncrypted(r, cookieSessionID, env.Config.Secret)
 		if err != nil {
 			switch {
 			case errors.Is(err, http.ErrNoCookie):
@@ -55,7 +48,9 @@ func CreateTokenAccessHandler(env services.Env) http.HandlerFunc {
 			return
 		}
 
-		w, accessToken, err := createRefreshAndAccessTokens(w, r, env.Queries, user.ID, sessionID)
+		// TODO Check if refresh token is current and unused
+
+		w, accessToken, err := createRefreshAndAccessTokens(w, r, env, user.ID, sessionID)
 		if err != nil {
 			_ = render.Render(w, r, errs.ErrServerError(err))
 			return
