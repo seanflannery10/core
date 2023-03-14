@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/hex"
 	"expvar"
 	"flag"
 	"fmt"
@@ -19,6 +20,14 @@ import (
 	"github.com/sethvargo/go-envconfig"
 	"golang.org/x/exp/slog"
 )
+
+type Config struct {
+	Port         int    `env:"PORT,default=4000"`
+	Env          string `env:"ENV,default=dev"`
+	OTelEndpoint string `env:"OTEL_EXPORTER_OTLP_ENDPOINT,default=api.honeycomb.io:443"`
+	DatabaseURL  string `env:"DATABASE_URL,default=postgres://postgres:test@localhost:5432/test?sslmode=disable"`
+	SMTP         mailer.SMTP
+}
 
 func (app *application) init() {
 	generateRoutes := flag.Bool("routes", false, "Generate router documentation")
@@ -45,9 +54,15 @@ func (app *application) init() {
 		os.Exit(0)
 	}
 
+	_, err := hex.DecodeString(os.Getenv("SECRET_KEY"))
+	if err != nil || os.Getenv("SECRET_KEY") == "" {
+		slog.Error("unable to decode secret", err)
+		os.Exit(1)
+	}
+
 	slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stdout)))
 
-	err := envconfig.Process(context.Background(), &app.config)
+	err = envconfig.Process(context.Background(), &app.config)
 	if err != nil {
 		slog.Error("unable to process env config", err)
 		os.Exit(1)

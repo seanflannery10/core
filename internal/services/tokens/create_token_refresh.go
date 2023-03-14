@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/go-chi/render"
@@ -65,35 +66,7 @@ func CreateTokenRefreshHandler(env services.Env) http.HandlerFunc {
 			return
 		}
 
-		refreshToken, err := env.Queries.CreateTokenHelper(r.Context(), user.ID, 30*24*time.Hour, data.ScopeRefresh)
-		if err != nil {
-			_ = render.Render(w, r, errs.ErrServerError(err))
-			return
-		}
-
-		cookie := http.Cookie{
-			Name:     "core_refresh_token",
-			Value:    refreshToken.Plaintext,
-			Path:     "/",
-			MaxAge:   int(30 * 24 * time.Hour),
-			HttpOnly: true,
-			Secure:   true,
-			SameSite: http.SameSiteLaxMode,
-		}
-
-		secret, err := hex.DecodeString(env.Config.SecretKey)
-		if err != nil {
-			_ = render.Render(w, r, errs.ErrServerError(err))
-			return
-		}
-
-		err = cookies.WriteEncrypted(w, cookie, secret)
-		if err != nil {
-			_ = render.Render(w, r, errs.ErrServerError(err))
-			return
-		}
-
-		scopeToken, err := env.Queries.CreateTokenHelper(r.Context(), user.ID, time.Hour, data.ScopeAccess)
+		w, accessToken, err := createRefreshAndAccessTokens(w, r, env.Queries, user.ID)
 		if err != nil {
 			_ = render.Render(w, r, errs.ErrServerError(err))
 			return
@@ -101,6 +74,49 @@ func CreateTokenRefreshHandler(env services.Env) http.HandlerFunc {
 
 		render.Status(r, http.StatusCreated)
 
-		helpers.RenderAndCheck(w, r, &scopeToken)
+		helpers.RenderAndCheck(w, r, &accessToken)
 	}
+}
+
+func createRefreshCookie(w http.ResponseWriter, plaintextToken string) (http.ResponseWriter, error) {
+	cookie := http.Cookie{
+		Name:     "core_refreshtoken",
+		Value:    plaintextToken,
+		Path:     "/",
+		MaxAge:   7 * 24 * 60 * 60,
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteLaxMode,
+	}
+
+	secret, err := hex.DecodeString(os.Getenv("SECRET_KEY"))
+	if err != nil {
+		return nil, err
+	}
+
+	err = cookies.WriteEncrypted(w, cookie, secret)
+	if err != nil {
+		return nil, err
+	}
+
+	return w, nil
+}
+
+func createRefreshAndAccessTokens(w http.ResponseWriter, r *http.Request, q *data.Queries, id int64) (http.ResponseWriter, data.TokenFull, error) { //nolint:lll
+	refreshToken, err := q.CreateTokenHelper(r.Context(), id, 7*24*time.Hour, data.ScopeRefresh)
+	if err != nil {
+		return nil, data.TokenFull{}, err
+	}
+
+	w, err = createRefreshCookie(w, refreshToken.Plaintext)
+	if err != nil {
+		return nil, data.TokenFull{}, err
+	}
+
+	accessToken, err := q.CreateTokenHelper(r.Context(), id, time.Hour, data.ScopeAccess)
+	if err != nil {
+		return nil, data.TokenFull{}, err
+	}
+
+	return w, accessToken, nil
 }
