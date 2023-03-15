@@ -1,13 +1,14 @@
-package validator
+package validator_test
 
 import (
 	"testing"
 
 	"github.com/seanflannery10/core/internal/pkg/assert"
+	"github.com/seanflannery10/core/internal/pkg/validator"
 )
 
 func TestValidator(t *testing.T) {
-	v := New()
+	v := validator.New()
 
 	assert.Equal(t, v.HasErrors(), false)
 

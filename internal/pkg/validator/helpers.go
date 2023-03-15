@@ -72,7 +72,9 @@ func NoDuplicates[T comparable](values []T) bool {
 }
 
 func IsEmail(value string) bool {
-	if len(value) > 254 {
+	const maxLength = 254
+
+	if len(value) > maxLength {
 		return false
 	}
 

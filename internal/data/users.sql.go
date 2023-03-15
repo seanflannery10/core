@@ -87,9 +87,9 @@ WHERE tokens.hash = $1
 `
 
 type GetUserFromTokenParams struct {
-	Hash   []byte             `json:"hash"`
-	Scope  string             `json:"scope"`
-	Expiry pgtype.Timestamptz `json:"expiry"`
+	Hash   []byte           `json:"hash"`
+	Scope  string           `json:"scope"`
+	Expiry pgtype.Timestamp `json:"expiry"`
 }
 
 func (q *Queries) GetUserFromToken(ctx context.Context, arg GetUserFromTokenParams) (User, error) {

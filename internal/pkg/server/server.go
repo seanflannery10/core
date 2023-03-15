@@ -46,7 +46,7 @@ func Serve(port int, routes http.Handler) error {
 
 	err := s.ListenAndServe()
 	if !errors.Is(err, http.ErrServerClosed) {
-		return err
+		return fmt.Errorf("failed listen and serve: %w", err)
 	}
 
 	err = <-shutdownError

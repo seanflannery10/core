@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base32"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -23,7 +24,7 @@ type TokenFull struct {
 	Plaintext string
 	Hash      []byte
 	UserID    int64
-	Expiry    pgtype.Timestamptz
+	Expiry    pgtype.Timestamp
 	Scope     string
 }
 
@@ -41,7 +42,7 @@ func (q *Queries) CreateTokenHelper(ctx context.Context, uid int64, ttl time.Dur
 
 	_, err := rand.Read(randomBytes)
 	if err != nil {
-		return TokenFull{}, err
+		return TokenFull{}, fmt.Errorf("failed read rand: %w", err)
 	}
 
 	plaintext := base32.StdEncoding.WithPadding(base32.NoPadding).EncodeToString(randomBytes)
@@ -50,11 +51,11 @@ func (q *Queries) CreateTokenHelper(ctx context.Context, uid int64, ttl time.Dur
 	token, err := q.CreateToken(ctx, CreateTokenParams{
 		Hash:   hash[:],
 		UserID: uid,
-		Expiry: pgtype.Timestamptz{Time: time.Now().Add(ttl), Valid: true},
+		Expiry: pgtype.Timestamp{Time: time.Now().Add(ttl), Valid: true},
 		Scope:  s,
 	})
 	if err != nil {
-		return TokenFull{}, err
+		return TokenFull{}, fmt.Errorf("failed create token: %w", err)
 	}
 
 	tokenPlaintext := TokenFull{

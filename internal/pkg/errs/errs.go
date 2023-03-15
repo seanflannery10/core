@@ -54,56 +54,62 @@ func (err ErrResponse) Render(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-var ErrNotFound = &ErrResponse{
+var ErrNotFound = &ErrResponse{ //nolint:gochecknoglobals
 	AppCode:        0,
 	HTTPStatusCode: http.StatusNotFound,
 	Message:        "the requested resource could not be found",
 }
 
-var ErrMethodNotAllowed = &ErrResponse{
+var ErrMethodNotAllowed = &ErrResponse{ //nolint:gochecknoglobals
 	AppCode:        0,
 	HTTPStatusCode: http.StatusMethodNotAllowed,
 	Message:        "the used method is not supported for this resource",
 }
 
-var ErrEditConflict = &ErrResponse{
+var ErrEditConflict = &ErrResponse{ //nolint:gochecknoglobals
 	AppCode:        0,
 	HTTPStatusCode: http.StatusConflict,
 	Message:        "unable to update the record due to an edit conflict, please try again",
 }
 
-var ErrCookieNotFound = &ErrResponse{
+var ErrCookieNotFound = &ErrResponse{ //nolint:gochecknoglobals
 	AppCode:        0,
 	HTTPStatusCode: http.StatusBadRequest,
 	Message:        "cookie not found",
 }
 
-var ErrInvalidCookie = &ErrResponse{
+var ErrInvalidCookie = &ErrResponse{ //nolint:gochecknoglobals
 	AppCode:        0,
 	HTTPStatusCode: http.StatusBadRequest,
 	Message:        "invalid cookie",
 }
 
-var ErrInvalidCredentials = &ErrResponse{
+var ErrInvalidCredentials = &ErrResponse{ //nolint:gochecknoglobals
 	AppCode:        0,
 	HTTPStatusCode: http.StatusUnauthorized,
 	Message:        "invalid authentication credentials",
 }
 
-var ErrAuthenticationRequired = &ErrResponse{
+var ErrAuthenticationRequired = &ErrResponse{ //nolint:gochecknoglobals
 	AppCode:        0,
 	HTTPStatusCode: http.StatusUnauthorized,
 	Message:        "you must be authenticated to access this resource",
 }
 
-func ErrInvalidAuthenticationToken() render.Renderer {
+var ErrReusedRefreshToken = &ErrResponse{ //nolint:gochecknoglobals
+	AppCode:        1,
+	HTTPStatusCode: http.StatusUnauthorized,
+	Message:        "invalid or missing refresh token",
+}
+
+func ErrInvalidAccessToken() render.Renderer {
 	headers := make(http.Header)
 	headers.Set("WWW-Authenticate", "Bearer")
 
 	return &ErrResponse{
 		AppCode:        0,
 		HTTPStatusCode: http.StatusUnauthorized,
-		Message:        "invalid or missing authentication token",
+		Message:        "invalid or missing access token",
 		Headers:        headers,
 	}
 }

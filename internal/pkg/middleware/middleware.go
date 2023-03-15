@@ -70,7 +70,7 @@ func Authenticate(env services.Env) func(next http.Handler) http.Handler {
 
 			headerParts := strings.Split(authorizationHeader, " ")
 			if len(headerParts) != 2 || headerParts[0] != "Bearer" {
-				_ = render.Render(w, r, errs.ErrInvalidAuthenticationToken())
+				_ = render.Render(w, r, errs.ErrInvalidAccessToken())
 				return
 			}
 
@@ -81,7 +81,7 @@ func Authenticate(env services.Env) func(next http.Handler) http.Handler {
 			data.ValidateTokenPlaintext(v, token)
 
 			if v.HasErrors() {
-				_ = render.Render(w, r, errs.ErrInvalidAuthenticationToken())
+				_ = render.Render(w, r, errs.ErrInvalidAccessToken())
 				return
 			}
 
@@ -90,12 +90,12 @@ func Authenticate(env services.Env) func(next http.Handler) http.Handler {
 			user, err := env.Queries.GetUserFromToken(r.Context(), data.GetUserFromTokenParams{
 				Hash:   tokenHash[:],
 				Scope:  data.ScopeAccess,
-				Expiry: pgtype.Timestamptz{Time: time.Now(), Valid: true},
+				Expiry: pgtype.Timestamp{Time: time.Now(), Valid: true},
 			})
 			if err != nil {
 				switch {
 				case errors.Is(err, pgx.ErrNoRows):
-					_ = render.Render(w, r, errs.ErrInvalidAuthenticationToken())
+					_ = render.Render(w, r, errs.ErrInvalidAccessToken())
 				default:
 					_ = render.Render(w, r, errs.ErrServerError(err))
 				}
@@ -143,7 +143,7 @@ func RecoverPanic(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if rvr := recover(); rvr != nil {
-				if rvr == http.ErrAbortHandler { //nolint:goerr113
+				if rvr == http.ErrAbortHandler { //nolint:goerr113,errorlint
 					panic(rvr)
 				}
 

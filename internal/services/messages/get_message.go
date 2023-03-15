@@ -2,6 +2,7 @@ package messages
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/go-chi/render"
@@ -18,7 +19,7 @@ type getMessagePayload struct {
 func (p *getMessagePayload) Bind(r *http.Request) error {
 	id, err := helpers.ReadIDParam(r)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed read id: %w", err)
 	}
 
 	p.ID = id

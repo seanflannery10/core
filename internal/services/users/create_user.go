@@ -1,6 +1,7 @@
 package users
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -36,7 +37,7 @@ func (p *createUserPayload) Bind(r *http.Request) error {
 
 	ok, err := queries.CheckUser(r.Context(), p.Email)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed check user: %w", err)
 	}
 
 	if ok {
@@ -46,7 +47,7 @@ func (p *createUserPayload) Bind(r *http.Request) error {
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(p.Password), 14)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to generate password: %w", err)
 	}
 
 	p.PasswordHash = hash

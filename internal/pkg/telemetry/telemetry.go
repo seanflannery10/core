@@ -2,6 +2,7 @@ package telemetry
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/seanflannery10/core/internal/pkg/helpers"
 	"go.opentelemetry.io/otel"
@@ -19,7 +20,7 @@ func New(endpoint, env string) (*sdktrace.TracerProvider, error) {
 		otlptracegrpc.WithEndpoint(endpoint),
 	))
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed new trace: %w", err)
 	}
 
 	res, err := resource.Merge(resource.Default(), resource.NewWithAttributes(
@@ -28,7 +29,7 @@ func New(endpoint, env string) (*sdktrace.TracerProvider, error) {
 		semconv.ServiceNameKey.String("core"),
 		attribute.String("environment", env)))
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed resource merge: %w", err)
 	}
 
 	tp := sdktrace.NewTracerProvider(
@@ -46,5 +47,5 @@ func New(endpoint, env string) (*sdktrace.TracerProvider, error) {
 
 	otel.SetTracerProvider(tp)
 
-	return tp, err
+	return tp, nil
 }

@@ -11,49 +11,38 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const createRefreshToken = `-- name: CreateRefreshToken :one
-INSERT INTO tokens (hash, user_id, expiry, session, scope)
-VALUES ($1, $2, $3, $4, "refresh")
-RETURNING hash, user_id, active, expiry, scope, session
+const checkRefreshToken = `-- name: CheckRefreshToken :one
+SELECT EXISTS(SELECT 1
+              FROM tokens
+              WHERE scope = "refresh"
+                AND active = false
+                AND hash = $1
+                AND user_id = $2)::bool
 `
 
-type CreateRefreshTokenParams struct {
-	Hash    []byte             `json:"hash"`
-	UserID  int64              `json:"user_id"`
-	Expiry  pgtype.Timestamptz `json:"expiry"`
-	Session pgtype.Text        `json:"session"`
+type CheckRefreshTokenParams struct {
+	Hash   []byte `json:"hash"`
+	UserID int64  `json:"user_id"`
 }
 
-func (q *Queries) CreateRefreshToken(ctx context.Context, arg CreateRefreshTokenParams) (Token, error) {
-	row := q.db.QueryRow(ctx, createRefreshToken,
-		arg.Hash,
-		arg.UserID,
-		arg.Expiry,
-		arg.Session,
-	)
-	var i Token
-	err := row.Scan(
-		&i.Hash,
-		&i.UserID,
-		&i.Active,
-		&i.Expiry,
-		&i.Scope,
-		&i.Session,
-	)
-	return i, err
+func (q *Queries) CheckRefreshToken(ctx context.Context, arg CheckRefreshTokenParams) (bool, error) {
+	row := q.db.QueryRow(ctx, checkRefreshToken, arg.Hash, arg.UserID)
+	var column_1 bool
+	err := row.Scan(&column_1)
+	return column_1, err
 }
 
 const createToken = `-- name: CreateToken :one
 INSERT INTO tokens (hash, user_id, expiry, scope)
 VALUES ($1, $2, $3, $4)
-RETURNING hash, user_id, active, expiry, scope, session
+RETURNING hash, user_id, active, expiry, scope
 `
 
 type CreateTokenParams struct {
-	Hash   []byte             `json:"hash"`
-	UserID int64              `json:"user_id"`
-	Expiry pgtype.Timestamptz `json:"expiry"`
-	Scope  string             `json:"scope"`
+	Hash   []byte           `json:"hash"`
+	UserID int64            `json:"user_id"`
+	Expiry pgtype.Timestamp `json:"expiry"`
+	Scope  string           `json:"scope"`
 }
 
 func (q *Queries) CreateToken(ctx context.Context, arg CreateTokenParams) (Token, error) {
@@ -70,59 +59,42 @@ func (q *Queries) CreateToken(ctx context.Context, arg CreateTokenParams) (Token
 		&i.Active,
 		&i.Expiry,
 		&i.Scope,
-		&i.Session,
 	)
 	return i, err
 }
 
-const deactivateRefreshTokens = `-- name: DeactivateRefreshTokens :exec
+const deactivateToken = `-- name: DeactivateToken :exec
 UPDATE tokens
 SET active = false
-WHERE session = $1
-  AND user_id = $2
+WHERE scope = $1
+  AND hash = $2
+  AND user_id = $3
 `
 
-type DeactivateRefreshTokensParams struct {
-	Session pgtype.Text `json:"session"`
-	UserID  int64       `json:"user_id"`
+type DeactivateTokenParams struct {
+	Scope  string `json:"scope"`
+	Hash   []byte `json:"hash"`
+	UserID int64  `json:"user_id"`
 }
 
-func (q *Queries) DeactivateRefreshTokens(ctx context.Context, arg DeactivateRefreshTokensParams) error {
-	_, err := q.db.Exec(ctx, deactivateRefreshTokens, arg.Session, arg.UserID)
+func (q *Queries) DeactivateToken(ctx context.Context, arg DeactivateTokenParams) error {
+	_, err := q.db.Exec(ctx, deactivateToken, arg.Scope, arg.Hash, arg.UserID)
 	return err
 }
 
-const deleteAllTokensForUser = `-- name: DeleteAllTokensForUser :exec
+const deleteTokens = `-- name: DeleteTokens :exec
 DELETE
 FROM tokens
 WHERE scope = $1
   AND user_id = $2
 `
 
-type DeleteAllTokensForUserParams struct {
+type DeleteTokensParams struct {
 	Scope  string `json:"scope"`
 	UserID int64  `json:"user_id"`
 }
 
-func (q *Queries) DeleteAllTokensForUser(ctx context.Context, arg DeleteAllTokensForUserParams) error {
-	_, err := q.db.Exec(ctx, deleteAllTokensForUser, arg.Scope, arg.UserID)
-	return err
-}
-
-const deleteSessionTokensForUser = `-- name: DeleteSessionTokensForUser :exec
-DELETE
-FROM tokens
-WHERE scope = "refresh"
-  AND user_id = $1
-  AND session = $2
-`
-
-type DeleteSessionTokensForUserParams struct {
-	UserID  int64       `json:"user_id"`
-	Session pgtype.Text `json:"session"`
-}
-
-func (q *Queries) DeleteSessionTokensForUser(ctx context.Context, arg DeleteSessionTokensForUserParams) error {
-	_, err := q.db.Exec(ctx, deleteSessionTokensForUser, arg.UserID, arg.Session)
+func (q *Queries) DeleteTokens(ctx context.Context, arg DeleteTokensParams) error {
+	_, err := q.db.Exec(ctx, deleteTokens, arg.Scope, arg.UserID)
 	return err
 }

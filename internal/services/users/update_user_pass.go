@@ -61,7 +61,7 @@ func UpdateUserPasswordHandler(env services.Env) http.HandlerFunc {
 			return
 		}
 
-		err = env.Queries.DeleteAllTokensForUser(r.Context(), data.DeleteAllTokensForUserParams{
+		err = env.Queries.DeleteTokens(r.Context(), data.DeleteTokensParams{
 			Scope:  data.ScopePasswordReset,
 			UserID: user.ID,
 		})

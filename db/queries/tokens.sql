@@ -3,26 +3,22 @@ INSERT INTO tokens (hash, user_id, expiry, scope)
 VALUES ($1, $2, $3, $4)
 RETURNING *;
 
--- name: CreateRefreshToken :one
-INSERT INTO tokens (hash, user_id, expiry, session, scope)
-VALUES ($1, $2, $3, $4, "refresh")
-RETURNING *;
+-- name: CheckRefreshToken :one
+SELECT EXISTS(SELECT 1
+              FROM tokens
+              WHERE scope = "refresh"
+                AND active = false
+                AND hash = $1
+                AND user_id = $2)::bool;
 
--- name: DeactivateRefreshTokens :exec
+-- name: DeactivateToken :exec
 UPDATE tokens
 SET active = false
-WHERE session = $1
-  AND user_id = $2;
+WHERE scope = $1
+  AND hash = $2
+  AND user_id = $3;
 
--- name: DeleteSessionTokensForUser :exec
-DELETE
-FROM tokens
-WHERE scope = "refresh"
-  AND user_id = $1
-  AND session = $2;
-
-
--- name: DeleteAllTokensForUser :exec
+-- name: DeleteTokens :exec
 DELETE
 FROM tokens
 WHERE scope = $1

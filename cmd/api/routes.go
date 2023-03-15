@@ -14,23 +14,23 @@ import (
 )
 
 func (app *application) routes() *chi.Mux {
-	r := chi.NewRouter()
+	router := chi.NewRouter()
 	env := app.env
 
-	r.NotFound(helpers.ErrFuncWrapper(errs.ErrNotFound))
-	r.MethodNotAllowed(helpers.ErrFuncWrapper(errs.ErrMethodNotAllowed))
+	router.NotFound(helpers.ErrFuncWrapper(errs.ErrNotFound))
+	router.MethodNotAllowed(helpers.ErrFuncWrapper(errs.ErrMethodNotAllowed))
 
-	r.Use(middleware.StartSpan(env))
-	r.Use(middleware.Metrics)
-	r.Use(middleware.RecoverPanic)
+	router.Use(middleware.StartSpan(env))
+	router.Use(middleware.Metrics)
+	router.Use(middleware.RecoverPanic)
 
-	r.Use(cors.Handler(cors.Options{AllowedOrigins: []string{"https://*"}}))
+	router.Use(cors.Handler(cors.Options{AllowedOrigins: []string{"https://*"}}))
 
-	r.Use(middleware.Authenticate(env))
+	router.Use(middleware.Authenticate(env))
 
-	r.Get("/debug/vars", expvar.Handler().ServeHTTP)
+	router.Get("/debug/vars", expvar.Handler().ServeHTTP)
 
-	r.Route("/v1/messages", func(r chi.Router) {
+	router.Route("/v1/messages", func(r chi.Router) {
 		r.Use(middleware.RequireAuthenticatedUser)
 
 		r.Get("/", messages.GetMessagesUserHandler(env))
@@ -43,18 +43,18 @@ func (app *application) routes() *chi.Mux {
 		})
 	})
 
-	r.Route("/v1/tokens", func(r chi.Router) {
+	router.Route("/v1/tokens", func(r chi.Router) {
 		r.Post("/access", tokens.CreateTokenAccessHandler(app.env))
 		r.Post("/activation", tokens.CreateTokenActivationHandler(app.env))
 		r.Post("/password-reset", tokens.CreateTokenPasswordResetHandler(app.env))
 		r.Post("/refresh", tokens.CreateTokenRefreshHandler(app.env))
 	})
 
-	r.Route("/v1/users", func(r chi.Router) {
+	router.Route("/v1/users", func(r chi.Router) {
 		r.Post("/register", users.CreateUserHandler(app.env))
 		r.Patch("/activate", users.ActivateUserHandler(app.env))
 		r.Patch("/update-password", users.UpdateUserPasswordHandler(app.env))
 	})
 
-	return r
+	return router
 }

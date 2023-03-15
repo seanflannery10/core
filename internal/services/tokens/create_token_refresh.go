@@ -5,11 +5,8 @@ import (
 	"net/http"
 
 	"github.com/go-chi/render"
-	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/seanflannery10/core/internal/data"
-	"github.com/seanflannery10/core/internal/pkg/cookies"
 	"github.com/seanflannery10/core/internal/pkg/errs"
 	"github.com/seanflannery10/core/internal/pkg/helpers"
 	"github.com/seanflannery10/core/internal/pkg/validator"
@@ -65,40 +62,7 @@ func CreateTokenRefreshHandler(env services.Env) http.HandlerFunc {
 			return
 		}
 
-		sessionID, err := cookies.ReadEncrypted(r, cookieSessionID, env.Config.Secret)
-		if err != nil {
-			switch {
-			case errors.Is(err, http.ErrNoCookie):
-				_ = render.Render(w, r, errs.ErrCookieNotFound)
-			case errors.Is(err, cookies.ErrInvalidValue):
-				_ = render.Render(w, r, errs.ErrInvalidCookie)
-			default:
-				_ = render.Render(w, r, errs.ErrServerError(err))
-			}
-
-			return
-		}
-
-		if sessionID != "" {
-			err = env.Queries.DeleteSessionTokensForUser(r.Context(), data.DeleteSessionTokensForUserParams{
-				UserID:  user.ID,
-				Session: pgtype.Text{String: sessionID, Valid: true},
-			})
-			if err != nil {
-				_ = render.Render(w, r, errs.ErrServerError(err))
-				return
-			}
-		}
-
-		newSessionID := uuid.New().String()
-
-		w, err = createCookie(w, cookieSessionID, newSessionID, env.Config.Secret)
-		if err != nil {
-			_ = render.Render(w, r, errs.ErrServerError(err))
-			return
-		}
-
-		w, accessToken, err := createRefreshAndAccessTokens(w, r, env, user.ID, newSessionID)
+		w, accessToken, err := createRefreshAndAccessTokens(w, r, env, user.ID)
 		if err != nil {
 			_ = render.Render(w, r, errs.ErrServerError(err))
 			return

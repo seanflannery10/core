@@ -27,7 +27,7 @@ func (app *application) init() {
 	flag.Parse()
 
 	if *displayVersion {
-		fmt.Printf("Version:\t%s\n", helpers.GetVersion())
+		fmt.Printf("Version:\t%s\n", helpers.GetVersion()) //nolint:forbidigo
 		os.Exit(0)
 	}
 
@@ -64,7 +64,7 @@ func (app *application) init() {
 
 	cfg := app.config
 
-	m, err := mailer.New(cfg.SMTP)
+	mail, err := mailer.New(cfg.SMTP)
 	if err != nil {
 		slog.Error("unable to create mailer", err)
 		os.Exit(1)
@@ -76,19 +76,19 @@ func (app *application) init() {
 		os.Exit(1)
 	}
 
-	tp, err := telemetry.New(cfg.OTelEndpoint, cfg.Env)
+	tracerProvider, err := telemetry.New(cfg.OTelEndpoint, cfg.Env)
 	if err != nil {
 		slog.Error("unable to start telemetry", err)
 		os.Exit(1)
 	}
 
 	app.dbpool = dbpool
-	app.tp = tp
+	app.tp = tracerProvider
 
 	app.env = services.Env{
 		Queries: data.New(dbpool),
-		Mailer:  m,
-		Tracer:  tp.Tracer("main"),
+		Mailer:  mail,
+		Tracer:  tracerProvider.Tracer("main"),
 	}
 
 	expvar.NewString("version").Set(helpers.GetVersion())

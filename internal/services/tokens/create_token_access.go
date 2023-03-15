@@ -1,6 +1,7 @@
 package tokens
 
 import (
+	"crypto/sha256"
 	"errors"
 	"net/http"
 
@@ -14,7 +15,7 @@ import (
 
 func CreateTokenAccessHandler(env services.Env) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		refreshTokenPlaintext, err := cookies.ReadEncrypted(r, cookieSessionID, env.Config.Secret)
+		refreshTokenPlaintext, err := cookies.ReadEncrypted(r, cookieRefreshToken, env.Config.Secret)
 		if err != nil {
 			switch {
 			case errors.Is(err, http.ErrNoCookie):
@@ -34,23 +35,43 @@ func CreateTokenAccessHandler(env services.Env) http.HandlerFunc {
 			return
 		}
 
-		sessionID, err := cookies.ReadEncrypted(r, cookieSessionID, env.Config.Secret)
+		tokenHash := sha256.Sum256([]byte(refreshTokenPlaintext))
+
+		badToken, err := env.Queries.CheckRefreshToken(r.Context(), data.CheckRefreshTokenParams{
+			Hash:   tokenHash[:],
+			UserID: user.ID,
+		})
 		if err != nil {
-			switch {
-			case errors.Is(err, http.ErrNoCookie):
-				_ = render.Render(w, r, errs.ErrCookieNotFound)
-			case errors.Is(err, cookies.ErrInvalidValue):
-				_ = render.Render(w, r, errs.ErrInvalidCookie)
-			default:
+			_ = render.Render(w, r, errs.ErrServerError(err))
+			return
+		}
+
+		if badToken {
+			err = env.Queries.DeleteTokens(r.Context(), data.DeleteTokensParams{
+				Scope:  data.ScopeRefresh,
+				UserID: user.ID,
+			})
+			if err != nil {
 				_ = render.Render(w, r, errs.ErrServerError(err))
+				return
 			}
+
+			_ = render.Render(w, r, errs.ErrReusedRefreshToken)
 
 			return
 		}
 
-		// TODO Check if refresh token is current and unused
+		err = env.Queries.DeactivateToken(r.Context(), data.DeactivateTokenParams{
+			Scope:  data.ScopeRefresh,
+			Hash:   tokenHash[:],
+			UserID: user.ID,
+		})
+		if err != nil {
+			_ = render.Render(w, r, errs.ErrServerError(err))
+			return
+		}
 
-		w, accessToken, err := createRefreshAndAccessTokens(w, r, env, user.ID, sessionID)
+		w, accessToken, err := createRefreshAndAccessTokens(w, r, env, user.ID)
 		if err != nil {
 			_ = render.Render(w, r, errs.ErrServerError(err))
 			return

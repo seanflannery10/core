@@ -3,6 +3,7 @@ package mailer
 import (
 	"bytes"
 	"embed"
+	"fmt"
 	"html/template"
 
 	"github.com/wneessen/go-mail"
@@ -33,7 +34,7 @@ func New(smtp SMTP) (Mailer, error) {
 		mail.WithSMTPAuth(mail.SMTPAuthPlain),
 	)
 	if err != nil {
-		return Mailer{}, err
+		return Mailer{}, fmt.Errorf("failed new mail client: %w", err)
 	}
 
 	mailer := Mailer{
@@ -47,38 +48,38 @@ func New(smtp SMTP) (Mailer, error) {
 func (m *Mailer) Send(recipient, templateFile string, data any) error {
 	tmpl, err := template.New("email").ParseFS(templateFS, "templates/"+templateFile)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed read template fs: %w", err)
 	}
 
 	subject := new(bytes.Buffer)
 
 	err = tmpl.ExecuteTemplate(subject, "subject", data)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed execute template subject: %w", err)
 	}
 
 	plainBody := new(bytes.Buffer)
 
 	err = tmpl.ExecuteTemplate(plainBody, "plainBody", data)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed execute template plain body: %w", err)
 	}
 
 	htmlBody := new(bytes.Buffer)
 
 	err = tmpl.ExecuteTemplate(htmlBody, "htmlBody", data)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed execute template html body: %w", err)
 	}
 
 	msg := mail.NewMsg()
 
 	if err := msg.To(recipient); err != nil {
-		return err
+		return fmt.Errorf("failed message to: %w", err)
 	}
 
 	if err := msg.From(m.sender); err != nil {
-		return err
+		return fmt.Errorf("failed message from: %w", err)
 	}
 
 	msg.Subject(subject.String())
@@ -88,7 +89,7 @@ func (m *Mailer) Send(recipient, templateFile string, data any) error {
 
 	err = m.client.DialAndSend(msg)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed dial and send: %w", err)
 	}
 
 	return nil

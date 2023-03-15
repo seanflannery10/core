@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/sha256"
 	"errors"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -13,7 +14,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var AnonymousUser = &User{}
+var AnonymousUser = &User{} //nolint: gochecknoglobals
 
 func (u *User) Render(_ http.ResponseWriter, _ *http.Request) error {
 	return nil
@@ -26,7 +27,7 @@ func (u *User) IsAnonymous() bool {
 func (u *User) SetPassword(plaintextPassword string) error {
 	hash, err := bcrypt.GenerateFromPassword([]byte(plaintextPassword), 13)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed set password: %w", err)
 	}
 
 	u.PasswordHash = hash
@@ -41,7 +42,7 @@ func (u *User) ComparePasswords(plaintextPassword string) (bool, error) {
 		case errors.Is(err, bcrypt.ErrMismatchedHashAndPassword):
 			return false, nil
 		default:
-			return false, err
+			return false, fmt.Errorf("failed compare password: %w", err)
 		}
 	}
 
@@ -70,10 +71,10 @@ func (q *Queries) GetUserFromTokenHelper(ctx context.Context, tokenPlaintext, sc
 	user, err := q.GetUserFromToken(ctx, GetUserFromTokenParams{
 		Hash:   tokenHash[:],
 		Scope:  scope,
-		Expiry: pgtype.Timestamptz{Time: time.Now(), Valid: true},
+		Expiry: pgtype.Timestamp{Time: time.Now(), Valid: true},
 	})
 	if err != nil {
-		return User{}, err
+		return User{}, fmt.Errorf("failed get user from token: %w", err)
 	}
 
 	return user, nil

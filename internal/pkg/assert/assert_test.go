@@ -1,11 +1,14 @@
-package assert
+package assert_test
 
 import (
 	"errors"
 	"fmt"
 	"testing"
+
+	"github.com/seanflannery10/core/internal/pkg/assert"
 )
 
+//nolint:dupl
 func TestEqual(t *testing.T) {
 	testsNums := []struct {
 		a float32
@@ -61,7 +64,7 @@ func TestEqual(t *testing.T) {
 
 	for _, tt := range testsNums {
 		t.Run(fmt.Sprintf("%#v", tt.a), func(t *testing.T) {
-			res := Equal(new(testing.T), tt.a, tt.e)
+			res := assert.Equal(new(testing.T), tt.a, tt.e)
 			if res != tt.r {
 				t.Errorf("Equal(%#v, %#v) should return %#v", tt.a, tt.e, tt.r)
 			}
@@ -92,7 +95,7 @@ func TestEqual(t *testing.T) {
 
 	for _, tt := range testsStrings {
 		t.Run(fmt.Sprintf("%#v", tt.a), func(t *testing.T) {
-			res := Equal(new(testing.T), tt.a, tt.e)
+			res := assert.Equal(new(testing.T), tt.a, tt.e)
 			if res != tt.r {
 				t.Errorf("Equal(%#v, %#v) should return %#v", tt.a, tt.e, tt.r)
 			}
@@ -100,6 +103,7 @@ func TestEqual(t *testing.T) {
 	}
 }
 
+//nolint:dupl
 func TestNotEqual(t *testing.T) {
 	testsNums := []struct {
 		a float32
@@ -155,7 +159,7 @@ func TestNotEqual(t *testing.T) {
 
 	for _, tt := range testsNums {
 		t.Run(fmt.Sprintf("%#v", tt.a), func(t *testing.T) {
-			res := NotEqual(new(testing.T), tt.a, tt.e)
+			res := assert.NotEqual(new(testing.T), tt.a, tt.e)
 			if res != tt.r {
 				t.Errorf("NotEqual(%#v, %#v) should return %#v", tt.a, tt.e, tt.r)
 			}
@@ -186,7 +190,7 @@ func TestNotEqual(t *testing.T) {
 
 	for _, tt := range testsStrings {
 		t.Run(fmt.Sprintf("%#v", tt.a), func(t *testing.T) {
-			res := NotEqual(new(testing.T), tt.a, tt.e)
+			res := assert.NotEqual(new(testing.T), tt.a, tt.e)
 			if res != tt.r {
 				t.Errorf("NotEqual(%#v, %#v) should return %#v", tt.a, tt.e, tt.r)
 			}
@@ -196,28 +200,28 @@ func TestNotEqual(t *testing.T) {
 
 func TestSameType(t *testing.T) {
 	t.Run("String", func(t *testing.T) {
-		res := SameType(new(testing.T), "foo", "bar")
+		res := assert.SameType(new(testing.T), "foo", "bar")
 		if res != true {
 			t.Errorf("SameType(%#v, %#v) should return %#v", "foo", "bar", "true")
 		}
 	})
 
 	t.Run("Int", func(t *testing.T) {
-		res := SameType(new(testing.T), 1, 2)
+		res := assert.SameType(new(testing.T), 1, 2)
 		if res != true {
 			t.Errorf("SameType(%#v, %#v) should return %#v", "foo", "bar", "true")
 		}
 	})
 
 	t.Run("Float", func(t *testing.T) {
-		res := SameType(new(testing.T), 1.2, 2.3)
+		res := assert.SameType(new(testing.T), 1.2, 2.3)
 		if res != true {
 			t.Errorf("SameType(%#v, %#v) should return %#v", "foo", "bar", "true")
 		}
 	})
 
 	t.Run("Bool", func(t *testing.T) {
-		res := SameType(new(testing.T), true, false)
+		res := assert.SameType(new(testing.T), true, false)
 		if res != true {
 			t.Errorf("SameType(%#v, %#v) should return %#v", "foo", "bar", "true")
 		}
@@ -249,7 +253,7 @@ func TestContains(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(fmt.Sprintf("%#v", tt.e), func(t *testing.T) {
-			res := Contains(new(testing.T), tt.a, tt.e)
+			res := assert.Contains(new(testing.T), tt.a, tt.e)
 			if res != tt.r {
 				t.Errorf("Contains(%#v, %#v) should return %#v", tt.a, tt.e, tt.r)
 			}
@@ -282,7 +286,7 @@ func TestNotContains(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(fmt.Sprintf("%#v", tt.e), func(t *testing.T) {
-			res := NotContains(new(testing.T), tt.a, tt.e)
+			res := assert.NotContains(new(testing.T), tt.a, tt.e)
 			if res != tt.r {
 				t.Errorf("NotContains(%#v, %#v) should return %#v", tt.a, tt.e, tt.r)
 			}
@@ -311,7 +315,7 @@ func TestNilError(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(fmt.Sprintf("%#v", tt.a), func(t *testing.T) {
-			res := NilError(new(testing.T), tt.a)
+			res := assert.NilError(new(testing.T), tt.a)
 			if res != tt.r {
 				t.Errorf("NilError(%#v) should return %#v", tt.a, tt.r)
 			}

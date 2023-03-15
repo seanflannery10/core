@@ -1,4 +1,4 @@
-package middleware
+package middleware_test
 
 import (
 	"context"
@@ -7,11 +7,12 @@ import (
 	"testing"
 
 	"github.com/seanflannery10/core/internal/pkg/assert"
+	"github.com/seanflannery10/core/internal/pkg/middleware"
 )
 
 var (
-	ctx  = context.Background()
-	next = http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	ctx  = context.Background()                                                         //nolint:gochecknoglobals
+	next = http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { //nolint:gochecknoglobals
 		_, err := w.Write([]byte("OK"))
 		if err != nil {
 			return
@@ -47,7 +48,7 @@ func TestMiddleware_Metrics(t *testing.T) {
 	rr := httptest.NewRecorder()
 	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/", nil)
 
-	Metrics(next).ServeHTTP(rr, r)
+	middleware.Metrics(next).ServeHTTP(rr, r)
 
 	assert.Equal(t, rr.Body.String(), "OK")
 }
@@ -57,7 +58,7 @@ func TestMiddleware_RecoverPanic(t *testing.T) {
 		rr := httptest.NewRecorder()
 		r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/", nil)
 
-		RecoverPanic(next).ServeHTTP(rr, r)
+		middleware.RecoverPanic(next).ServeHTTP(rr, r)
 
 		assert.Equal(t, rr.Body.String(), "OK")
 	})
@@ -68,7 +69,7 @@ func TestMiddleware_RecoverPanic(t *testing.T) {
 
 		homeHandler := http.HandlerFunc(func(http.ResponseWriter, *http.Request) { panic("test error") })
 
-		RecoverPanic(homeHandler).ServeHTTP(rr, r)
+		middleware.RecoverPanic(homeHandler).ServeHTTP(rr, r)
 
 		assert.Contains(t, rr.Body.String(), "the server encountered a problem and could not process your json")
 	})

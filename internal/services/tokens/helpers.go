@@ -1,13 +1,10 @@
 package tokens
 
 import (
-	"crypto/rand"
-	"crypto/sha256"
-	"encoding/base32"
+	"fmt"
 	"net/http"
 	"time"
 
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/seanflannery10/core/internal/data"
 	"github.com/seanflannery10/core/internal/pkg/cookies"
 	"github.com/seanflannery10/core/internal/services"
@@ -15,7 +12,6 @@ import (
 
 const (
 	cookieRefreshToken = "core_refreshtoken"
-	cookieSessionID    = "core_sessionid"
 )
 
 func createCookie(w http.ResponseWriter, name, value string, secret []byte) (http.ResponseWriter, error) {
@@ -31,41 +27,26 @@ func createCookie(w http.ResponseWriter, name, value string, secret []byte) (htt
 
 	err := cookies.WriteEncrypted(w, tokenCookie, secret)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed write encrypted: %w", err)
 	}
 
 	return w, nil
 }
 
-func createRefreshAndAccessTokens(w http.ResponseWriter, r *http.Request, env services.Env, uid int64, sid string) (http.ResponseWriter, data.TokenFull, error) { //nolint:lll
-	randomBytes := make([]byte, 16)
-
-	_, err := rand.Read(randomBytes)
+func createRefreshAndAccessTokens(w http.ResponseWriter, r *http.Request, env services.Env, uid int64) (http.ResponseWriter, data.TokenFull, error) { //nolint:lll
+	refreshToken, err := env.Queries.CreateTokenHelper(r.Context(), uid, 7*24*time.Hour, data.ScopeRefresh)
 	if err != nil {
-		return nil, data.TokenFull{}, err
+		return nil, data.TokenFull{}, fmt.Errorf("failed create token helper: %w", err)
 	}
 
-	plaintext := base32.StdEncoding.WithPadding(base32.NoPadding).EncodeToString(randomBytes)
-	hash := sha256.Sum256([]byte(plaintext))
-
-	_, err = env.Queries.CreateRefreshToken(r.Context(), data.CreateRefreshTokenParams{
-		Hash:    hash[:],
-		UserID:  uid,
-		Expiry:  pgtype.Timestamptz{Time: time.Now().Add(7 * 24 * time.Hour), Valid: true},
-		Session: pgtype.Text{String: sid, Valid: true},
-	})
+	w, err = createCookie(w, cookieRefreshToken, refreshToken.Plaintext, env.Config.Secret)
 	if err != nil {
-		return nil, data.TokenFull{}, err
-	}
-
-	w, err = createCookie(w, cookieRefreshToken, plaintext, env.Config.Secret)
-	if err != nil {
-		return nil, data.TokenFull{}, err
+		return nil, data.TokenFull{}, fmt.Errorf("failed create cookie: %w", err)
 	}
 
 	accessToken, err := env.Queries.CreateTokenHelper(r.Context(), uid, time.Hour, data.ScopeAccess)
 	if err != nil {
-		return nil, data.TokenFull{}, err
+		return nil, data.TokenFull{}, fmt.Errorf("failed create token helper: %w", err)
 	}
 
 	return w, accessToken, nil
