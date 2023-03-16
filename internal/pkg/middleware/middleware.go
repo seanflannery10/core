@@ -25,7 +25,7 @@ import (
 	"golang.org/x/exp/slog"
 )
 
-func StartSpan(env services.Env) func(next http.Handler) http.Handler {
+func StartSpan(env *services.Env) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			routePattern := helpers.GetRoutePattern(r)
@@ -54,7 +54,7 @@ func StartSpan(env services.Env) func(next http.Handler) http.Handler {
 	}
 }
 
-func Authenticate(env services.Env) func(next http.Handler) http.Handler {
+func Authenticate(env *services.Env) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Add("Vary", "Authorization")
@@ -143,7 +143,7 @@ func RecoverPanic(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if rvr := recover(); rvr != nil {
-				if rvr == http.ErrAbortHandler { //nolint:goerr113,errorlint
+				if rvr == http.ErrAbortHandler { //nolint:all
 					panic(rvr)
 				}
 

@@ -15,7 +15,7 @@ const (
 )
 
 func createCookie(w http.ResponseWriter, name, value string, secret []byte) (http.ResponseWriter, error) {
-	tokenCookie := http.Cookie{
+	tokenCookie := &http.Cookie{
 		Name:     name,
 		Value:    value,
 		Path:     "/",
@@ -33,7 +33,7 @@ func createCookie(w http.ResponseWriter, name, value string, secret []byte) (htt
 	return w, nil
 }
 
-func createRefreshAndAccessTokens(w http.ResponseWriter, r *http.Request, env services.Env, uid int64) (http.ResponseWriter, data.TokenFull, error) { //nolint:revive
+func createRefreshAndAccessTokens(w http.ResponseWriter, r *http.Request, env *services.Env, uid int64) (http.ResponseWriter, data.TokenFull, error) { //nolint:revive
 	refreshToken, err := env.Queries.CreateTokenHelper(r.Context(), uid, 7*24*time.Hour, data.ScopeRefresh)
 	if err != nil {
 		return nil, data.TokenFull{}, fmt.Errorf("failed create token helper: %w", err)

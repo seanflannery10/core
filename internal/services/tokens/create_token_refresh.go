@@ -31,7 +31,7 @@ func (p *createTokenRefreshPayload) Bind(_ *http.Request) error {
 	return nil
 }
 
-func CreateTokenRefreshHandler(env services.Env) http.HandlerFunc {
+func CreateTokenRefreshHandler(env *services.Env) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		p := &createTokenRefreshPayload{}
 

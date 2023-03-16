@@ -1,39 +1,100 @@
 run:
   timeout: 5m
 linters:
-  enable-all: true
-  disable:
-    # not using
-    - cyclop
-    - exhaustivestruct
-    - exhaustruct
-    - funlen
-    - gci
-    - gofmt
-    - gomnd
-    - ifshort
-    - ireturn
-    - lll
-    - nlreturn
-    - varnamelen
-    - wsl
+  disable-all: true
+  enable:
+    - asasalint
+    - asciicheck
+    - bidichk
+    - bodyclose
+    - containedctx
+#    - contextcheck #slow
+    - decorder
+    - depguard
+    - dogsled
+    - dupl
+    - dupword
+    - durationcheck
+    - errcheck
+    - errchkjson
+    - errname
+    - errorlint
+    - execinquery
+#    - exhaustive # slow
+    - exportloopref
+    - forbidigo
+    - forcetypeassert
+    - ginkgolinter
+    - gocheckcompilerdirectives
+    - gochecknoglobals
+    - gochecknoinits
+    - gocognit
+    - goconst
+    - gocritic # slow
+    - gocyclo
+    - godot
+    - godox
+    - goerr113
+    - gofumpt
+    - goheader
+    - goimports
+    - gomoddirectives
+    - gomodguard
+    - goprintffuncname
+    - gosec
+    - gosimple
+    - govet
+    - grouper
+    - importas
+    - ineffassign
+    - interfacebloat
+    - loggercheck
+    - maintidx
+    - makezero
+    - misspell
+    - musttag
+    - nakedret
+    - nestif
+    - nilerr
+    - nilnil
+    - noctx
+    - nolintlint
+    - nonamedreturns
+    - nosprintfhostport
+#    - paralleltest
+    - prealloc
+    - predeclared
+    - promlinter
+    - reassign
+    - revive
+    - rowserrcheck
+    - sqlclosecheck
+    - staticcheck
+    - stylecheck
+    - tagliatelle
+    - tenv
+    - testableexamples
+    - testpackage
+    - thelper
+    - tparallel
+    - typecheck
+    - unconvert
+    - unparam
+    - unused
+    - usestdlibvars
+    - wastedassign
+    - whitespace
+    - wrapcheck
 
-    # to fix
-    - paralleltest
-
-    # deprecated
-    - deadcode
-    - exhaustivestruct
-    - golint
-    - interfacer
-    - maligned
-    - nosnakecase
-    - scopelint
-    - structcheck
-    - varcheck
 linters-settings:
   errcheck:
     check-type-assertions: true
+  gocritic:
+    enabled-tags:
+      - diagnostic
+      - opinionated
+      - performance
+#      - style
   godot:
     capital: true
   gofumpt:
@@ -66,12 +127,12 @@ linters-settings:
       - name: comment-spacings
         arguments: ["nolint"]
       - name: cyclomatic
-        arguments: [5]
+        arguments: [10]
         disabled: true
       - name: function-result-limit
         arguments: [3]
       - name: function-length
-        arguments: [10,0]
+        arguments: [40,60]
         disabled: true
       - name: line-length-limit
         arguments: [120]

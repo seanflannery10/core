@@ -35,7 +35,7 @@ func (q *Queries) CheckRefreshToken(ctx context.Context, arg CheckRefreshTokenPa
 const createToken = `-- name: CreateToken :one
 INSERT INTO tokens (hash, user_id, expiry, scope)
 VALUES ($1, $2, $3, $4)
-RETURNING hash, user_id, active, expiry, scope
+RETURNING scope, expiry, hash, user_id, active
 `
 
 type CreateTokenParams struct {
@@ -54,11 +54,11 @@ func (q *Queries) CreateToken(ctx context.Context, arg CreateTokenParams) (Token
 	)
 	var i Token
 	err := row.Scan(
+		&i.Scope,
+		&i.Expiry,
 		&i.Hash,
 		&i.UserID,
 		&i.Active,
-		&i.Expiry,
-		&i.Scope,
 	)
 	return i, err
 }

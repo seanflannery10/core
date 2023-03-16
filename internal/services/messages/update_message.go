@@ -39,7 +39,7 @@ func (p *updateMessagePayload) Bind(r *http.Request) error {
 	return nil
 }
 
-func UpdateMessageHandler(env services.Env) http.HandlerFunc {
+func UpdateMessageHandler(env *services.Env) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		p := &updateMessagePayload{}
 

@@ -13,7 +13,7 @@ import (
 	"github.com/seanflannery10/core/internal/services"
 )
 
-func CreateTokenAccessHandler(env services.Env) http.HandlerFunc {
+func CreateTokenAccessHandler(env *services.Env) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		refreshTokenPlaintext, err := cookies.ReadEncrypted(r, cookieRefreshToken, env.Config.Secret)
 		if err != nil {

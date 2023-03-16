@@ -17,7 +17,7 @@ var (
 	ErrInvalidValue = errors.New("invalid cookie value")
 )
 
-func WriteEncrypted(w http.ResponseWriter, cookie http.Cookie, secretKey []byte) error {
+func WriteEncrypted(w http.ResponseWriter, cookie *http.Cookie, secretKey []byte) error {
 	block, err := aes.NewCipher(secretKey)
 	if err != nil {
 		return fmt.Errorf("failed new cipher: %w", err)
@@ -45,7 +45,7 @@ func WriteEncrypted(w http.ResponseWriter, cookie http.Cookie, secretKey []byte)
 		return fmt.Errorf("failed length check: %w", ErrValueTooLong)
 	}
 
-	http.SetCookie(w, &cookie)
+	http.SetCookie(w, cookie)
 
 	return nil
 }

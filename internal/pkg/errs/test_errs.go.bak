@@ -100,7 +100,7 @@ func TestStatusCodesWithError(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			tt.f(rr, r, errors.New("test")) //nolint:goerr113
+			tt.f(rr, r, errors.New("test"))
 
 			res := rr.Result()
 			defer res.Body.Close()

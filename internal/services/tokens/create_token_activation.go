@@ -30,7 +30,7 @@ func (p *createTokenActivationPayload) Bind(_ *http.Request) error {
 	return nil
 }
 
-func CreateTokenActivationHandler(env services.Env) http.HandlerFunc {
+func CreateTokenActivationHandler(env *services.Env) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		p := &createTokenActivationPayload{}
 		v := validator.New()

@@ -17,11 +17,11 @@ type Message struct {
 }
 
 type Token struct {
+	Scope  string           `json:"scope"`
+	Expiry pgtype.Timestamp `json:"expiry"`
 	Hash   []byte           `json:"hash"`
 	UserID int64            `json:"user_id"`
 	Active bool             `json:"active"`
-	Expiry pgtype.Timestamp `json:"expiry"`
-	Scope  string           `json:"scope"`
 }
 
 type User struct {

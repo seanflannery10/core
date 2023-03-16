@@ -6,13 +6,14 @@
 .DS_Store
 doc
 
+LICENSE
+README.md
+
 .env
 .env.example
 .golangci.yml
-LICENSE
 fly.toml
-Makefile
-README.md
 routes.md
 sqlc.yaml
+Taskfile.yaml
 Tiltfile

@@ -26,7 +26,7 @@ func (p *getMessagesUserPayload) Bind(_ *http.Request) error {
 	return nil
 }
 
-func GetMessagesUserHandler(env services.Env) http.HandlerFunc {
+func GetMessagesUserHandler(env *services.Env) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		p := &getMessagesUserPayload{Pagination: pagination.New(r)}
 
@@ -43,12 +43,14 @@ func GetMessagesUserHandler(env services.Env) http.HandlerFunc {
 		})
 		if err != nil {
 			_ = render.Render(w, r, errs.ErrServerError(err))
+
 			return
 		}
 
 		count, err := env.Queries.GetUserMessageCount(r.Context(), user.ID)
 		if err != nil {
 			_ = render.Render(w, r, errs.ErrServerError(err))
+
 			return
 		}
 
@@ -56,6 +58,7 @@ func GetMessagesUserHandler(env services.Env) http.HandlerFunc {
 
 		if p.Pagination.Validator.HasErrors() {
 			_ = render.Render(w, r, errs.ErrFailedValidation(p.Pagination.Validator.Errors))
+
 			return
 		}
 

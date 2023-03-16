@@ -47,7 +47,7 @@ var (
 
 func TestMiddleware_Metrics(t *testing.T) {
 	rr := httptest.NewRecorder()
-	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/", nil)
+	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/", http.NoBody)
 
 	middleware.Metrics(next).ServeHTTP(rr, r)
 
@@ -57,7 +57,7 @@ func TestMiddleware_Metrics(t *testing.T) {
 func TestMiddleware_RecoverPanic(t *testing.T) {
 	t.Run("No Panic", func(t *testing.T) {
 		rr := httptest.NewRecorder()
-		r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/", nil)
+		r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/", http.NoBody)
 
 		middleware.RecoverPanic(next).ServeHTTP(rr, r)
 
@@ -66,7 +66,7 @@ func TestMiddleware_RecoverPanic(t *testing.T) {
 
 	t.Run("Panic", func(t *testing.T) {
 		rr := httptest.NewRecorder()
-		r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/", nil)
+		r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/", http.NoBody)
 
 		homeHandler := http.HandlerFunc(func(http.ResponseWriter, *http.Request) { panic("test error") })
 

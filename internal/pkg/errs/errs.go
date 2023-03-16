@@ -23,7 +23,7 @@ type ErrResponse struct { //nolint:govet
 	HTTPStatusCode int         `json:"-"`
 }
 
-func (err ErrResponse) Render(w http.ResponseWriter, r *http.Request) error {
+func (err *ErrResponse) Render(w http.ResponseWriter, r *http.Request) error {
 	if len(err.Headers) != 0 {
 		for key, value := range err.Headers {
 			w.Header()[key] = value

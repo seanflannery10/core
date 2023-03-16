@@ -27,7 +27,7 @@ func (p *getMessagePayload) Bind(r *http.Request) error {
 	return nil
 }
 
-func GetMessageHandler(env services.Env) http.HandlerFunc {
+func GetMessageHandler(env *services.Env) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		p := &getMessagePayload{}
 

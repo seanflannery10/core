@@ -15,7 +15,7 @@ import (
 
 func (app *application) routes() *chi.Mux {
 	router := chi.NewRouter()
-	env := app.env
+	env := &app.env
 
 	router.NotFound(helpers.ErrFuncWrapper(errs.ErrNotFound))
 	router.MethodNotAllowed(helpers.ErrFuncWrapper(errs.ErrMethodNotAllowed))
@@ -44,16 +44,16 @@ func (app *application) routes() *chi.Mux {
 	})
 
 	router.Route("/v1/tokens", func(r chi.Router) {
-		r.Post("/access", tokens.CreateTokenAccessHandler(app.env))
-		r.Post("/activation", tokens.CreateTokenActivationHandler(app.env))
-		r.Post("/password-reset", tokens.CreateTokenPasswordResetHandler(app.env))
-		r.Post("/refresh", tokens.CreateTokenRefreshHandler(app.env))
+		r.Post("/access", tokens.CreateTokenAccessHandler(env))
+		r.Post("/activation", tokens.CreateTokenActivationHandler(env))
+		r.Post("/password-reset", tokens.CreateTokenPasswordResetHandler(env))
+		r.Post("/refresh", tokens.CreateTokenRefreshHandler(env))
 	})
 
 	router.Route("/v1/users", func(r chi.Router) {
-		r.Post("/register", users.CreateUserHandler(app.env))
-		r.Patch("/activate", users.ActivateUserHandler(app.env))
-		r.Patch("/update-password", users.UpdateUserPasswordHandler(app.env))
+		r.Post("/register", users.CreateUserHandler(env))
+		r.Patch("/activate", users.ActivateUserHandler(env))
+		r.Patch("/update-password", users.UpdateUserPasswordHandler(env))
 	})
 
 	return router

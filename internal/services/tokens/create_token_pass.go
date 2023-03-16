@@ -30,7 +30,7 @@ func (p *createTokenPasswordResetPayload) Bind(_ *http.Request) error {
 	return nil
 }
 
-func CreateTokenPasswordResetHandler(env services.Env) http.HandlerFunc {
+func CreateTokenPasswordResetHandler(env *services.Env) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		p := &createTokenPasswordResetPayload{}
 		v := validator.New()

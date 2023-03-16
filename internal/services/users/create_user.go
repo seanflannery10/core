@@ -15,11 +15,11 @@ import (
 )
 
 type createUserPayload struct {
+	env          *services.Env
 	Name         string `json:"name"`
 	Email        string `json:"email"`
 	Password     string `json:"password"`
 	PasswordHash []byte `json:"-"`
-	env          services.Env
 }
 
 func (p *createUserPayload) Bind(r *http.Request) error {
@@ -55,7 +55,7 @@ func (p *createUserPayload) Bind(r *http.Request) error {
 	return nil
 }
 
-func CreateUserHandler(env services.Env) http.HandlerFunc {
+func CreateUserHandler(env *services.Env) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		p := &createUserPayload{env: env}
 

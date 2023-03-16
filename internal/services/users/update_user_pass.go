@@ -30,7 +30,7 @@ func (p *updateUserPasswordPayload) Bind(_ *http.Request) error {
 	return nil
 }
 
-func UpdateUserPasswordHandler(env services.Env) http.HandlerFunc {
+func UpdateUserPasswordHandler(env *services.Env) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		p := &updateUserPasswordPayload{}
 
