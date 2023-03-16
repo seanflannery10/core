@@ -14,10 +14,10 @@ var templateFS embed.FS
 
 type SMTP struct {
 	Host     string `env:"SMTP_HOST,default=smtp.mailtrap.io"`
-	Port     int    `env:"SMTP_PORT,default=25"`
 	Username string `env:"SMTP_USERNAME"`
 	Password string `env:"SMTP_PASSWORD"`
 	Sender   string `env:"SMTP_SENDER,default=Test <no-reply@testdomain.com>"`
+	Port     int    `env:"SMTP_PORT,default=25"`
 }
 
 type Mailer struct {
@@ -74,11 +74,11 @@ func (m *Mailer) Send(recipient, templateFile string, data any) error {
 
 	msg := mail.NewMsg()
 
-	if err := msg.To(recipient); err != nil {
+	if err = msg.To(recipient); err != nil {
 		return fmt.Errorf("failed message to: %w", err)
 	}
 
-	if err := msg.From(m.sender); err != nil {
+	if err = msg.From(m.sender); err != nil {
 		return fmt.Errorf("failed message from: %w", err)
 	}
 

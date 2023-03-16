@@ -87,7 +87,7 @@ func ReadIDParam(r *http.Request) (int64, error) {
 	return id, nil
 }
 
-func ReadStringParam(qs url.Values, key string, defaultValue string) string {
+func ReadStringParam(qs url.Values, key, defaultValue string) string {
 	s := qs.Get(key)
 
 	if s == "" {

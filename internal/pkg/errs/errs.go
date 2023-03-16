@@ -12,15 +12,15 @@ import (
 	"golang.org/x/exp/slog"
 )
 
-type ErrResponse struct {
+type ErrResponse struct { //nolint:govet
+	ValidatorErrors map[string]string `json:"errors,omitempty"`
+	Message         string            `json:"message"`
+	ErrorText       string            `json:"error,omitempty"`
+
 	Err            error       `json:"-"`
 	Headers        http.Header `json:"-"`
 	AppCode        codes.Code  `json:"-"`
 	HTTPStatusCode int         `json:"-"`
-
-	Message         string            `json:"message"`
-	ErrorText       string            `json:"error,omitempty"`
-	ValidatorErrors map[string]string `json:"errors,omitempty"`
 }
 
 func (err ErrResponse) Render(w http.ResponseWriter, r *http.Request) error {

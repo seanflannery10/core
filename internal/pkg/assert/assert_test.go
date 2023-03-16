@@ -201,28 +201,28 @@ func TestNotEqual(t *testing.T) {
 func TestSameType(t *testing.T) {
 	t.Run("String", func(t *testing.T) {
 		res := assert.SameType(new(testing.T), "foo", "bar")
-		if res != true {
+		if !res {
 			t.Errorf("SameType(%#v, %#v) should return %#v", "foo", "bar", "true")
 		}
 	})
 
 	t.Run("Int", func(t *testing.T) {
 		res := assert.SameType(new(testing.T), 1, 2)
-		if res != true {
+		if !res {
 			t.Errorf("SameType(%#v, %#v) should return %#v", "foo", "bar", "true")
 		}
 	})
 
 	t.Run("Float", func(t *testing.T) {
 		res := assert.SameType(new(testing.T), 1.2, 2.3)
-		if res != true {
+		if !res {
 			t.Errorf("SameType(%#v, %#v) should return %#v", "foo", "bar", "true")
 		}
 	})
 
 	t.Run("Bool", func(t *testing.T) {
 		res := assert.SameType(new(testing.T), true, false)
-		if res != true {
+		if !res {
 			t.Errorf("SameType(%#v, %#v) should return %#v", "foo", "bar", "true")
 		}
 	})

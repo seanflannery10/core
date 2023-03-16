@@ -27,7 +27,7 @@ func (app *application) init() {
 	flag.Parse()
 
 	if *displayVersion {
-		fmt.Printf("Version:\t%s\n", helpers.GetVersion()) //nolint:forbidigo
+		_, _ = fmt.Printf("Version:\t%s\n", helpers.GetVersion()) //nolint:forbidigo
 		os.Exit(0)
 	}
 

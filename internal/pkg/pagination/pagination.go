@@ -10,9 +10,9 @@ import (
 )
 
 type Pagination struct {
+	Validator *validator.Validator
 	Page      int
 	PageSize  int
-	Validator *validator.Validator
 }
 
 type Metadata struct {

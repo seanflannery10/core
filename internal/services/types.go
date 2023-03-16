@@ -14,11 +14,11 @@ type Env struct {
 }
 
 type Config struct {
-	Port         int    `env:"PORT,default=4000"`
+	SMTP         mailer.SMTP
 	Env          string `env:"ENV,default=dev"`
 	OTelEndpoint string `env:"OTEL_EXPORTER_OTLP_ENDPOINT,default=api.honeycomb.io:443"`
 	DatabaseURL  string `env:"DATABASE_URL,default=postgres://postgres:test@localhost:5432/test?sslmode=disable"`
 	SecretKey    string `env:"SECRET_KEY"`
 	Secret       []byte `env:"SECRET_KEY"`
-	SMTP         mailer.SMTP
+	Port         int    `env:"PORT,default=4000"`
 }

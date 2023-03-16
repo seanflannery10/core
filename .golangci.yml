@@ -1,95 +1,84 @@
 linters:
-  disable-all: true
-  enable:
-    - asasalint
-    - asciicheck
-    - bidichk
-    - bodyclose
-    - containedctx
-    - contextcheck
-    - decorder
-    - depguard
-    - dogsled
-    - dupl
-    - dupword
-    - durationcheck
-    - errcheck
-    - errchkjson
-    - errname
-    - errorlint
-    - execinquery
-    - exhaustive
-    - exportloopref
-    - forbidigo
-    - forcetypeassert
+  enable-all: true
+  disable:
+    # not using
+    - cyclop
+    - exhaustivestruct
+    - exhaustruct
+    - funlen
     - gci
-    - ginkgolinter
-    - gocheckcompilerdirectives
-    - gochecknoglobals
-    - gochecknoinits
-    - gocognit
-    - goconst
-    - gocritic
-    - gocyclo
-    - godot
-    - godox
-    - goerr113
     - gofmt
-    - gofumpt
-    - goheader
-    - goimports
-#    - gomnd
-    - gomoddirectives
-    - gomodguard
-    - goprintffuncname
-    - gosec
-    - gosimple
-    - govet
-    - grouper
-    - importas
-    - ineffassign
-    - interfacebloat
+    - gomnd
+    - ifshort
+    - ireturn
     - lll
-    - loggercheck
-    - maintidx
-    - makezero
-    - misspell
-    - musttag
-    - nakedret
-    - nestif
-    - nilerr
-    - nilnil
-    - noctx
-    - nolintlint
-    - nonamedreturns
-    - nosprintfhostport
-#    - paralleltest
-    - prealloc
-    - predeclared
-    - promlinter
-    - reassign
-    - revive
-#    - rowserrcheck
-    - sqlclosecheck
-    - staticcheck
-    - stylecheck
-    - tagliatelle
-    - tenv
-    - testableexamples
-    - testpackage
-    - thelper
-    - tparallel
-    - typecheck
-    - unconvert
-    - unparam
-    - unused
-    - usestdlibvars
-#    - wastedassign
-    - whitespace
-    - wrapcheck
+    - nlreturn
+    - varnamelen
     - wsl
+
+    # to fix
+    - paralleltest
+
+    # deprecated
+    - deadcode
+    - exhaustivestruct
+    - golint
+    - interfacer
+    - maligned
+    - nosnakecase
+    - scopelint
+    - structcheck
+    - varcheck
 linters-settings:
+  errcheck:
+    check-type-assertions: true
+  godot:
+    capital: true
+  gofumpt:
+    extra-rules: true
+  govet:
+    check-shadowing: true
+    enable-all: true
+  misspell:
+    locale: US
+  revive:
+    enable-all-rules: true
+    rules:
+      #fix
+      - name: add-constant
+        disabled: true
+
+      #disabled
+      - name: banned-characters
+        disabled: true
+      - name: file-header
+        disabled: true
+      - name: unused-receiver
+        disabled: true
+
+      - name: argument-limit
+        arguments: [4]
+      - name: cognitive-complexity
+        arguments: [10]
+        disabled: true
+      - name: comment-spacings
+        arguments: ["nolint"]
+      - name: cyclomatic
+        arguments: [5]
+        disabled: true
+      - name: function-result-limit
+        arguments: [3]
+      - name: function-length
+        arguments: [10,0]
+        disabled: true
+      - name: line-length-limit
+        arguments: [120]
+      - name: max-public-structs
+        arguments: [3]
   tagliatelle:
     case:
       rules:
         json: snake
+  whitespace:
+    multi-func: true
+    multi-if: true

@@ -22,10 +22,10 @@ const (
 
 type TokenFull struct {
 	Plaintext string
+	Scope     string
+	Expiry    pgtype.Timestamp
 	Hash      []byte
 	UserID    int64
-	Expiry    pgtype.Timestamp
-	Scope     string
 }
 
 func (t *TokenFull) Render(_ http.ResponseWriter, _ *http.Request) error {

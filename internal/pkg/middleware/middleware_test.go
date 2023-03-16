@@ -20,6 +20,7 @@ var (
 	}))
 )
 
+//nolint:revive
 // func TestMiddleware_RequireAuthenticatedUser(t *testing.T) {
 //	t.Run("Bad Auth", func(t *testing.T) {
 //		rr := httptest.NewRecorder()

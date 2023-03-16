@@ -147,7 +147,15 @@ func RecoverPanic(next http.Handler) http.Handler {
 					panic(rvr)
 				}
 
-				slog.Log(r.Context(), slog.LevelError, "panic recovery error", "error", rvr, "stack", string(debug.Stack()))
+				slog.Log(
+					r.Context(),
+					slog.LevelError,
+					"panic recovery error",
+					"error",
+					rvr,
+					"stack",
+					string(debug.Stack()),
+				)
 
 				if r.Header.Get("Connection") != "Upgrade" {
 					w.WriteHeader(http.StatusInternalServerError)
