@@ -143,7 +143,7 @@ func RecoverPanic(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if rvr := recover(); rvr != nil {
-				if rvr == http.ErrAbortHandler { //nolint:all
+				if rvr == http.ErrAbortHandler { //nolint:errorlint,goerr113
 					panic(rvr)
 				}
 

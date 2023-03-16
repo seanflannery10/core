@@ -38,7 +38,7 @@ func (err *ErrResponse) Render(w http.ResponseWriter, r *http.Request) error {
 
 	span.SetAttributes(attribute.String("error.message", err.Message))
 
-	if len(err.ErrorText) != 0 {
+	if err.ErrorText != "" {
 		span.SetAttributes(attribute.String("error.text", err.ErrorText))
 	}
 
