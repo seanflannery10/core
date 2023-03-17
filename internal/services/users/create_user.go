@@ -45,7 +45,7 @@ func (p *createUserPayload) Bind(r *http.Request) error {
 		return validator.NewValidationError(v.Errors)
 	}
 
-	hash, err := bcrypt.GenerateFromPassword([]byte(p.Password), 14)
+	hash, err := bcrypt.GenerateFromPassword([]byte(p.Password), data.PasswordCost)
 	if err != nil {
 		return fmt.Errorf("failed to generate password: %w", err)
 	}

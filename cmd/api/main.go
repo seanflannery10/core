@@ -24,7 +24,7 @@ func main() {
 
 	if err := server.Serve(app.config.Port, app.routes()); err != nil {
 		slog.Error("unable to serve application", err)
-		os.Exit(1)
+		os.Exit(exitError)
 	}
 
 	app.shutdown()

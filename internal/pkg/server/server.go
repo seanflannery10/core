@@ -13,15 +13,21 @@ import (
 	"golang.org/x/exp/slog"
 )
 
+const (
+	idleTimout   = 1 * time.Minute
+	readTimeout  = 10 * time.Second
+	writeTimeout = 30 * time.Second
+)
+
 func Serve(port int, routes http.Handler) error {
 	shutdownError := make(chan error)
 
 	s := &http.Server{
 		Addr:         fmt.Sprintf(":%d", port),
 		Handler:      routes,
-		IdleTimeout:  1 * time.Minute,
-		ReadTimeout:  10 * time.Second,
-		WriteTimeout: 30 * time.Second,
+		IdleTimeout:  idleTimout,
+		ReadTimeout:  readTimeout,
+		WriteTimeout: writeTimeout,
 	}
 
 	go func() {

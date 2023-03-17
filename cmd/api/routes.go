@@ -17,8 +17,8 @@ func (app *application) routes() *chi.Mux {
 	router := chi.NewRouter()
 	env := &app.env
 
-	router.NotFound(helpers.ErrFuncWrapper(errs.ErrNotFound))
-	router.MethodNotAllowed(helpers.ErrFuncWrapper(errs.ErrMethodNotAllowed))
+	router.NotFound(helpers.ErrFuncWrapper(errs.ErrNotFound()))
+	router.MethodNotAllowed(helpers.ErrFuncWrapper(errs.ErrMethodNotAllowed()))
 
 	router.Use(middleware.StartSpan(env))
 	router.Use(middleware.Metrics)

@@ -1,5 +1,9 @@
 package validator
 
+const (
+	noLength = 0
+)
+
 type Validator struct {
 	Errors map[string]string
 }
@@ -9,7 +13,7 @@ func New() *Validator {
 }
 
 func (v *Validator) HasErrors() bool {
-	return len(v.Errors) != 0
+	return len(v.Errors) != noLength
 }
 
 func (v *Validator) AddError(key, message string) {

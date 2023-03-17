@@ -12,6 +12,12 @@ import (
 	"golang.org/x/exp/slog"
 )
 
+const (
+	appNormal = 0
+	appError  = 1
+	noLength  = 0
+)
+
 type ErrResponse struct { //nolint:govet
 	ValidatorErrors map[string]string `json:"errors,omitempty"`
 	Message         string            `json:"message"`
@@ -24,7 +30,7 @@ type ErrResponse struct { //nolint:govet
 }
 
 func (err *ErrResponse) Render(w http.ResponseWriter, r *http.Request) error {
-	if len(err.Headers) != 0 {
+	if len(err.Headers) != noLength {
 		for key, value := range err.Headers {
 			w.Header()[key] = value
 		}
@@ -42,7 +48,7 @@ func (err *ErrResponse) Render(w http.ResponseWriter, r *http.Request) error {
 		span.SetAttributes(attribute.String("error.text", err.ErrorText))
 	}
 
-	if len(err.ValidatorErrors) != 0 {
+	if len(err.ValidatorErrors) != appNormal {
 		for k, v := range err.ValidatorErrors {
 			k = fmt.Sprintf("error.validation.%s", k)
 			span.SetAttributes(attribute.String(k, v))
@@ -54,52 +60,68 @@ func (err *ErrResponse) Render(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-var ErrNotFound = &ErrResponse{ //nolint:gochecknoglobals
-	AppCode:        0,
-	HTTPStatusCode: http.StatusNotFound,
-	Message:        "the requested resource could not be found",
+func ErrNotFound() render.Renderer {
+	return &ErrResponse{
+		AppCode:        appNormal,
+		HTTPStatusCode: http.StatusNotFound,
+		Message:        "the requested resource could not be found",
+	}
 }
 
-var ErrMethodNotAllowed = &ErrResponse{ //nolint:gochecknoglobals
-	AppCode:        0,
-	HTTPStatusCode: http.StatusMethodNotAllowed,
-	Message:        "the used method is not supported for this resource",
+func ErrMethodNotAllowed() render.Renderer {
+	return &ErrResponse{
+		AppCode:        appNormal,
+		HTTPStatusCode: http.StatusMethodNotAllowed,
+		Message:        "the used method is not supported for this resource",
+	}
 }
 
-var ErrEditConflict = &ErrResponse{ //nolint:gochecknoglobals
-	AppCode:        0,
-	HTTPStatusCode: http.StatusConflict,
-	Message:        "unable to update the record due to an edit conflict, please try again",
+func ErrEditConflict() render.Renderer {
+	return &ErrResponse{
+		AppCode:        appNormal,
+		HTTPStatusCode: http.StatusConflict,
+		Message:        "unable to update the record due to an edit conflict, please try again",
+	}
 }
 
-var ErrCookieNotFound = &ErrResponse{ //nolint:gochecknoglobals
-	AppCode:        0,
-	HTTPStatusCode: http.StatusBadRequest,
-	Message:        "cookie not found",
+func ErrCookieNotFound() render.Renderer {
+	return &ErrResponse{
+		AppCode:        appNormal,
+		HTTPStatusCode: http.StatusBadRequest,
+		Message:        "cookie not found",
+	}
 }
 
-var ErrInvalidCookie = &ErrResponse{ //nolint:gochecknoglobals
-	AppCode:        0,
-	HTTPStatusCode: http.StatusBadRequest,
-	Message:        "invalid cookie",
+func ErrInvalidCookie() render.Renderer {
+	return &ErrResponse{
+		AppCode:        appNormal,
+		HTTPStatusCode: http.StatusBadRequest,
+		Message:        "invalid cookie",
+	}
 }
 
-var ErrInvalidCredentials = &ErrResponse{ //nolint:gochecknoglobals
-	AppCode:        0,
-	HTTPStatusCode: http.StatusUnauthorized,
-	Message:        "invalid authentication credentials",
+func ErrInvalidCredentials() render.Renderer {
+	return &ErrResponse{
+		AppCode:        appNormal,
+		HTTPStatusCode: http.StatusUnauthorized,
+		Message:        "invalid authentication credentials",
+	}
 }
 
-var ErrAuthenticationRequired = &ErrResponse{ //nolint:gochecknoglobals
-	AppCode:        0,
-	HTTPStatusCode: http.StatusUnauthorized,
-	Message:        "you must be authenticated to access this resource",
+func ErrAuthenticationRequired() render.Renderer {
+	return &ErrResponse{
+		AppCode:        appNormal,
+		HTTPStatusCode: http.StatusUnauthorized,
+		Message:        "you must be authenticated to access this resource",
+	}
 }
 
-var ErrReusedRefreshToken = &ErrResponse{ //nolint:gochecknoglobals
-	AppCode:        1,
-	HTTPStatusCode: http.StatusUnauthorized,
-	Message:        "invalid or missing refresh token",
+func ErrReusedRefreshToken() render.Renderer {
+	return &ErrResponse{
+		AppCode:        appError,
+		HTTPStatusCode: http.StatusUnauthorized,
+		Message:        "invalid or missing refresh token",
+	}
 }
 
 func ErrInvalidAccessToken() render.Renderer {
@@ -107,7 +129,7 @@ func ErrInvalidAccessToken() render.Renderer {
 	headers.Set("WWW-Authenticate", "Bearer")
 
 	return &ErrResponse{
-		AppCode:        0,
+		AppCode:        appNormal,
 		HTTPStatusCode: http.StatusUnauthorized,
 		Message:        "invalid or missing access token",
 		Headers:        headers,
@@ -116,7 +138,7 @@ func ErrInvalidAccessToken() render.Renderer {
 
 func ErrFailedValidation(validatorErrors map[string]string) render.Renderer {
 	return &ErrResponse{
-		AppCode:         0,
+		AppCode:         appNormal,
 		HTTPStatusCode:  http.StatusUnprocessableEntity,
 		Message:         "validation failed",
 		ValidatorErrors: validatorErrors,
@@ -126,7 +148,7 @@ func ErrFailedValidation(validatorErrors map[string]string) render.Renderer {
 func ErrBadRequest(err error) render.Renderer {
 	return &ErrResponse{
 		Err:            err,
-		AppCode:        0,
+		AppCode:        appNormal,
 		HTTPStatusCode: http.StatusBadRequest,
 		Message:        "bad request",
 		ErrorText:      err.Error(),
@@ -137,7 +159,7 @@ func ErrServerError(err error) render.Renderer {
 	slog.Error("server error", err)
 
 	return &ErrResponse{
-		AppCode:        1,
+		AppCode:        appError,
 		HTTPStatusCode: http.StatusInternalServerError,
 		Message:        "the server encountered a problem and could not process your json",
 	}

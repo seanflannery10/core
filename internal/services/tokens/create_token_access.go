@@ -19,9 +19,9 @@ func CreateTokenAccessHandler(env *services.Env) http.HandlerFunc {
 		if err != nil {
 			switch {
 			case errors.Is(err, http.ErrNoCookie):
-				_ = render.Render(w, r, errs.ErrCookieNotFound)
+				_ = render.Render(w, r, errs.ErrCookieNotFound())
 			case errors.Is(err, cookies.ErrInvalidValue):
-				_ = render.Render(w, r, errs.ErrInvalidCookie)
+				_ = render.Render(w, r, errs.ErrInvalidCookie())
 			default:
 				_ = render.Render(w, r, errs.ErrServerError(err))
 			}
@@ -56,7 +56,7 @@ func CreateTokenAccessHandler(env *services.Env) http.HandlerFunc {
 				return
 			}
 
-			_ = render.Render(w, r, errs.ErrReusedRefreshToken)
+			_ = render.Render(w, r, errs.ErrReusedRefreshToken())
 
 			return
 		}

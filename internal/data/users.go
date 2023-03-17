@@ -14,6 +14,14 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+const (
+	PasswordCost  = 13
+	keyEmail      = "email"
+	keyPassword   = "password"
+	keyName       = "name"
+	requiredField = "must be provided"
+)
+
 var AnonymousUser = &User{} //nolint: gochecknoglobals
 
 func (u *User) Render(_ http.ResponseWriter, _ *http.Request) error {
@@ -25,7 +33,7 @@ func (u *User) IsAnonymous() bool {
 }
 
 func (u *User) SetPassword(plaintextPassword string) error {
-	hash, err := bcrypt.GenerateFromPassword([]byte(plaintextPassword), 13)
+	hash, err := bcrypt.GenerateFromPassword([]byte(plaintextPassword), PasswordCost)
 	if err != nil {
 		return fmt.Errorf("failed set password: %w", err)
 	}
@@ -50,19 +58,19 @@ func (u *User) ComparePasswords(plaintextPassword string) (bool, error) {
 }
 
 func ValidateEmail(v *validator.Validator, email string) {
-	v.Check(email != "", "email", "must be provided")
-	v.Check(validator.Matches(email, validator.RgxEmail), "email", "must be a valid email address")
+	v.Check(email != "", keyEmail, requiredField)
+	v.Check(validator.Matches(email, validator.RgxEmail), keyEmail, "must be a valid email address")
 }
 
 func ValidatePasswordPlaintext(v *validator.Validator, password string) {
-	v.Check(password != "", "password", "must be provided")
-	v.Check(len(password) >= 8, "password", "must be at least 8 bytes long")
-	v.Check(len(password) <= 72, "password", "must not be more than 72 bytes long")
+	v.Check(password != "", keyPassword, requiredField)
+	v.Check(len(password) >= 8, keyPassword, "must be at least 8 bytes long")
+	v.Check(len(password) <= 72, keyPassword, "must not be more than 72 bytes long")
 }
 
 func ValidateName(v *validator.Validator, name string) {
-	v.Check(name != "", "name", "must be provided")
-	v.Check(len(name) <= 500, "name", "must not be more than 500 bytes long")
+	v.Check(name != "", keyName, requiredField)
+	v.Check(len(name) <= 500, keyName, "must not be more than 500 bytes long")
 }
 
 func (q *Queries) GetUserFromTokenHelper(ctx context.Context, tokenPlaintext, scope string) (User, error) {

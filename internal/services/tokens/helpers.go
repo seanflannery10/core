@@ -12,6 +12,7 @@ import (
 
 const (
 	cookieRefreshToken = "core_refreshtoken"
+	maxAge             = 7 * 24 * 60 * 60
 )
 
 func createCookie(w http.ResponseWriter, name, value string, secret []byte) (http.ResponseWriter, error) {
@@ -19,7 +20,7 @@ func createCookie(w http.ResponseWriter, name, value string, secret []byte) (htt
 		Name:     name,
 		Value:    value,
 		Path:     "/",
-		MaxAge:   7 * 24 * 60 * 60,
+		MaxAge:   maxAge,
 		HttpOnly: true,
 		Secure:   true,
 		SameSite: http.SameSiteLaxMode,

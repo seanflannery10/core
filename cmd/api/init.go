@@ -21,6 +21,12 @@ import (
 	"golang.org/x/exp/slog"
 )
 
+const (
+	exitGood  = 0
+	exitError = 1
+	filePerm  = 644
+)
+
 func (app *application) init() {
 	generateRoutes := flag.Bool("routes", false, "Generate router documentation")
 	displayVersion := flag.Bool("version", false, "Display version and exit")
@@ -28,7 +34,7 @@ func (app *application) init() {
 
 	if *displayVersion {
 		_, _ = fmt.Printf("Version:\t%s\n", helpers.GetVersion()) //nolint:forbidigo
-		os.Exit(0)
+		os.Exit(exitGood)
 	}
 
 	if *generateRoutes {
@@ -37,19 +43,19 @@ func (app *application) init() {
 			Intro:       "Routes for core API",
 		}))
 
-		err := os.WriteFile("routes.md", routesMD, 0o644) //nolint:gosec
+		err := os.WriteFile("routes.md", routesMD, filePerm)
 		if err != nil {
 			slog.Error("unable to create routes.md", err)
-			os.Exit(1)
+			os.Exit(exitError)
 		}
 
-		os.Exit(0)
+		os.Exit(exitGood)
 	}
 
 	secret, err := hex.DecodeString(os.Getenv("SECRET_KEY"))
 	if err != nil || os.Getenv("SECRET_KEY") == "" {
 		slog.Error("unable to decode sercret", err)
-		os.Exit(1)
+		os.Exit(exitError)
 	}
 
 	app.config.Secret = secret
@@ -59,7 +65,7 @@ func (app *application) init() {
 	err = envconfig.Process(context.Background(), &app.config)
 	if err != nil {
 		slog.Error("unable to process env config", err)
-		os.Exit(1)
+		os.Exit(exitError)
 	}
 
 	cfg := app.config
@@ -67,19 +73,19 @@ func (app *application) init() {
 	mail, err := mailer.New(cfg.SMTP)
 	if err != nil {
 		slog.Error("unable to create mailer", err)
-		os.Exit(1)
+		os.Exit(exitError)
 	}
 
 	dbpool, err := pgxpool.New(context.Background(), cfg.DatabaseURL)
 	if err != nil {
 		slog.Error("unable to create connection pool", err)
-		os.Exit(1)
+		os.Exit(exitError)
 	}
 
 	tracerProvider, err := telemetry.New(cfg.OTelEndpoint, cfg.Env)
 	if err != nil {
 		slog.Error("unable to start telemetry", err)
-		os.Exit(1)
+		os.Exit(exitError)
 	}
 
 	app.dbpool = dbpool

@@ -17,6 +17,11 @@ var (
 	ErrInvalidValue = errors.New("invalid cookie value")
 )
 
+const (
+	cookieMaxSize = 4096
+	emptyString   = ""
+)
+
 func WriteEncrypted(w http.ResponseWriter, cookie *http.Cookie, secretKey []byte) error {
 	block, err := aes.NewCipher(secretKey)
 	if err != nil {
@@ -41,7 +46,7 @@ func WriteEncrypted(w http.ResponseWriter, cookie *http.Cookie, secretKey []byte
 
 	cookie.Value = base64.URLEncoding.EncodeToString(encryptedValue)
 
-	if len(cookie.String()) > 4096 {
+	if len(cookie.String()) > cookieMaxSize {
 		return fmt.Errorf("failed length check: %w", ErrValueTooLong)
 	}
 
@@ -53,28 +58,28 @@ func WriteEncrypted(w http.ResponseWriter, cookie *http.Cookie, secretKey []byte
 func ReadEncrypted(r *http.Request, name string, secretKey []byte) (string, error) {
 	cookie, err := r.Cookie(name)
 	if err != nil {
-		return "", fmt.Errorf("failed read cookie: %w", err)
+		return emptyString, fmt.Errorf("failed read cookie: %w", err)
 	}
 
 	encryptedValue, err := base64.URLEncoding.DecodeString(cookie.Value)
 	if err != nil {
-		return "", fmt.Errorf("failed decode string: %w", ErrInvalidValue)
+		return emptyString, fmt.Errorf("failed decode string: %w", ErrInvalidValue)
 	}
 
 	block, err := aes.NewCipher(secretKey)
 	if err != nil {
-		return "", fmt.Errorf("failed new cipher: %w", err)
+		return emptyString, fmt.Errorf("failed new cipher: %w", err)
 	}
 
 	aesGCM, err := cipher.NewGCM(block)
 	if err != nil {
-		return "", fmt.Errorf("failed new gcm: %w", err)
+		return emptyString, fmt.Errorf("failed new gcm: %w", err)
 	}
 
 	nonceSize := aesGCM.NonceSize()
 
 	if len(encryptedValue) < nonceSize {
-		return "", fmt.Errorf("failed nonce size: %w", ErrInvalidValue)
+		return emptyString, fmt.Errorf("failed nonce size: %w", ErrInvalidValue)
 	}
 
 	nonce := encryptedValue[:nonceSize]
@@ -82,16 +87,16 @@ func ReadEncrypted(r *http.Request, name string, secretKey []byte) (string, erro
 
 	plaintext, err := aesGCM.Open(nil, nonce, ciphertext, nil)
 	if err != nil {
-		return "", fmt.Errorf("failed gcm open: %w", ErrInvalidValue)
+		return emptyString, fmt.Errorf("failed gcm open: %w", ErrInvalidValue)
 	}
 
 	expectedName, value, ok := strings.Cut(string(plaintext), ":")
 	if !ok {
-		return "", fmt.Errorf("failed string cut: %w", ErrInvalidValue)
+		return emptyString, fmt.Errorf("failed string cut: %w", ErrInvalidValue)
 	}
 
 	if expectedName != name {
-		return "", fmt.Errorf("failed name check: %w", ErrInvalidValue)
+		return emptyString, fmt.Errorf("failed name check: %w", ErrInvalidValue)
 	}
 
 	return value, nil

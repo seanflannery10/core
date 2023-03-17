@@ -43,7 +43,7 @@ func CreateTokenRefreshHandler(env *services.Env) http.HandlerFunc {
 		if err != nil {
 			switch {
 			case errors.Is(err, pgx.ErrNoRows):
-				_ = render.Render(w, r, errs.ErrInvalidCredentials)
+				_ = render.Render(w, r, errs.ErrInvalidCredentials())
 			default:
 				_ = render.Render(w, r, errs.ErrServerError(err))
 			}
@@ -58,7 +58,7 @@ func CreateTokenRefreshHandler(env *services.Env) http.HandlerFunc {
 		}
 
 		if !match {
-			_ = render.Render(w, r, errs.ErrInvalidCredentials)
+			_ = render.Render(w, r, errs.ErrInvalidCredentials())
 			return
 		}
 

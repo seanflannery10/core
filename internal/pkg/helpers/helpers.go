@@ -20,11 +20,13 @@ import (
 
 var ErrInvalidIDParameter = errors.New("invalid id parameter")
 
-type contextKey string
-
 const (
 	UserContextKey = contextKey("user")
+	EmptyString    = ""
+	statusGood     = 0
 )
+
+type contextKey string
 
 func ContextGetUser(r *http.Request) data.User {
 	u, ok := r.Context().Value(UserContextKey).(data.User)
@@ -42,7 +44,7 @@ func CheckAndBind(w http.ResponseWriter, r *http.Request, b render.Binder) bool 
 		case errors.As(err, &validator.ErrValidation):
 			_ = render.Render(w, r, errs.ErrFailedValidation(validator.ErrValidation.Errors))
 		case errors.Is(err, ErrInvalidIDParameter):
-			_ = render.Render(w, r, errs.ErrNotFound)
+			_ = render.Render(w, r, errs.ErrNotFound())
 		default:
 			_ = render.Render(w, r, errs.ErrBadRequest(err))
 		}
@@ -62,7 +64,7 @@ func RenderAndCheck(w http.ResponseWriter, r *http.Request, ren render.Renderer)
 	}
 
 	span.SetAttributes(semconv.HTTPStatusCodeKey.Int(status))
-	span.SetStatus(0, "")
+	span.SetStatus(statusGood, EmptyString)
 
 	err := render.Render(w, r, ren)
 	if err != nil {
@@ -72,12 +74,13 @@ func RenderAndCheck(w http.ResponseWriter, r *http.Request, ren render.Renderer)
 	span.End()
 }
 
-func ErrFuncWrapper(er *errs.ErrResponse) func(w http.ResponseWriter, r *http.Request) {
+func ErrFuncWrapper(renderer render.Renderer) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		_ = render.Render(w, r, er)
+		_ = render.Render(w, r, renderer)
 	}
 }
 
+//nolint:revive
 func ReadIDParam(r *http.Request) (int64, error) {
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id < 1 {
@@ -90,7 +93,7 @@ func ReadIDParam(r *http.Request) (int64, error) {
 func ReadStringParam(qs url.Values, key, defaultValue string) string {
 	s := qs.Get(key)
 
-	if s == "" {
+	if s == EmptyString {
 		return defaultValue
 	}
 
@@ -100,7 +103,7 @@ func ReadStringParam(qs url.Values, key, defaultValue string) string {
 func ReadIntParam(qs url.Values, key string, defaultValue int, v *validator.Validator) int {
 	s := qs.Get(key)
 
-	if s == "" {
+	if s == EmptyString {
 		return defaultValue
 	}
 
@@ -115,12 +118,12 @@ func ReadIntParam(qs url.Values, key string, defaultValue int, v *validator.Vali
 
 func GetRoutePattern(r *http.Request) string {
 	rctx := chi.RouteContext(r.Context())
-	if pattern := rctx.RoutePattern(); pattern != "" {
+	if pattern := rctx.RoutePattern(); pattern != EmptyString {
 		return pattern
 	}
 
 	routePath := r.URL.Path
-	if r.URL.RawPath != "" {
+	if r.URL.RawPath != EmptyString {
 		routePath = r.URL.RawPath
 	}
 
@@ -152,7 +155,7 @@ func GetVersion() string {
 		}
 	}
 
-	if revision == "" {
+	if revision == EmptyString {
 		return "unavailable"
 	}
 

@@ -39,7 +39,7 @@ func GetMessageHandler(env *services.Env) http.HandlerFunc {
 		if err != nil {
 			switch {
 			case errors.Is(err, pgx.ErrNoRows):
-				_ = render.Render(w, r, errs.ErrNotFound)
+				_ = render.Render(w, r, errs.ErrNotFound())
 			default:
 				_ = render.Render(w, r, errs.ErrServerError(err))
 			}

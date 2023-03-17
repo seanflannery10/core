@@ -115,7 +115,7 @@ func RequireAuthenticatedUser(next http.Handler) http.Handler {
 		user := helpers.ContextGetUser(r)
 
 		if user.IsAnonymous() {
-			_ = render.Render(w, r, errs.ErrAuthenticationRequired)
+			_ = render.Render(w, r, errs.ErrAuthenticationRequired())
 			return
 		}
 

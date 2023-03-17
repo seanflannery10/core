@@ -11,8 +11,12 @@ import (
 
 var RgxEmail = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$") //nolint:revive
 
+const (
+	emptyString = ""
+)
+
 func NotBlank(value string) bool {
-	return strings.TrimSpace(value) != ""
+	return strings.TrimSpace(value) != emptyString
 }
 
 func MinRunes(value string, n int) bool {
@@ -87,5 +91,5 @@ func IsURL(value string) bool {
 		return false
 	}
 
-	return u.Scheme != "" && u.Host != ""
+	return u.Scheme != emptyString && u.Host != emptyString
 }

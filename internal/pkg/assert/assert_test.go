@@ -8,6 +8,19 @@ import (
 	"github.com/seanflannery10/core/internal/pkg/assert"
 )
 
+const (
+	d2000       = 200.0
+	d2001       = 200.1
+	emptyString = ""
+	i0          = 0
+	i200        = 200
+	i201        = 201
+	testString  = "test"
+	v           = "%#v"
+	string1     = "123"
+	string2     = "124"
+)
+
 //nolint:dupl
 func TestEqual(t *testing.T) {
 	testsNums := []struct {
@@ -16,54 +29,54 @@ func TestEqual(t *testing.T) {
 		r bool
 	}{
 		{
-			0,
-			0,
-			true,
-		},
-		{
-			200,
-			200,
-			true,
-		},
-		{
-			201,
-			200,
+			i0,
+			i0,
 			false,
 		},
 		{
-			200.0,
-			200.0,
-			true,
-		},
-		{
-			200.1,
-			200.0,
+			i200,
+			i200,
 			false,
 		},
 		{
-			-200,
-			-200,
+			i201,
+			i200,
 			true,
 		},
 		{
-			-201,
-			-200,
+			d2000,
+			d2000,
 			false,
 		},
 		{
-			-200.0,
-			-200.0,
+			d2001,
+			d2000,
 			true,
 		},
 		{
-			-200.1,
-			-200.0,
+			-i200,
+			-i200,
 			false,
+		},
+		{
+			-i201,
+			-i200,
+			true,
+		},
+		{
+			-d2000,
+			-d2000,
+			false,
+		},
+		{
+			-d2001,
+			-d2000,
+			true,
 		},
 	}
 
 	for _, tt := range testsNums {
-		t.Run(fmt.Sprintf("%#v", tt.a), func(t *testing.T) {
+		t.Run(fmt.Sprintf(v, tt.a), func(t *testing.T) {
 			res := assert.Equal(new(testing.T), tt.a, tt.e)
 			if res != tt.r {
 				t.Errorf("Equal(%#v, %#v) should return %#v", tt.a, tt.e, tt.r)
@@ -77,24 +90,24 @@ func TestEqual(t *testing.T) {
 		r bool
 	}{
 		{
-			"123",
-			"123",
+			string1,
+			string1,
 			true,
 		},
 		{
-			"124",
-			"123",
+			string1,
+			string2,
 			false,
 		},
 		{
-			"",
-			"",
+			emptyString,
+			emptyString,
 			true,
 		},
 	}
 
 	for _, tt := range testsStrings {
-		t.Run(fmt.Sprintf("%#v", tt.a), func(t *testing.T) {
+		t.Run(fmt.Sprintf(v, tt.a), func(t *testing.T) {
 			res := assert.Equal(new(testing.T), tt.a, tt.e)
 			if res != tt.r {
 				t.Errorf("Equal(%#v, %#v) should return %#v", tt.a, tt.e, tt.r)
@@ -111,54 +124,54 @@ func TestNotEqual(t *testing.T) {
 		r bool
 	}{
 		{
-			0,
-			0,
+			i0,
+			i0,
 			false,
 		},
 		{
-			200,
-			200,
+			i200,
+			i200,
 			false,
 		},
 		{
-			201,
-			200,
+			i201,
+			i200,
 			true,
 		},
 		{
-			200.0,
-			200.0,
+			d2000,
+			d2000,
 			false,
 		},
 		{
-			200.1,
-			200.0,
+			d2001,
+			d2000,
 			true,
 		},
 		{
-			-200,
-			-200,
+			-i200,
+			-i200,
 			false,
 		},
 		{
-			-201,
-			-200,
+			-i201,
+			-i200,
 			true,
 		},
 		{
-			-200.0,
-			-200.0,
+			-d2000,
+			-d2000,
 			false,
 		},
 		{
-			-200.1,
-			-200.0,
+			-d2001,
+			-d2000,
 			true,
 		},
 	}
 
 	for _, tt := range testsNums {
-		t.Run(fmt.Sprintf("%#v", tt.a), func(t *testing.T) {
+		t.Run(fmt.Sprintf(v, tt.a), func(t *testing.T) {
 			res := assert.NotEqual(new(testing.T), tt.a, tt.e)
 			if res != tt.r {
 				t.Errorf("NotEqual(%#v, %#v) should return %#v", tt.a, tt.e, tt.r)
@@ -172,24 +185,24 @@ func TestNotEqual(t *testing.T) {
 		r bool
 	}{
 		{
-			"123",
-			"123",
+			string1,
+			string1,
 			false,
 		},
 		{
-			"124",
-			"123",
+			string2,
+			string1,
 			true,
 		},
 		{
-			"",
-			"",
+			emptyString,
+			emptyString,
 			false,
 		},
 	}
 
 	for _, tt := range testsStrings {
-		t.Run(fmt.Sprintf("%#v", tt.a), func(t *testing.T) {
+		t.Run(fmt.Sprintf(v, tt.a), func(t *testing.T) {
 			res := assert.NotEqual(new(testing.T), tt.a, tt.e)
 			if res != tt.r {
 				t.Errorf("NotEqual(%#v, %#v) should return %#v", tt.a, tt.e, tt.r)
@@ -245,14 +258,14 @@ func TestContains(t *testing.T) {
 			false,
 		},
 		{
-			"",
-			"",
+			emptyString,
+			emptyString,
 			true,
 		},
 	}
 
 	for _, tt := range tests {
-		t.Run(fmt.Sprintf("%#v", tt.e), func(t *testing.T) {
+		t.Run(fmt.Sprintf(v, tt.e), func(t *testing.T) {
 			res := assert.Contains(new(testing.T), tt.a, tt.e)
 			if res != tt.r {
 				t.Errorf("Contains(%#v, %#v) should return %#v", tt.a, tt.e, tt.r)
@@ -269,23 +282,23 @@ func TestNotContains(t *testing.T) {
 	}{
 		{
 			"this is a test",
-			"test",
+			testString,
 			false,
 		},
 		{
 			"this is a",
-			"test",
+			testString,
 			true,
 		},
 		{
-			"",
-			"",
+			emptyString,
+			emptyString,
 			false,
 		},
 	}
 
 	for _, tt := range tests {
-		t.Run(fmt.Sprintf("%#v", tt.e), func(t *testing.T) {
+		t.Run(fmt.Sprintf(v, tt.e), func(t *testing.T) {
 			res := assert.NotContains(new(testing.T), tt.a, tt.e)
 			if res != tt.r {
 				t.Errorf("NotContains(%#v, %#v) should return %#v", tt.a, tt.e, tt.r)
@@ -304,17 +317,17 @@ func TestNilError(t *testing.T) {
 			true,
 		},
 		{
-			errors.New("test"), //nolint:goerr113
+			errors.New(testString), //nolint:goerr113
 			false,
 		},
 		{
-			errors.New(""), //nolint:goerr113
+			errors.New(emptyString), //nolint:goerr113
 			false,
 		},
 	}
 
 	for _, tt := range tests {
-		t.Run(fmt.Sprintf("%#v", tt.a), func(t *testing.T) {
+		t.Run(fmt.Sprintf(v, tt.a), func(t *testing.T) {
 			res := assert.NilError(new(testing.T), tt.a)
 			if res != tt.r {
 				t.Errorf("NilError(%#v) should return %#v", tt.a, tt.r)

@@ -14,10 +14,14 @@ import (
 )
 
 const (
-	ScopeActivation    = "activation"
 	ScopeAccess        = "access"
+	ScopeActivation    = "activation"
 	ScopePasswordReset = "password-reset"
 	ScopeRefresh       = "refresh"
+	emptyString        = ""
+	keyToken           = "token"
+	lengthToken        = 26
+	lenthRandom        = 16
 )
 
 type TokenFull struct {
@@ -33,12 +37,12 @@ func (t *TokenFull) Render(_ http.ResponseWriter, _ *http.Request) error {
 }
 
 func ValidateTokenPlaintext(v *validator.Validator, tokenPlaintext string) {
-	v.Check(tokenPlaintext != "", "token", "must be provided")
-	v.Check(len(tokenPlaintext) == 26, "token", "must be 26 bytes long")
+	v.Check(tokenPlaintext != emptyString, keyToken, "must be provided")
+	v.Check(len(tokenPlaintext) == lengthToken, keyToken, "must be 26 bytes long")
 }
 
 func (q *Queries) CreateTokenHelper(ctx context.Context, uid int64, ttl time.Duration, s string) (TokenFull, error) {
-	randomBytes := make([]byte, 16)
+	randomBytes := make([]byte, lenthRandom)
 
 	_, err := rand.Read(randomBytes)
 	if err != nil {

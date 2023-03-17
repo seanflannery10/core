@@ -15,6 +15,10 @@ import (
 	"github.com/seanflannery10/core/internal/services"
 )
 
+const (
+	base = 32
+)
+
 type updateMessagePayload struct {
 	Message string `json:"message"`
 	ID      int64  `json:"-"`
@@ -54,7 +58,7 @@ func UpdateMessageHandler(env *services.Env) http.HandlerFunc {
 		if err != nil {
 			switch {
 			case errors.Is(err, pgx.ErrNoRows):
-				_ = render.Render(w, r, errs.ErrNotFound)
+				_ = render.Render(w, r, errs.ErrNotFound())
 			default:
 				_ = render.Render(w, r, errs.ErrServerError(err))
 			}
@@ -63,8 +67,8 @@ func UpdateMessageHandler(env *services.Env) http.HandlerFunc {
 		}
 
 		if r.Header.Get("X-Expected-Version") != "" {
-			if strconv.FormatInt(int64(message.Version), 32) != r.Header.Get("X-Expected-Version") {
-				_ = render.Render(w, r, errs.ErrEditConflict)
+			if strconv.FormatInt(int64(message.Version), base) != r.Header.Get("X-Expected-Version") {
+				_ = render.Render(w, r, errs.ErrEditConflict())
 				return
 			}
 		}
