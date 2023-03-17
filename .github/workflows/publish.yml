@@ -1,14 +1,18 @@
 name: publish
+
 on:
   push:
     tags: [ "-v*" ]
     branches: ['main']
+
 permissions:
   contents: read
   packages: write
+
 jobs:
   tests:
     uses: ./.github/workflows/test.yml
+
   build:
     name: build docker image
     needs: [tests]
@@ -16,15 +20,19 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
           go-version: ${{ vars.GO_VERSION }}
+
       - name: Setup ko
         uses: ko-build/setup-ko@ace48d793556083a76f1e3e6068850c1f4a369aa # v0.6
         # https://api.github.com/repos/ko-build/setup-ko/tags
+
       - name: Build container image
         run: ko build ./cmd/api --bare --sbom=none
+
       - name: Cleanup old container images
         uses: actions/delete-package-versions@v4
         with:
@@ -32,6 +40,7 @@ jobs:
           package-type: 'container'
           min-versions-to-keep: 10
           delete-only-untagged-versions: 'true'
+
   deploy:
     needs: [build]
     name: deploy application
@@ -39,8 +48,10 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
       - name: Setup flyctl
         uses: superfly/flyctl-actions/setup-flyctl@master
+
       - name: Deploy image to fly
         run: flyctl deploy --remote-only
         env:
