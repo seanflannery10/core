@@ -3,6 +3,17 @@ on:
   workflow_call:
   pull_request:
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ vars.GO_VERSION }}
+      - name: Build code
+        run: go build ./...
   test:
     runs-on: ubuntu-latest
     steps:
@@ -30,5 +41,3 @@ jobs:
         # https://api.github.com/repos/golangci/golangci-lint-action/tags
         with:
           version: v1.51.2
-      - name: Build code
-        run: go build ./...
