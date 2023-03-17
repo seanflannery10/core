@@ -16,8 +16,6 @@ jobs:
         run: go mod verify
       - name: Test code
         run: go test -race -vet=off ./...
-      - name: Build code
-        run: go build ./...
   lint:
     runs-on: ubuntu-latest
     steps:
@@ -32,3 +30,5 @@ jobs:
         # https://api.github.com/repos/golangci/golangci-lint-action/tags
         with:
           version: v1.51.2
+      - name: Build code
+        run: go build ./...
