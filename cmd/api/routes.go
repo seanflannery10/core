@@ -31,7 +31,7 @@ func (app *application) routes() *chi.Mux {
 	router.Get("/debug/vars", expvar.Handler().ServeHTTP)
 
 	router.Route("/v1/messages", func(r chi.Router) {
-		r.Use(middleware.RequireAuthenticatedUser)
+		r.Use(middleware.RequireAuthenticatedUser(env))
 
 		r.Get("/", messages.GetMessagesUserHandler(env))
 		r.Post("/", messages.CreateMessageHandler(env))

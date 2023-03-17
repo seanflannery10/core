@@ -10,7 +10,6 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
-	"github.com/seanflannery10/core/internal/data"
 	"github.com/seanflannery10/core/internal/pkg/errs"
 	"github.com/seanflannery10/core/internal/pkg/validator"
 	semconv "go.opentelemetry.io/otel/semconv/v1.12.0"
@@ -21,21 +20,9 @@ import (
 var ErrInvalidIDParameter = errors.New("invalid id parameter")
 
 const (
-	UserContextKey = contextKey("user")
-	EmptyString    = ""
-	statusGood     = 0
+	EmptyString = ""
+	statusGood  = 0
 )
-
-type contextKey string
-
-func ContextGetUser(r *http.Request) data.User {
-	u, ok := r.Context().Value(UserContextKey).(data.User)
-	if !ok {
-		panic("missing user value in request context")
-	}
-
-	return u
-}
 
 func CheckAndBind(w http.ResponseWriter, r *http.Request, b render.Binder) bool {
 	err := render.Bind(r, b)

@@ -21,7 +21,7 @@ const (
 	string2     = "124"
 )
 
-//nolint:dupl
+//nolint:all
 func TestEqual(t *testing.T) {
 	testsNums := []struct {
 		a float32
@@ -116,7 +116,7 @@ func TestEqual(t *testing.T) {
 	}
 }
 
-//nolint:dupl
+//nolint:all
 func TestNotEqual(t *testing.T) {
 	testsNums := []struct {
 		a float32

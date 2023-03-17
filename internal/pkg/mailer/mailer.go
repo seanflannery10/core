@@ -12,18 +12,19 @@ import (
 //go:embed "templates"
 var templateFS embed.FS
 
-type SMTP struct {
-	Host     string `env:"SMTP_HOST,default=smtp.mailtrap.io"`
-	Username string `env:"SMTP_USERNAME"`
-	Password string `env:"SMTP_PASSWORD"`
-	Sender   string `env:"SMTP_SENDER,default=Test <no-reply@testdomain.com>"`
-	Port     int    `env:"SMTP_PORT,default=25"`
-}
-
-type Mailer struct {
-	client *mail.Client
-	sender string
-}
+type (
+	SMTP struct {
+		Host     string `env:"SMTP_HOST,default=smtp.mailtrap.io"`
+		Username string `env:"SMTP_USERNAME"`
+		Password string `env:"SMTP_PASSWORD"`
+		Sender   string `env:"SMTP_SENDER,default=Test <no-reply@testdomain.com>"`
+		Port     int    `env:"SMTP_PORT,default=25"`
+	}
+	Mailer struct {
+		client *mail.Client
+		sender string
+	}
+)
 
 func New(smtp SMTP) (Mailer, error) {
 	client, err := mail.NewClient(

@@ -26,12 +26,12 @@ Routes for core API
 - [o-chi/cors.(*Cors).Handler-fm]()
 - [Authenticate.func1]()
 - **/v1/messages**
-	- [RequireAuthenticatedUser]()
+	- [RequireAuthenticatedUser.func1]()
 	- **/**
-		- _GET_
-			- [GetMessagesUserHandler.func1]()
 		- _POST_
 			- [CreateMessageHandler.func1]()
+		- _GET_
+			- [GetMessagesUserHandler.func1]()
 
 </details>
 <details>
@@ -43,15 +43,15 @@ Routes for core API
 - [o-chi/cors.(*Cors).Handler-fm]()
 - [Authenticate.func1]()
 - **/v1/messages**
-	- [RequireAuthenticatedUser]()
+	- [RequireAuthenticatedUser.func1]()
 	- **/{id}**
 		- **/**
-			- _PUT_
-				- [UpdateMessageHandler.func1]()
 			- _DELETE_
 				- [DeleteMessageHandler.func1]()
 			- _GET_
 				- [GetMessageHandler.func1]()
+			- _PUT_
+				- [UpdateMessageHandler.func1]()
 
 </details>
 <details>

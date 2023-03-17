@@ -12,9 +12,16 @@ import (
 	"github.com/seanflannery10/core/internal/services"
 )
 
-type getMessagesUserPayload struct {
-	pagination.Pagination `json:"-"`
-}
+type (
+	getMessagesUserPayload struct {
+		pagination.Pagination `json:"-"`
+	}
+
+	messagesResponsePayload struct {
+		Messages []data.Message      `json:"messages"`
+		Metadata pagination.Metadata `json:"metadata"`
+	}
+)
 
 func (p *getMessagesUserPayload) Bind(_ *http.Request) error {
 	p.Pagination.Validate()
@@ -26,6 +33,10 @@ func (p *getMessagesUserPayload) Bind(_ *http.Request) error {
 	return nil
 }
 
+func (p messagesResponsePayload) Render(_ http.ResponseWriter, _ *http.Request) error {
+	return nil
+}
+
 func GetMessagesUserHandler(env *services.Env) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		p := &getMessagesUserPayload{Pagination: pagination.New(r)}
@@ -34,10 +45,8 @@ func GetMessagesUserHandler(env *services.Env) http.HandlerFunc {
 			return
 		}
 
-		user := helpers.ContextGetUser(r)
-
 		messages, err := env.Queries.GetUserMessages(r.Context(), data.GetUserMessagesParams{
-			UserID: user.ID,
+			UserID: env.User.ID,
 			Offset: p.Pagination.Offset(),
 			Limit:  p.Pagination.Limit(),
 		})
@@ -47,7 +56,7 @@ func GetMessagesUserHandler(env *services.Env) http.HandlerFunc {
 			return
 		}
 
-		count, err := env.Queries.GetUserMessageCount(r.Context(), user.ID)
+		count, err := env.Queries.GetUserMessageCount(r.Context(), env.User.ID)
 		if err != nil {
 			_ = render.Render(w, r, errs.ErrServerError(err))
 
@@ -66,13 +75,4 @@ func GetMessagesUserHandler(env *services.Env) http.HandlerFunc {
 
 		helpers.RenderAndCheck(w, r, &messagesResponsePayload{Messages: messages, Metadata: metadata})
 	}
-}
-
-type messagesResponsePayload struct {
-	Messages []data.Message      `json:"messages"`
-	Metadata pagination.Metadata `json:"metadata"`
-}
-
-func (p messagesResponsePayload) Render(_ http.ResponseWriter, _ *http.Request) error {
-	return nil
 }

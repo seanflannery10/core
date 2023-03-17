@@ -36,11 +36,9 @@ func CreateMessageHandler(env *services.Env) http.HandlerFunc {
 			return
 		}
 
-		user := helpers.ContextGetUser(r)
-
 		message, err := env.Queries.CreateMessage(r.Context(), data.CreateMessageParams{
 			Message: p.Message,
-			UserID:  user.ID,
+			UserID:  env.User.ID,
 		})
 		if err != nil {
 			_ = render.Render(w, r, errs.ErrServerError(err))

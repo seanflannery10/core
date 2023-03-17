@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"context"
 	"crypto/sha256"
 	"errors"
 	"expvar"
@@ -20,6 +19,7 @@ import (
 	"github.com/seanflannery10/core/internal/pkg/helpers"
 	"github.com/seanflannery10/core/internal/pkg/validator"
 	"github.com/seanflannery10/core/internal/services"
+	"go.opentelemetry.io/otel/attribute"
 	semconv "go.opentelemetry.io/otel/semconv/v1.12.0"
 	oteltrace "go.opentelemetry.io/otel/trace"
 	"golang.org/x/exp/slog"
@@ -62,9 +62,7 @@ func Authenticate(env *services.Env) func(next http.Handler) http.Handler {
 			authorizationHeader := r.Header.Get("Authorization")
 
 			if authorizationHeader == "" {
-				ctx := context.WithValue(r.Context(), helpers.UserContextKey, data.AnonymousUser)
-				next.ServeHTTP(w, r.WithContext(ctx))
-
+				env.User = *data.AnonymousUser
 				return
 			}
 
@@ -103,24 +101,32 @@ func Authenticate(env *services.Env) func(next http.Handler) http.Handler {
 				return
 			}
 
-			r = r.WithContext(context.WithValue(r.Context(), helpers.UserContextKey, user))
+			env.User = user
+
+			span := oteltrace.SpanFromContext(r.Context())
+			span.SetAttributes(attribute.Int64("user.id", user.ID))
+			span.SetAttributes(attribute.String("user.name", user.Name))
+			span.SetAttributes(attribute.String("user.email", user.Email))
+			span.SetAttributes(attribute.Bool("user.activated", user.Activated))
+
+			r = r.WithContext(oteltrace.ContextWithSpan(r.Context(), span))
 
 			next.ServeHTTP(w, r)
 		})
 	}
 }
 
-func RequireAuthenticatedUser(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		user := helpers.ContextGetUser(r)
+func RequireAuthenticatedUser(env *services.Env) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if env.User.IsAnonymous() {
+				_ = render.Render(w, r, errs.ErrAuthenticationRequired())
+				return
+			}
 
-		if user.IsAnonymous() {
-			_ = render.Render(w, r, errs.ErrAuthenticationRequired())
-			return
-		}
-
-		next.ServeHTTP(w, r)
-	})
+			next.ServeHTTP(w, r)
+		})
+	}
 }
 
 func Metrics(next http.Handler) http.Handler {

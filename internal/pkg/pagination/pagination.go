@@ -22,19 +22,21 @@ const (
 	noLength        = 0
 )
 
-type Pagination struct {
-	Validator *validator.Validator
-	Page      int
-	PageSize  int
-}
+type (
+	Pagination struct {
+		Validator *validator.Validator
+		Page      int
+		PageSize  int
+	}
 
-type Metadata struct {
-	CurrentPage  int `json:"current_page"`
-	PageSize     int `json:"page_size"`
-	FirstPage    int `json:"first_page"`
-	LastPage     int `json:"last_page"`
-	TotalRecords int `json:"total_records"`
-}
+	Metadata struct {
+		CurrentPage  int `json:"current_page"`
+		PageSize     int `json:"page_size"`
+		FirstPage    int `json:"first_page"`
+		LastPage     int `json:"last_page"`
+		TotalRecords int `json:"total_records"`
+	}
+)
 
 func New(r *http.Request) Pagination {
 	v := validator.New()
