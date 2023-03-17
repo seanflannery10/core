@@ -31,47 +31,47 @@ func TestEqual(t *testing.T) {
 		{
 			i0,
 			i0,
-			false,
+			true,
 		},
 		{
 			i200,
 			i200,
-			false,
+			true,
 		},
 		{
 			i201,
 			i200,
-			true,
+			false,
 		},
 		{
 			d2000,
 			d2000,
-			false,
+			true,
 		},
 		{
 			d2001,
 			d2000,
-			true,
+			false,
 		},
 		{
 			-i200,
 			-i200,
-			false,
+			true,
 		},
 		{
 			-i201,
 			-i200,
-			true,
+			false,
 		},
 		{
 			-d2000,
 			-d2000,
-			false,
+			true,
 		},
 		{
 			-d2001,
 			-d2000,
-			true,
+			false,
 		},
 	}
 
