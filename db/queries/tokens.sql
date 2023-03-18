@@ -3,13 +3,13 @@ INSERT INTO tokens (hash, user_id, expiry, scope)
 VALUES ($1, $2, $3, $4)
 RETURNING *;
 
--- name: CheckRefreshToken :one
+-- name: CheckToken :one
 SELECT EXISTS(SELECT 1
               FROM tokens
-              WHERE scope = "refresh"
-                AND active = false
-                AND hash = $1
-                AND user_id = $2)::bool;
+              WHERE active = false
+                AND scope = $1
+                AND hash = $2
+                AND user_id = $3)::bool;
 
 -- name: DeactivateToken :exec
 UPDATE tokens

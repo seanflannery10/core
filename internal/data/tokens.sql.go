@@ -11,22 +11,23 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const checkRefreshToken = `-- name: CheckRefreshToken :one
+const checkToken = `-- name: CheckToken :one
 SELECT EXISTS(SELECT 1
               FROM tokens
-              WHERE scope = "refresh"
-                AND active = false
-                AND hash = $1
-                AND user_id = $2)::bool
+              WHERE active = false
+                AND scope = $1
+                AND hash = $2
+                AND user_id = $3)::bool
 `
 
-type CheckRefreshTokenParams struct {
+type CheckTokenParams struct {
+	Scope  string `json:"scope"`
 	Hash   []byte `json:"hash"`
 	UserID int64  `json:"user_id"`
 }
 
-func (q *Queries) CheckRefreshToken(ctx context.Context, arg CheckRefreshTokenParams) (bool, error) {
-	row := q.db.QueryRow(ctx, checkRefreshToken, arg.Hash, arg.UserID)
+func (q *Queries) CheckToken(ctx context.Context, arg CheckTokenParams) (bool, error) {
+	row := q.db.QueryRow(ctx, checkToken, arg.Scope, arg.Hash, arg.UserID)
 	var column_1 bool
 	err := row.Scan(&column_1)
 	return column_1, err

@@ -45,9 +45,10 @@ func CreateTokenAccessHandler(env *services.Env) http.HandlerFunc {
 
 		tokenHash := sha256.Sum256([]byte(refreshTokenPlaintext))
 
-		badToken, err := env.Queries.CheckRefreshToken(r.Context(), data.CheckRefreshTokenParams{
+		badToken, err := env.Queries.CheckToken(r.Context(), data.CheckTokenParams{
 			Hash:   tokenHash[:],
 			UserID: user.ID,
+			Scope:  data.ScopeRefresh,
 		})
 		if err != nil {
 			_ = render.Render(w, r, errs.ErrServerError(err))
