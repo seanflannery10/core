@@ -60,7 +60,6 @@ linters-settings:
     enable-all: true
   grouper:
     const-require-single-const: true
-    const-require-grouping: true
     import-require-single-import: true
     type-require-single-type: true
     var-require-single-var: true
