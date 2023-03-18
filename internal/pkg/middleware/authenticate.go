@@ -25,6 +25,7 @@ func Authenticate(env *services.Env) func(next http.Handler) http.Handler {
 
 			if authorizationHeader == "" {
 				env.User = data.AnonymousUser
+				next.ServeHTTP(w, r)
 				return
 			}
 

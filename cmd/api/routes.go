@@ -44,10 +44,10 @@ func (app *application) routes() *chi.Mux {
 	})
 
 	router.Route("/v1/tokens", func(r chi.Router) {
+		r.Post("/refresh", tokens.CreateTokenRefreshHandler(env))
 		r.Post("/access", tokens.CreateTokenAccessHandler(env))
 		r.Post("/activation", tokens.CreateTokenActivationHandler(env))
 		r.Post("/password-reset", tokens.CreateTokenPasswordResetHandler(env))
-		r.Post("/refresh", tokens.CreateTokenRefreshHandler(env))
 	})
 
 	router.Route("/v1/users", func(r chi.Router) {

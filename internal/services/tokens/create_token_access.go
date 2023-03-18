@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/render"
+	"github.com/jackc/pgx/v5"
 	"github.com/seanflannery10/core/internal/data"
 	"github.com/seanflannery10/core/internal/pkg/cookies"
 	"github.com/seanflannery10/core/internal/pkg/errs"
@@ -32,7 +33,13 @@ func CreateTokenAccessHandler(env *services.Env) http.HandlerFunc {
 
 		user, err := env.Queries.GetUserFromTokenHelper(r.Context(), refreshTokenPlaintext, data.ScopeRefresh)
 		if err != nil {
-			_ = render.Render(w, r, errs.ErrServerError(err))
+			switch {
+			case errors.Is(err, pgx.ErrNoRows):
+				_ = render.Render(w, r, errs.ErrInvalidToken())
+			default:
+				_ = render.Render(w, r, errs.ErrServerError(err))
+			}
+
 			return
 		}
 
@@ -58,7 +65,6 @@ func CreateTokenAccessHandler(env *services.Env) http.HandlerFunc {
 			}
 
 			_ = render.Render(w, r, errs.ErrReusedRefreshToken())
-
 			return
 		}
 

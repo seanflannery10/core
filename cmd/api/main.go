@@ -11,7 +11,6 @@ import (
 )
 
 type application struct {
-	config *services.Config
 	dbpool *pgxpool.Pool
 	tp     *sdktrace.TracerProvider
 	env    *services.Env
@@ -22,7 +21,7 @@ func main() {
 
 	app.init()
 
-	if err := server.Serve(app.config.Port, app.routes()); err != nil {
+	if err := server.Serve(app.env.Config.Port, app.routes()); err != nil {
 		slog.Error("unable to serve application", err)
 		os.Exit(exitError)
 	}

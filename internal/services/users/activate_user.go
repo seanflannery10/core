@@ -1,9 +1,11 @@
 package users
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/go-chi/render"
+	"github.com/jackc/pgx/v5"
 	"github.com/seanflannery10/core/internal/data"
 	"github.com/seanflannery10/core/internal/pkg/errs"
 	"github.com/seanflannery10/core/internal/pkg/helpers"
@@ -21,7 +23,7 @@ func (p *activateUserPayload) Bind(_ *http.Request) error {
 	data.ValidateTokenPlaintext(v, p.TokenPlaintext)
 
 	if v.HasErrors() {
-		return validator.ErrValidation
+		return validator.NewValidationError(v.Errors)
 	}
 
 	return nil
@@ -37,7 +39,13 @@ func ActivateUserHandler(env *services.Env) http.HandlerFunc {
 
 		user, err := env.Queries.GetUserFromTokenHelper(r.Context(), p.TokenPlaintext, data.ScopeActivation)
 		if err != nil {
-			_ = render.Render(w, r, errs.ErrServerError(err))
+			switch {
+			case errors.Is(err, pgx.ErrNoRows):
+				_ = render.Render(w, r, errs.ErrInvalidAccessToken())
+			default:
+				_ = render.Render(w, r, errs.ErrServerError(err))
+			}
+
 			return
 		}
 

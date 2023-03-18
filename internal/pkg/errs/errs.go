@@ -19,9 +19,9 @@ const (
 )
 
 type ErrResponse struct { //nolint:govet
-	ValidatorErrors map[string]string `json:"errors,omitempty"`
 	Message         string            `json:"message"`
 	ErrorText       string            `json:"error,omitempty"`
+	ValidatorErrors map[string]string `json:"errors,omitempty"`
 
 	Err            error       `json:"-"`
 	Headers        http.Header `json:"-"`
@@ -30,6 +30,7 @@ type ErrResponse struct { //nolint:govet
 }
 
 func (err *ErrResponse) Render(w http.ResponseWriter, r *http.Request) error {
+	// Remove old Vary header
 	if len(err.Headers) != noLength {
 		for key, value := range err.Headers {
 			w.Header()[key] = value
@@ -133,6 +134,14 @@ func ErrInvalidAccessToken() render.Renderer {
 		HTTPStatusCode: http.StatusUnauthorized,
 		Message:        "invalid or missing access token",
 		Headers:        headers,
+	}
+}
+
+func ErrInvalidToken() render.Renderer {
+	return &ErrResponse{
+		AppCode:        appNormal,
+		HTTPStatusCode: http.StatusUnauthorized,
+		Message:        "invalid or missing token",
 	}
 }
 

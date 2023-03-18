@@ -53,23 +53,23 @@ func (app *application) init() {
 		os.Exit(exitGood)
 	}
 
+	cfg := &services.Config{}
+
+	err := envconfig.Process(context.Background(), cfg)
+	if err != nil {
+		slog.Error("unable to process env config", err)
+		os.Exit(exitError)
+	}
+
 	secret, err := hex.DecodeString(os.Getenv("SECRET_KEY"))
 	if err != nil || os.Getenv("SECRET_KEY") == "" {
 		slog.Error("unable to decode sercret", err)
 		os.Exit(exitError)
 	}
 
-	app.config.Secret = secret
+	cfg.Secret = secret
 
 	slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stdout)))
-
-	err = envconfig.Process(context.Background(), &app.config)
-	if err != nil {
-		slog.Error("unable to process env config", err)
-		os.Exit(exitError)
-	}
-
-	cfg := app.config
 
 	mail, err := mailer.New(cfg.SMTP)
 	if err != nil {
@@ -96,6 +96,7 @@ func (app *application) init() {
 		Queries: data.New(dbpool),
 		Mailer:  mail,
 		Tracer:  tracerProvider.Tracer("main"),
+		Config:  cfg,
 	}
 
 	expvar.NewString("version").Set(helpers.GetVersion())
