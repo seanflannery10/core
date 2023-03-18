@@ -14,7 +14,7 @@ type Tracers struct {
 }
 
 func NewTrace(r *http.Request, tracer oteltrace.Tracer) oteltrace.Span {
-	spanName := ""
+	var spanName string
 
 	routePattern := chi.RouteContext(r.Context()).RoutePattern()
 

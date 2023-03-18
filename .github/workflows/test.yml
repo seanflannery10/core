@@ -40,4 +40,4 @@ jobs:
         uses: golangci/golangci-lint-action@08e2f20817b15149a52b5b3ebe7de50aff2ba8c5 # V3.4.0
         # https://api.github.com/repos/golangci/golangci-lint-action/tags
         with:
-          version: v1.51.2
+          version: v1.52.0
