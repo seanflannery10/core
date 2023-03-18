@@ -3,13 +3,13 @@ package tokens
 import (
 	"errors"
 	"net/http"
-	"time"
 
 	"github.com/go-chi/render"
 	"github.com/jackc/pgx/v5"
 	"github.com/seanflannery10/core/internal/data"
 	"github.com/seanflannery10/core/internal/pkg/errs"
 	"github.com/seanflannery10/core/internal/pkg/helpers"
+	"github.com/seanflannery10/core/internal/pkg/middleware"
 	"github.com/seanflannery10/core/internal/pkg/validator"
 	"github.com/seanflannery10/core/internal/services"
 )
@@ -60,7 +60,7 @@ func CreateTokenActivationHandler(env *services.Env) http.HandlerFunc {
 			return
 		}
 
-		token, err := env.Queries.CreateTokenHelper(r.Context(), user.ID, 3*24*time.Hour, data.ScopeActivation)
+		token, err := env.Queries.CreateTokenHelper(r.Context(), user.ID, ttlAcitvationToken, data.ScopeActivation)
 		if err != nil {
 			_ = render.Render(w, r, errs.ErrServerError(err))
 			return
@@ -74,6 +74,8 @@ func CreateTokenActivationHandler(env *services.Env) http.HandlerFunc {
 			_ = render.Render(w, r, errs.ErrServerError(err))
 			return
 		}
+
+		r = middleware.LogUser(r, &user)
 
 		render.Status(r, http.StatusCreated)
 

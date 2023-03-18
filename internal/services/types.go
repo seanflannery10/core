@@ -8,11 +8,11 @@ import (
 
 type (
 	Env struct {
+		Config  *Config
 		Queries *data.Queries
-		Mailer  mailer.Mailer
+		User    *data.User
 		Tracer  oteltrace.Tracer
-		User    data.User
-		Config  Config
+		Mailer  mailer.Mailer
 	}
 
 	Config struct {

@@ -66,28 +66,9 @@ func ReadEncrypted(r *http.Request, name string, secretKey []byte) (string, erro
 		return emptyString, fmt.Errorf("failed decode string: %w", ErrInvalidValue)
 	}
 
-	block, err := aes.NewCipher(secretKey)
+	plaintext, err := getPlainText(encryptedValue, secretKey)
 	if err != nil {
-		return emptyString, fmt.Errorf("failed new cipher: %w", err)
-	}
-
-	aesGCM, err := cipher.NewGCM(block)
-	if err != nil {
-		return emptyString, fmt.Errorf("failed new gcm: %w", err)
-	}
-
-	nonceSize := aesGCM.NonceSize()
-
-	if len(encryptedValue) < nonceSize {
-		return emptyString, fmt.Errorf("failed nonce size: %w", ErrInvalidValue)
-	}
-
-	nonce := encryptedValue[:nonceSize]
-	ciphertext := encryptedValue[nonceSize:]
-
-	plaintext, err := aesGCM.Open(nil, nonce, ciphertext, nil)
-	if err != nil {
-		return emptyString, fmt.Errorf("failed gcm open: %w", ErrInvalidValue)
+		return emptyString, fmt.Errorf("failed get plain text: %w", ErrInvalidValue)
 	}
 
 	expectedName, value, ok := strings.Cut(string(plaintext), ":")
@@ -100,4 +81,32 @@ func ReadEncrypted(r *http.Request, name string, secretKey []byte) (string, erro
 	}
 
 	return value, nil
+}
+
+func getPlainText(encryptedValue, secretKey []byte) ([]byte, error) {
+	block, err := aes.NewCipher(secretKey)
+	if err != nil {
+		return nil, fmt.Errorf("failed new cipher: %w", err)
+	}
+
+	aesGCM, err := cipher.NewGCM(block)
+	if err != nil {
+		return nil, fmt.Errorf("failed new gcm: %w", err)
+	}
+
+	nonceSize := aesGCM.NonceSize()
+
+	if len(encryptedValue) < nonceSize {
+		return nil, fmt.Errorf("failed nonce size: %w", ErrInvalidValue)
+	}
+
+	nonce := encryptedValue[:nonceSize]
+	ciphertext := encryptedValue[nonceSize:]
+
+	plaintext, err := aesGCM.Open(nil, nonce, ciphertext, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed gcm open: %w", ErrInvalidValue)
+	}
+
+	return plaintext, nil
 }

@@ -11,8 +11,12 @@ import (
 )
 
 const (
-	cookieRefreshToken = "core_refreshtoken"
-	maxAge             = 7 * 24 * 60 * 60
+	cookieRefreshToken    = "core_refreshtoken"
+	ttlAccessToken        = time.Hour
+	ttlAcitvationToken    = 3 * 24 * time.Hour
+	ttlCookie             = 7 * 24 * 60 * 60
+	ttlPasswordResetToken = 45 * time.Minute
+	ttlRefreshToken       = 7 * 24 * time.Hour
 )
 
 func createCookie(w http.ResponseWriter, name, value string, secret []byte) (http.ResponseWriter, error) {
@@ -20,7 +24,7 @@ func createCookie(w http.ResponseWriter, name, value string, secret []byte) (htt
 		Name:     name,
 		Value:    value,
 		Path:     "/",
-		MaxAge:   maxAge,
+		MaxAge:   ttlCookie,
 		HttpOnly: true,
 		Secure:   true,
 		SameSite: http.SameSiteLaxMode,
@@ -34,8 +38,8 @@ func createCookie(w http.ResponseWriter, name, value string, secret []byte) (htt
 	return w, nil
 }
 
-func createRefreshAndAccessTokens(w http.ResponseWriter, r *http.Request, env *services.Env, uid int64) (http.ResponseWriter, data.TokenFull, error) { //nolint:revive
-	refreshToken, err := env.Queries.CreateTokenHelper(r.Context(), uid, 7*24*time.Hour, data.ScopeRefresh)
+func createRefreshAndAccessTokens(w http.ResponseWriter, r *http.Request, env *services.Env) (http.ResponseWriter, data.TokenFull, error) { //nolint:revive
+	refreshToken, err := env.Queries.CreateTokenHelper(r.Context(), env.User.ID, ttlRefreshToken, data.ScopeRefresh)
 	if err != nil {
 		return nil, data.TokenFull{}, fmt.Errorf("failed create token helper: %w", err)
 	}
@@ -45,7 +49,7 @@ func createRefreshAndAccessTokens(w http.ResponseWriter, r *http.Request, env *s
 		return nil, data.TokenFull{}, fmt.Errorf("failed create cookie: %w", err)
 	}
 
-	accessToken, err := env.Queries.CreateTokenHelper(r.Context(), uid, time.Hour, data.ScopeAccess)
+	accessToken, err := env.Queries.CreateTokenHelper(r.Context(), env.User.ID, ttlAccessToken, data.ScopeAccess)
 	if err != nil {
 		return nil, data.TokenFull{}, fmt.Errorf("failed create token helper: %w", err)
 	}

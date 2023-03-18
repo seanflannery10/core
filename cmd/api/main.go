@@ -11,10 +11,10 @@ import (
 )
 
 type application struct {
-	config services.Config
+	config *services.Config
 	dbpool *pgxpool.Pool
 	tp     *sdktrace.TracerProvider
-	env    services.Env
+	env    *services.Env
 }
 
 func main() {

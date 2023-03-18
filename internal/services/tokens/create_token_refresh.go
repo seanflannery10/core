@@ -9,6 +9,7 @@ import (
 	"github.com/seanflannery10/core/internal/data"
 	"github.com/seanflannery10/core/internal/pkg/errs"
 	"github.com/seanflannery10/core/internal/pkg/helpers"
+	"github.com/seanflannery10/core/internal/pkg/middleware"
 	"github.com/seanflannery10/core/internal/pkg/validator"
 	"github.com/seanflannery10/core/internal/services"
 )
@@ -62,11 +63,15 @@ func CreateTokenRefreshHandler(env *services.Env) http.HandlerFunc {
 			return
 		}
 
-		w, accessToken, err := createRefreshAndAccessTokens(w, r, env, user.ID)
+		env.User = &user
+
+		w, accessToken, err := createRefreshAndAccessTokens(w, r, env)
 		if err != nil {
 			_ = render.Render(w, r, errs.ErrServerError(err))
 			return
 		}
+
+		r = middleware.LogUser(r, &user)
 
 		render.Status(r, http.StatusCreated)
 

@@ -82,20 +82,17 @@ linters-settings:
       - name: argument-limit
         arguments: [4]
       - name: cognitive-complexity
-        disabled: true
-        arguments: [15]
+        arguments: [18]
       - name: comment-spacings
         arguments: ["nolint"]
       - name: cyclomatic
-        disabled: true
-        arguments: [8]
+        arguments: [12]
       - name: function-result-limit
         arguments: [3]
       - name: function-length
-        disabled: true
-        arguments: [30,60]
+        arguments: [40,80]
       - name: line-length-limit
-        arguments: [120]
+        arguments: [150]
       - name: max-public-structs
         arguments: [3]
   prealloc:

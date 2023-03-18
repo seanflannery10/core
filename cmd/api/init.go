@@ -27,6 +27,7 @@ const (
 	filePerm  = 644
 )
 
+//nolint:revive
 func (app *application) init() {
 	generateRoutes := flag.Bool("routes", false, "Generate router documentation")
 	displayVersion := flag.Bool("version", false, "Display version and exit")
@@ -91,7 +92,7 @@ func (app *application) init() {
 	app.dbpool = dbpool
 	app.tp = tracerProvider
 
-	app.env = services.Env{
+	app.env = &services.Env{
 		Queries: data.New(dbpool),
 		Mailer:  mail,
 		Tracer:  tracerProvider.Tracer("main"),
