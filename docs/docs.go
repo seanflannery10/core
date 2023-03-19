@@ -19,18 +19,148 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/messages": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "get user messages",
+                "operationId": "get-user-messages",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/messages.messagesResponsePayload"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "create new message",
+                "operationId": "create-message",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/data.Message"
+                        }
+                    }
+                }
+            }
+        },
+        "/messages/{id}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "get a message",
+                "operationId": "get-message",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/data.Message"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "update a message",
+                "operationId": "update-message",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/data.Message"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "delete a message",
+                "operationId": "delete-message",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/responses.StringResponsePayload"
+                        }
+                    }
+                }
+            }
+        },
         "/tokens/access": {
             "post": {
                 "produces": [
                     "application/json"
                 ],
-                "summary": "create token access",
+                "summary": "create access token using a refresh token",
                 "operationId": "create-token-access",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/data.Token"
+                            "$ref": "#/definitions/data.TokenFull"
+                        }
+                    }
+                }
+            }
+        },
+        "/tokens/activation": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "create activation token using an email address",
+                "operationId": "create-token-activation",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/data.TokenFull"
+                        }
+                    }
+                }
+            }
+        },
+        "/tokens/password-reset": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "create password reset token using an email address",
+                "operationId": "create-token-password-reset",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/data.TokenFull"
+                        }
+                    }
+                }
+            }
+        },
+        "/tokens/refresh": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "create refresh token using an email address",
+                "operationId": "create-token-refresh",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/data.TokenFull"
                         }
                     }
                 }
@@ -41,7 +171,7 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "activate user",
+                "summary": "activate new inactivate account using a token",
                 "operationId": "activate-user",
                 "responses": {
                     "200": {
@@ -52,28 +182,80 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/users/register": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "create new user account",
+                "operationId": "create-user",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/data.User"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/update-password": {
+            "patch": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "update user password using a token",
+                "operationId": "update-user-password",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/responses.StringResponsePayload"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
-        "data.Token": {
+        "data.Message": {
             "type": "object",
             "properties": {
-                "active": {
-                    "type": "boolean"
+                "created_at": {
+                    "type": "string"
                 },
-                "expiry": {
+                "id": {
                     "type": "integer"
                 },
+                "message": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                },
+                "version": {
+                    "type": "integer"
+                }
+            }
+        },
+        "data.TokenFull": {
+            "type": "object",
+            "properties": {
+                "expiry": {
+                    "type": "string"
+                },
                 "hash": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
+                    "type": "string",
+                    "format": "base64"
+                },
+                "plaintext": {
+                    "type": "string"
                 },
                 "scope": {
                     "type": "string"
                 },
-                "user_id": {
+                "userID": {
                     "type": "integer"
                 }
             }
@@ -85,7 +267,7 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "created_at": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "email": {
                     "type": "string"
@@ -97,13 +279,53 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "password_hash": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
+                    "type": "string",
+                    "format": "base64"
                 },
                 "version": {
                     "type": "integer"
+                }
+            }
+        },
+        "messages.messagesResponsePayload": {
+            "type": "object",
+            "properties": {
+                "messages": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/data.Message"
+                    }
+                },
+                "metadata": {
+                    "$ref": "#/definitions/pagination.Metadata"
+                }
+            }
+        },
+        "pagination.Metadata": {
+            "type": "object",
+            "properties": {
+                "current_page": {
+                    "type": "integer"
+                },
+                "first_page": {
+                    "type": "integer"
+                },
+                "last_page": {
+                    "type": "integer"
+                },
+                "page_size": {
+                    "type": "integer"
+                },
+                "total_records": {
+                    "type": "integer"
+                }
+            }
+        },
+        "responses.StringResponsePayload": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
                 }
             }
         }

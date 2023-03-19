@@ -7,8 +7,7 @@ package data
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
+	"time"
 )
 
 const checkUser = `-- name: CheckUser :one
@@ -87,9 +86,9 @@ WHERE tokens.hash = $1
 `
 
 type GetUserFromTokenParams struct {
-	Hash   []byte           `json:"hash"`
-	Scope  string           `json:"scope"`
-	Expiry pgtype.Timestamp `json:"expiry"`
+	Hash   []byte    `json:"hash"`
+	Scope  string    `json:"scope"`
+	Expiry time.Time `json:"expiry"`
 }
 
 func (q *Queries) GetUserFromToken(ctx context.Context, arg GetUserFromTokenParams) (User, error) {

@@ -9,7 +9,6 @@ import (
 
 	"github.com/go-chi/render"
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/seanflannery10/core/internal/data"
 	"github.com/seanflannery10/core/internal/pkg/errs"
 	"github.com/seanflannery10/core/internal/pkg/validator"
@@ -51,7 +50,7 @@ func Authenticate(env *services.Env) func(next http.Handler) http.Handler {
 			user, err := env.Queries.GetUserFromToken(r.Context(), data.GetUserFromTokenParams{
 				Hash:   tokenHash[:],
 				Scope:  data.ScopeAccess,
-				Expiry: pgtype.Timestamp{Time: time.Now(), Valid: true},
+				Expiry: time.Now(),
 			})
 			if err != nil {
 				switch {

@@ -29,7 +29,7 @@ func (p *activateUserPayload) Bind(_ *http.Request) error {
 	return nil
 }
 
-// @Summary	activate user
+// @Summary	activate new inactivate account using a token
 // @ID			activate-user
 // @Produce	json
 // @Success	200	{object}	data.User

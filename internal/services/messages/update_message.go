@@ -43,6 +43,11 @@ func (p *updateMessagePayload) Bind(r *http.Request) error {
 	return nil
 }
 
+// @Summary	update a message
+// @ID			update-message
+// @Produce	json
+// @Success	200	{object}	data.Message
+// @Router		/messages/{id}  [put]
 func UpdateMessageHandler(env *services.Env) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		p := &updateMessagePayload{}

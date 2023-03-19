@@ -28,6 +28,11 @@ func (p *deleteMessagePayload) Bind(r *http.Request) error {
 	return nil
 }
 
+// @Summary	delete a message
+// @ID			delete-message
+// @Produce	json
+// @Success	200	{object}	responses.StringResponsePayload
+// @Router		/messages/{id}  [delete]
 func DeleteMessageHandler(env *services.Env) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		p := &deleteMessagePayload{}

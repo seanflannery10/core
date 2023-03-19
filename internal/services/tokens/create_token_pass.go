@@ -30,6 +30,11 @@ func (p *createTokenPasswordResetPayload) Bind(_ *http.Request) error {
 	return nil
 }
 
+// @Summary	create password reset token using an email address
+// @ID			create-token-password-reset
+// @Produce	json
+// @Success	200	{object}	data.TokenFull
+// @Router		/tokens/password-reset  [post]
 func CreateTokenPasswordResetHandler(env *services.Env) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		p := &createTokenPasswordResetPayload{}

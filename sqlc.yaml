@@ -10,12 +10,14 @@ sql:
         sql_package: "pgx/v5"
         emit_json_tags: true
         overrides:
-          - column: tokens.expiry
-            go_struct_tag: 'swaggertype:"primitive,integer"'
-          - column: users.created_at
-            go_struct_tag: 'swaggertype:"primitive,integer"'
           - db_type: "citext"
             go_type: "github.com/jackc/pgx/v5/pgtype.Text"
             nullable: true
           - db_type: "citext"
             go_type: "string"
+          - db_type: "pg_catalog.timestamp"
+            go_type:
+              import: "time"
+              type: "Time"
+          - column: users.password_hash
+            go_struct_tag: 'swaggertype:"string" format:"base64"'

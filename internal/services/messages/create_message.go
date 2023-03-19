@@ -28,6 +28,11 @@ func (p *createMessageHandlerPayload) Bind(_ *http.Request) error {
 	return nil
 }
 
+// @Summary	create new message
+// @ID			create-message
+// @Produce	json
+// @Success	200	{object}	data.Message
+// @Router		/messages  [post]
 func CreateMessageHandler(env *services.Env) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		p := &createMessageHandlerPayload{}

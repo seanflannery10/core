@@ -1,18 +1,30 @@
 basePath: /v1
 definitions:
-  data.Token:
+  data.Message:
     properties:
-      active:
-        type: boolean
-      expiry:
+      created_at:
+        type: string
+      id:
         type: integer
-      hash:
-        items:
-          type: integer
-        type: array
-      scope:
+      message:
         type: string
       user_id:
+        type: integer
+      version:
+        type: integer
+    type: object
+  data.TokenFull:
+    properties:
+      expiry:
+        type: string
+      hash:
+        format: base64
+        type: string
+      plaintext:
+        type: string
+      scope:
+        type: string
+      userID:
         type: integer
     type: object
   data.User:
@@ -20,7 +32,7 @@ definitions:
       activated:
         type: boolean
       created_at:
-        type: integer
+        type: string
       email:
         type: string
       id:
@@ -28,11 +40,37 @@ definitions:
       name:
         type: string
       password_hash:
-        items:
-          type: integer
-        type: array
+        format: base64
+        type: string
       version:
         type: integer
+    type: object
+  messages.messagesResponsePayload:
+    properties:
+      messages:
+        items:
+          $ref: '#/definitions/data.Message'
+        type: array
+      metadata:
+        $ref: '#/definitions/pagination.Metadata'
+    type: object
+  pagination.Metadata:
+    properties:
+      current_page:
+        type: integer
+      first_page:
+        type: integer
+      last_page:
+        type: integer
+      page_size:
+        type: integer
+      total_records:
+        type: integer
+    type: object
+  responses.StringResponsePayload:
+    properties:
+      message:
+        type: string
     type: object
 host: api.seanflannery.dev
 info:
@@ -44,6 +82,58 @@ info:
   title: Core API
   version: 0.1.0
 paths:
+  /messages:
+    get:
+      operationId: get-user-messages
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/messages.messagesResponsePayload'
+      summary: get user messages
+    post:
+      operationId: create-message
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/data.Message'
+      summary: create new message
+  /messages/{id}:
+    delete:
+      operationId: delete-message
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responses.StringResponsePayload'
+      summary: delete a message
+    get:
+      operationId: get-message
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/data.Message'
+      summary: get a message
+    put:
+      operationId: update-message
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/data.Message'
+      summary: update a message
   /tokens/access:
     post:
       operationId: create-token-access
@@ -53,8 +143,41 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/data.Token'
-      summary: create token access
+            $ref: '#/definitions/data.TokenFull'
+      summary: create access token using a refresh token
+  /tokens/activation:
+    post:
+      operationId: create-token-activation
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/data.TokenFull'
+      summary: create activation token using an email address
+  /tokens/password-reset:
+    post:
+      operationId: create-token-password-reset
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/data.TokenFull'
+      summary: create password reset token using an email address
+  /tokens/refresh:
+    post:
+      operationId: create-token-refresh
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/data.TokenFull'
+      summary: create refresh token using an email address
   /users/activate:
     patch:
       operationId: activate-user
@@ -65,5 +188,27 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/data.User'
-      summary: activate user
+      summary: activate new inactivate account using a token
+  /users/register:
+    post:
+      operationId: create-user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/data.User'
+      summary: create new user account
+  /users/update-password:
+    patch:
+      operationId: update-user-password
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responses.StringResponsePayload'
+      summary: update user password using a token
 swagger: "2.0"

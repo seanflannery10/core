@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/seanflannery10/core/internal/pkg/validator"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -79,7 +78,7 @@ func (q *Queries) GetUserFromTokenHelper(ctx context.Context, tokenPlaintext, sc
 	user, err := q.GetUserFromToken(ctx, GetUserFromTokenParams{
 		Hash:   tokenHash[:],
 		Scope:  scope,
-		Expiry: pgtype.Timestamp{Time: time.Now(), Valid: true},
+		Expiry: time.Now(),
 	})
 	if err != nil {
 		return User{}, fmt.Errorf("failed get user from token: %w", err)

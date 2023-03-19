@@ -7,8 +7,7 @@ package data
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
+	"time"
 )
 
 const checkToken = `-- name: CheckToken :one
@@ -40,10 +39,10 @@ RETURNING scope, expiry, hash, user_id, active
 `
 
 type CreateTokenParams struct {
-	Hash   []byte           `json:"hash"`
-	UserID int64            `json:"user_id"`
-	Expiry pgtype.Timestamp `json:"expiry"`
-	Scope  string           `json:"scope"`
+	Hash   []byte    `json:"hash"`
+	UserID int64     `json:"user_id"`
+	Expiry time.Time `json:"expiry"`
+	Scope  string    `json:"scope"`
 }
 
 func (q *Queries) CreateToken(ctx context.Context, arg CreateTokenParams) (Token, error) {

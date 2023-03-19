@@ -32,6 +32,11 @@ func (p *createTokenRefreshPayload) Bind(_ *http.Request) error {
 	return nil
 }
 
+// @Summary	create refresh token using an email address
+// @ID			create-token-refresh
+// @Produce	json
+// @Success	200	{object}	data.TokenFull
+// @Router		/tokens/refresh  [post]
 func CreateTokenRefreshHandler(env *services.Env) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		p := &createTokenRefreshPayload{}

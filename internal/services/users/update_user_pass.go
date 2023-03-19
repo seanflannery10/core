@@ -32,6 +32,11 @@ func (p *updateUserPasswordPayload) Bind(_ *http.Request) error {
 	return nil
 }
 
+// @Summary	update user password using a token
+// @ID			update-user-password
+// @Produce	json
+// @Success	200	{object}	responses.StringResponsePayload
+// @Router		/users/update-password  [patch]
 func UpdateUserPasswordHandler(env *services.Env) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		p := &updateUserPasswordPayload{}

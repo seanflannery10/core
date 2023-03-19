@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/seanflannery10/core/internal/pkg/validator"
 )
 
@@ -27,8 +26,8 @@ const (
 type TokenFull struct {
 	Plaintext string
 	Scope     string
-	Expiry    pgtype.Timestamp
-	Hash      []byte
+	Expiry    time.Time
+	Hash      []byte `swaggertype:"string" format:"base64"`
 	UserID    int64
 }
 
@@ -55,7 +54,7 @@ func (q *Queries) CreateTokenHelper(ctx context.Context, uid int64, ttl time.Dur
 	token, err := q.CreateToken(ctx, CreateTokenParams{
 		Hash:   hash[:],
 		UserID: uid,
-		Expiry: pgtype.Timestamp{Time: time.Now().Add(ttl), Valid: true},
+		Expiry: time.Now().Add(ttl),
 		Scope:  s,
 	})
 	if err != nil {
