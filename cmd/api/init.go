@@ -10,7 +10,6 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/go-chi/docgen"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/seanflannery10/core/internal/data"
 	"github.com/seanflannery10/core/internal/pkg/helpers"
@@ -24,32 +23,14 @@ import (
 const (
 	exitGood  = 0
 	exitError = 1
-	filePerm  = 644
 )
 
-//nolint:revive
 func (app *application) init() {
-	generateRoutes := flag.Bool("routes", false, "Generate router documentation")
 	displayVersion := flag.Bool("version", false, "Display version and exit")
 	flag.Parse()
 
 	if *displayVersion {
 		_, _ = fmt.Printf("Version:\t%s\n", helpers.GetVersion()) //nolint:forbidigo
-		os.Exit(exitGood)
-	}
-
-	if *generateRoutes {
-		routesMD := []byte(docgen.MarkdownRoutesDoc(app.routes(), docgen.MarkdownOpts{
-			ProjectPath: "github.com/seanflannery10/core",
-			Intro:       "Routes for core API",
-		}))
-
-		err := os.WriteFile("routes.md", routesMD, filePerm)
-		if err != nil {
-			slog.Error("unable to create routes.md", err)
-			os.Exit(exitError)
-		}
-
 		os.Exit(exitGood)
 	}
 

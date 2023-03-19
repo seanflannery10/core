@@ -17,7 +17,8 @@ tasks:
     cmds:
       - sqlc compile --experimental
       - sqlc generate --experimental
-      - go run ./cmd/api --routes
+      - swag fmt
+      - swag init -g ./cmd/api/main.go -q
       - go mod tidy -v
 
   go:audit:

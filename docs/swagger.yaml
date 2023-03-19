@@ -1,0 +1,69 @@
+basePath: /v1
+definitions:
+  data.Token:
+    properties:
+      active:
+        type: boolean
+      expiry:
+        type: integer
+      hash:
+        items:
+          type: integer
+        type: array
+      scope:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  data.User:
+    properties:
+      activated:
+        type: boolean
+      created_at:
+        type: integer
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      password_hash:
+        items:
+          type: integer
+        type: array
+      version:
+        type: integer
+    type: object
+host: api.seanflannery.dev
+info:
+  contact:
+    email: seanflannery10@gmail.com
+    name: Core Support
+    url: github.com/seanflannery10/
+  description: This is a core server.
+  title: Core API
+  version: 0.1.0
+paths:
+  /tokens/access:
+    post:
+      operationId: create-token-access
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/data.Token'
+      summary: create token access
+  /users/activate:
+    patch:
+      operationId: activate-user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/data.User'
+      summary: activate user
+swagger: "2.0"

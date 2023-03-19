@@ -1,0 +1,105 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This is a core server.",
+        "title": "Core API",
+        "contact": {
+            "name": "Core Support",
+            "url": "github.com/seanflannery10/",
+            "email": "seanflannery10@gmail.com"
+        },
+        "version": "0.1.0"
+    },
+    "host": "api.seanflannery.dev",
+    "basePath": "/v1",
+    "paths": {
+        "/tokens/access": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "create token access",
+                "operationId": "create-token-access",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/data.Token"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/activate": {
+            "patch": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "activate user",
+                "operationId": "activate-user",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/data.User"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "data.Token": {
+            "type": "object",
+            "properties": {
+                "active": {
+                    "type": "boolean"
+                },
+                "expiry": {
+                    "type": "integer"
+                },
+                "hash": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "scope": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "data.User": {
+            "type": "object",
+            "properties": {
+                "activated": {
+                    "type": "boolean"
+                },
+                "created_at": {
+                    "type": "integer"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "password_hash": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "version": {
+                    "type": "integer"
+                }
+            }
+        }
+    }
+}

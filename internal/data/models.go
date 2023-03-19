@@ -18,7 +18,7 @@ type Message struct {
 
 type Token struct {
 	Scope  string           `json:"scope"`
-	Expiry pgtype.Timestamp `json:"expiry"`
+	Expiry pgtype.Timestamp `json:"expiry" swaggertype:"primitive,integer"`
 	Hash   []byte           `json:"hash"`
 	UserID int64            `json:"user_id"`
 	Active bool             `json:"active"`
@@ -26,7 +26,7 @@ type Token struct {
 
 type User struct {
 	ID           int64              `json:"id"`
-	CreatedAt    pgtype.Timestamptz `json:"created_at"`
+	CreatedAt    pgtype.Timestamptz `json:"created_at" swaggertype:"primitive,integer"`
 	Name         string             `json:"name"`
 	Email        string             `json:"email"`
 	PasswordHash []byte             `json:"password_hash"`

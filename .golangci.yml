@@ -5,11 +5,12 @@ linters:
     - exhaustivestruct
     - exhaustruct
     - gci
+    - godot
     - gofmt
     - ireturn
+    - loggercheck
     - nlreturn
     - varnamelen
-    - loggercheck
 
     # revive handles
     - cyclop
@@ -51,8 +52,6 @@ linters-settings:
       - style
     disabled-checks:
       - whyNoLint
-  godot:
-    capital: true
   gofumpt:
     extra-rules: true
   govet:

@@ -15,6 +15,11 @@ import (
 	"github.com/seanflannery10/core/internal/services"
 )
 
+// @Summary	create token access
+// @ID			create-token-access
+// @Produce	json
+// @Success	200	{object}	data.Token
+// @Router		/tokens/access  [post]
 func CreateTokenAccessHandler(env *services.Env) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		refreshTokenPlaintext, err := cookies.ReadEncrypted(r, cookieRefreshToken, env.Config.Secret)
