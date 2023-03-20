@@ -29,11 +29,6 @@ func (p *activateUserPayload) Bind(_ *http.Request) error {
 	return nil
 }
 
-// @Summary	activate new inactivate account using a token
-// @ID			activate-user
-// @Produce	json
-// @Success	200	{object}	data.User
-// @Router		/users/activate  [patch]
 func ActivateUserHandler(env *services.Env) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		p := &activateUserPayload{}

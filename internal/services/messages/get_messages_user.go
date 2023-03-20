@@ -37,11 +37,6 @@ func (p messagesResponsePayload) Render(_ http.ResponseWriter, _ *http.Request) 
 	return nil
 }
 
-// @Summary	get user messages
-// @ID			get-user-messages
-// @Produce	json
-// @Success	200	{object}	messagesResponsePayload
-// @Router		/messages  [get]
 func GetMessagesUserHandler(env *services.Env) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		p := &getMessagesUserPayload{Pagination: pagination.New(r)}
@@ -76,7 +71,7 @@ func GetMessagesUserHandler(env *services.Env) http.HandlerFunc {
 			return
 		}
 
-		render.Status(r, http.StatusCreated)
+		render.Status(r, http.StatusOK)
 
 		helpers.RenderAndCheck(w, r, &messagesResponsePayload{Messages: messages, Metadata: metadata})
 	}

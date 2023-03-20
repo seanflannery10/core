@@ -1,2 +1,0 @@
-// Replace all NullInt64 with int
-replace array string

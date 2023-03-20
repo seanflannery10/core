@@ -15,11 +15,6 @@ import (
 	"github.com/seanflannery10/core/internal/services"
 )
 
-// @Summary	create access token using a refresh token
-// @ID			create-token-access
-// @Produce	json
-// @Success	200	{object}	data.TokenFull
-// @Router		/tokens/access  [post]
 func CreateTokenAccessHandler(env *services.Env) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		refreshTokenPlaintext, err := cookies.ReadEncrypted(r, cookieRefreshToken, env.Config.Secret)

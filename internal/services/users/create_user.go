@@ -55,11 +55,6 @@ func (p *createUserPayload) Bind(r *http.Request) error {
 	return nil
 }
 
-// @Summary	create new user account
-// @ID			create-user
-// @Produce	json
-// @Success	200	{object}	data.User
-// @Router		/users/register  [post]
 func CreateUserHandler(env *services.Env) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		p := &createUserPayload{env: env}

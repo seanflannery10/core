@@ -16,16 +16,6 @@ type application struct {
 	env    *services.Env
 }
 
-//	@title			Core API
-//	@version		0.1.0
-//	@description	This is a core server.
-
-//	@contact.name	Core Support
-//	@contact.url	github.com/seanflannery10/
-//	@contact.email	seanflannery10@gmail.com
-
-// @host		api.seanflannery.dev
-// @BasePath	/v1
 func main() {
 	app := &application{}
 

@@ -17,8 +17,7 @@ tasks:
     cmds:
       - sqlc compile --experimental
       - sqlc generate --experimental
-      - swag fmt
-      - swag init -g ./cmd/api/main.go -q
+      - oapi-codegen -generate chi-server -package testing docs/openapi.yaml > internal/testing/testing.gen.go
       - go mod tidy -v
 
   go:audit:

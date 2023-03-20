@@ -30,11 +30,6 @@ func (p *createTokenActivationPayload) Bind(_ *http.Request) error {
 	return nil
 }
 
-// @Summary	create activation token using an email address
-// @ID			create-token-activation
-// @Produce	json
-// @Success	200	{object}	data.TokenFull
-// @Router		/tokens/activation  [post]
 func CreateTokenActivationHandler(env *services.Env) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		p := &createTokenActivationPayload{}

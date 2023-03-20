@@ -27,11 +27,6 @@ func (p *getMessagePayload) Bind(r *http.Request) error {
 	return nil
 }
 
-// @Summary	get a message
-// @ID			get-message
-// @Produce	json
-// @Success	200	{object}	data.Message
-// @Router		/messages/{id}  [get]
 func GetMessageHandler(env *services.Env) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		p := &getMessagePayload{}
@@ -52,7 +47,7 @@ func GetMessageHandler(env *services.Env) http.HandlerFunc {
 			return
 		}
 
-		render.Status(r, http.StatusCreated)
+		render.Status(r, http.StatusOK)
 
 		helpers.RenderAndCheck(w, r, &message)
 	}

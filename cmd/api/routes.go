@@ -5,14 +5,12 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
-	_ "github.com/seanflannery10/core/docs"
 	"github.com/seanflannery10/core/internal/pkg/errs"
 	"github.com/seanflannery10/core/internal/pkg/helpers"
 	"github.com/seanflannery10/core/internal/pkg/middleware"
 	"github.com/seanflannery10/core/internal/services/messages"
 	"github.com/seanflannery10/core/internal/services/tokens"
 	"github.com/seanflannery10/core/internal/services/users"
-	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 func (app *application) routes() *chi.Mux {
@@ -29,10 +27,6 @@ func (app *application) routes() *chi.Mux {
 	router.Use(cors.Handler(cors.Options{AllowedOrigins: []string{"https://*"}}))
 
 	router.Use(middleware.Authenticate(env))
-
-	router.Get("/swagger/*", httpSwagger.Handler(
-		httpSwagger.URL("http://localhost:4000/swagger/doc.json"),
-	))
 
 	router.Get("/debug/vars", expvar.Handler().ServeHTTP)
 
