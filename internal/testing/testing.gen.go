@@ -34,12 +34,12 @@ type ServerInterface interface {
 	// create activation token using an email address
 	// (POST /tokens/activation)
 	CreateTokenActivation(w http.ResponseWriter, r *http.Request)
-
+	// create password reset token using an email address
 	// (POST /tokens/password-reset)
-	PostTokensPasswordReset(w http.ResponseWriter, r *http.Request)
-
+	CreateTokenPasswordReset(w http.ResponseWriter, r *http.Request)
+	// create refresh token using an email address and password
 	// (POST /tokens/refresh)
-	PostTokensRefresh(w http.ResponseWriter, r *http.Request)
+	CreateTokenRefresh(w http.ResponseWriter, r *http.Request)
 	// activate new inactivate account using a token
 	// (PATCH /users/activate)
 	ActivateUser(w http.ResponseWriter, r *http.Request)
@@ -198,12 +198,12 @@ func (siw *ServerInterfaceWrapper) CreateTokenActivation(w http.ResponseWriter, 
 	handler.ServeHTTP(w, r.WithContext(ctx))
 }
 
-// PostTokensPasswordReset operation middleware
-func (siw *ServerInterfaceWrapper) PostTokensPasswordReset(w http.ResponseWriter, r *http.Request) {
+// CreateTokenPasswordReset operation middleware
+func (siw *ServerInterfaceWrapper) CreateTokenPasswordReset(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	var handler http.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.PostTokensPasswordReset(w, r)
+		siw.Handler.CreateTokenPasswordReset(w, r)
 	})
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -213,12 +213,12 @@ func (siw *ServerInterfaceWrapper) PostTokensPasswordReset(w http.ResponseWriter
 	handler.ServeHTTP(w, r.WithContext(ctx))
 }
 
-// PostTokensRefresh operation middleware
-func (siw *ServerInterfaceWrapper) PostTokensRefresh(w http.ResponseWriter, r *http.Request) {
+// CreateTokenRefresh operation middleware
+func (siw *ServerInterfaceWrapper) CreateTokenRefresh(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	var handler http.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.PostTokensRefresh(w, r)
+		siw.Handler.CreateTokenRefresh(w, r)
 	})
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -408,10 +408,10 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Post(options.BaseURL+"/tokens/activation", wrapper.CreateTokenActivation)
 	})
 	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/tokens/password-reset", wrapper.PostTokensPasswordReset)
+		r.Post(options.BaseURL+"/tokens/password-reset", wrapper.CreateTokenPasswordReset)
 	})
 	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/tokens/refresh", wrapper.PostTokensRefresh)
+		r.Post(options.BaseURL+"/tokens/refresh", wrapper.CreateTokenRefresh)
 	})
 	r.Group(func(r chi.Router) {
 		r.Patch(options.BaseURL+"/users/activate", wrapper.ActivateUser)

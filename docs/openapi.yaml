@@ -22,31 +22,31 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/messages.messagesResponsePayload'
+                $ref: '#/components/schemas/MessagesResponse'
         400:
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errs.ErrResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         404:
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errs.ErrResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         422:
           description: Unprocessable Entity
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errs.ErrResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         500:
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errs.ErrResponse'
+                $ref: '#/components/schemas/ErrorResponse'
       x-codegen-request-body-name: pagination
     post:
       tags:
@@ -58,7 +58,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/messages.createMessageHandlerPayload'
+              $ref: '#/components/schemas/MessageBody'
         required: true
       responses:
         200:
@@ -66,32 +66,33 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/data.Message'
+                $ref: '#/components/schemas/MessageResponse'
         400:
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errs.ErrResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         404:
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errs.ErrResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         422:
           description: Unprocessable Entity
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errs.ErrResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         500:
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errs.ErrResponse'
+                $ref: '#/components/schemas/ErrorResponse'
       x-codegen-request-body-name: message
+
   /messages/{id}:
     get:
       tags:
@@ -110,31 +111,31 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/data.Message'
+                $ref: '#/components/schemas/MessageResponse'
         400:
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errs.ErrResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         404:
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errs.ErrResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         422:
           description: Unprocessable Entity
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errs.ErrResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         500:
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errs.ErrResponse'
+                $ref: '#/components/schemas/ErrorResponse'
       x-codegen-request-body-name: id
     put:
       tags:
@@ -152,7 +153,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/messages.updateMessagePayload'
+              $ref: '#/components/schemas/MessageBody'
         required: true
       responses:
         201:
@@ -160,37 +161,37 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/data.Message'
+                $ref: '#/components/schemas/MessageResponse'
         400:
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errs.ErrResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         404:
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errs.ErrResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         409:
           description: Conflict
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errs.ErrResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         422:
           description: Unprocessable Entity
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errs.ErrResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         500:
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errs.ErrResponse'
+                $ref: '#/components/schemas/ErrorResponse'
       x-codegen-request-body-name: message
     delete:
       tags:
@@ -209,30 +210,31 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/responses.StringResponsePayload'
+                $ref: '#/components/schemas/MessageBody'
         400:
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errs.ErrResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         404:
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errs.ErrResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         422:
           description: Unprocessable Entity
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errs.ErrResponse'
+                $ref: '#/components/schemas/ErrorResponse'
       x-codegen-request-body-name: id
+
   /tokens/access:
     post:
       tags:
-        - messages
+        - tokens
       summary: create access token using a refresh token
       operationId: create-token-access
       responses:
@@ -241,29 +243,30 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/data.TokenFull'
+                $ref: '#/components/schemas/TokenResponse'
         400:
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errs.ErrResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         401:
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errs.ErrResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         500:
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errs.ErrResponse'
+                $ref: '#/components/schemas/ErrorResponse'
+
   /tokens/activation:
     post:
       tags:
-        - messages
+        - tokens
       summary: create activation token using an email address
       operationId: create-token-activation
       requestBody:
@@ -271,7 +274,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/tokens.createTokenActivationPayload'
+              $ref: '#/components/schemas/CreateTokenActivationBody'
         required: true
       responses:
         201:
@@ -279,108 +282,119 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/data.TokenFull'
+                $ref: '#/components/schemas/TokenResponse'
         400:
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errs.ErrResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         404:
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errs.ErrResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         422:
           description: Unprocessable Entity
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errs.ErrResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         500:
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errs.ErrResponse'
+                $ref: '#/components/schemas/ErrorResponse'
       x-codegen-request-body-name: message
+
   /tokens/password-reset:
     post:
+      tags:
+        - tokens
+      summary: create password reset token using an email address
+      operationId: create-token-password-reset
       responses:
         201:
           description: Created
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/data.TokenFull'
+                $ref: '#/components/schemas/TokenResponse'
         400:
           description: Bad Request
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/errs.ErrResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         404:
           description: Not Found
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/errs.ErrResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         422:
           description: Unprocessable Entity
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/errs.ErrResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         500:
           description: Internal Server Error
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/errs.ErrResponse'
+                $ref: '#/components/schemas/ErrorResponse'
+
   /tokens/refresh:
     post:
+      tags:
+        - tokens
+      summary: create refresh token using an email address and password
+      operationId: create-token-refresh
       responses:
         201:
           description: Created
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/data.TokenFull'
+                $ref: '#/components/schemas/TokenResponse'
         400:
           description: Bad Request
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/errs.ErrResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         401:
           description: Unauthorized
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/errs.ErrResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         404:
           description: Not Found
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/errs.ErrResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         422:
           description: Unprocessable Entity
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/errs.ErrResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         500:
           description: Internal Server Error
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/errs.ErrResponse'
+                $ref: '#/components/schemas/ErrorResponse'
+
   /users/activate:
     patch:
       tags:
-        - messages
+        - users
       summary: activate new inactivate account using a token
       operationId: activate-user
       requestBody:
@@ -388,7 +402,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/users.activateUserPayload'
+              $ref: '#/components/schemas/ActivateUserBody'
         required: true
       responses:
         200:
@@ -396,42 +410,43 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/data.User'
+                $ref: '#/components/schemas/UserResponse'
         400:
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errs.ErrResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         401:
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errs.ErrResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         404:
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errs.ErrResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         422:
           description: Unprocessable Entity
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errs.ErrResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         500:
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errs.ErrResponse'
+                $ref: '#/components/schemas/ErrorResponse'
       x-codegen-request-body-name: message
+
   /users/register:
     post:
       tags:
-        - messages
+        - users
       summary: create new user account
       operationId: create-user
       requestBody:
@@ -439,7 +454,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/users.createUserPayload'
+              $ref: '#/components/schemas/CreateUserBody'
         required: true
       responses:
         201:
@@ -447,36 +462,37 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/data.User'
+                $ref: '#/components/schemas/UserResponse'
         400:
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errs.ErrResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         404:
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errs.ErrResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         422:
           description: Unprocessable Entity
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errs.ErrResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         500:
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errs.ErrResponse'
+                $ref: '#/components/schemas/ErrorResponse'
       x-codegen-request-body-name: message
+
   /users/update-password:
     patch:
       tags:
-        - messages
+        - users
       summary: update user password using a token
       operationId: update-user-password
       requestBody:
@@ -484,7 +500,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/users.updateUserPasswordPayload'
+              $ref: '#/components/schemas/UpdateUserPasswordBody'
         required: true
       responses:
         200:
@@ -492,41 +508,85 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/responses.StringResponsePayload'
+                $ref: '#/components/schemas/MessageBody'
         400:
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errs.ErrResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         401:
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errs.ErrResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         404:
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errs.ErrResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         422:
           description: Unprocessable Entity
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errs.ErrResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         500:
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errs.ErrResponse'
+                $ref: '#/components/schemas/ErrorResponse'
       x-codegen-request-body-name: message
+
 components:
   schemas:
-    data.Message:
+    ActivateUserBody:
+      type: object
+      properties:
+        token:
+          type: string
+    CreateTokenActivationBody:
+      type: object
+      properties:
+        email:
+          type: string
+    CreateUserBody:
+      type: object
+      properties:
+        email:
+          type: string
+        name:
+          type: string
+        password:
+          type: string
+    MessageBody:
+      type: object
+      properties:
+        message:
+          type: string
+    UpdateUserPasswordBody:
+      type: object
+      properties:
+        password:
+          type: string
+        token:
+          type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        errors:
+          type: object
+          additionalProperties:
+            type: string
+        message:
+          type: string
+    MessageResponse:
       type: object
       properties:
         created_at:
@@ -539,7 +599,16 @@ components:
           type: integer
         version:
           type: integer
-    data.TokenFull:
+    MessagesResponse: # TODO Make it list of messages
+      type: object
+      properties:
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/MessageResponse'
+        metadata:
+          $ref: '#/components/schemas/PaginationMetadata'
+    TokenResponse:
       type: object
       properties:
         expiry:
@@ -553,7 +622,7 @@ components:
           type: string
         userID:
           type: integer
-    data.User:
+    UserResponse:
       type: object
       properties:
         activated:
@@ -571,43 +640,8 @@ components:
           format: base64
         version:
           type: integer
-    errs.ErrResponse:
-      type: object
-      properties:
-        error:
-          type: string
-        errors:
-          type: object
-          additionalProperties:
-            type: string
-        message:
-          type: string
-    messages.createMessageHandlerPayload:
-      type: object
-      properties:
-        message:
-          type: string
-    messages.deleteMessagePayload:
-      type: object
-    messages.getMessagePayload:
-      type: object
-    messages.getMessagesUserPayload:
-      type: object
-    messages.messagesResponsePayload:
-      type: object
-      properties:
-        messages:
-          type: array
-          items:
-            $ref: '#/components/schemas/data.Message'
-        metadata:
-          $ref: '#/components/schemas/pagination.Metadata'
-    messages.updateMessagePayload:
-      type: object
-      properties:
-        message:
-          type: string
-    pagination.Metadata:
+
+    PaginationMetadata:
       type: object
       properties:
         current_page:
@@ -620,34 +654,3 @@ components:
           type: integer
         total_records:
           type: integer
-    responses.StringResponsePayload:
-      type: object
-      properties:
-        message:
-          type: string
-    tokens.createTokenActivationPayload:
-      type: object
-      properties:
-        email:
-          type: string
-    users.activateUserPayload:
-      type: object
-      properties:
-        token:
-          type: string
-    users.createUserPayload:
-      type: object
-      properties:
-        email:
-          type: string
-        name:
-          type: string
-        password:
-          type: string
-    users.updateUserPasswordPayload:
-      type: object
-      properties:
-        password:
-          type: string
-        token:
-          type: string
