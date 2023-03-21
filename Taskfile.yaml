@@ -2,22 +2,20 @@
 
 version: '3'
 
-vars:
-  GREETING: Hello, World!
-
 dotenv: ['.env']
 
 tasks:
   default:
     cmds:
-      - echo "{{.GREETING}}"
-    silent: true
+      - task go:tidy
+      - task go:audit
 
   go:tidy:
     cmds:
       - sqlc compile --experimental
       - sqlc generate --experimental
-      - oapi-codegen -generate chi-server -package testing docs/openapi.yaml > internal/testing/testing.gen.go
+      - oapi-codegen -generate types,chi-server -package server openapi.yaml > internal/server/server.gen.go
+#      - oapi-codegen -generate types -package server openapi.yaml > internal/server/types.gen.go
       - go mod tidy -v
 
   go:audit:
