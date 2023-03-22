@@ -3,7 +3,7 @@ on:
   workflow_call:
   pull_request:
 jobs:
-  check:
+  build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -18,32 +18,15 @@ jobs:
           check-latest: true
       - name: Go Format
         run: gofmt -s -w . && git diff --exit-code
-      - name: Go Vet
-        run: go vet ./...
       - name: Go Tidy
         run: go mod tidy && git diff --exit-code
       - name: Go Mod
         run: go mod download
       - name: Go Mod Verify
         run: go mod verify
-  build:
-    needs: [check]
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        go: ['stable', 'oldstable']
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-      - name: Set up Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: ${{ matrix.go }}
-          check-latest: true
       - name: Build code
         run: go build -o /dev/null ./...
   test:
-    needs: [check]
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -59,7 +42,6 @@ jobs:
       - name: Test code
         run: go test -race -vet=off ./...
   generate:
-    needs: [check]
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -83,7 +65,6 @@ jobs:
 #      - name: OAPI Type Generate
 #        run: oapi-codegen -generate types -package api openapi.yaml > internal/api/types.gen.go && git diff --exit-code
   lint:
-    needs: [check]
     runs-on: ubuntu-latest
     strategy:
       matrix:
