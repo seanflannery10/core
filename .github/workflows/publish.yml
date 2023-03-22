@@ -13,16 +13,13 @@ jobs:
     name: build docker image
     needs: [ tests ]
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        go: [ 'stable', 'oldstable' ]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: ${{ matrix.go }}
+          go-version: stable
           check-latest: true
       - name: Setup ko
         uses: ko-build/setup-ko@ace48d793556083a76f1e3e6068850c1f4a369aa # v0.6
