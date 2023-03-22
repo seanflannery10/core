@@ -1,6 +1,6 @@
 module github.com/seanflannery10/core
 
-go 1.20
+go 1.19
 
 require (
 	github.com/deepmap/oapi-codegen v1.12.4
