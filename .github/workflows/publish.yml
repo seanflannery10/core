@@ -2,7 +2,7 @@ name: publish
 on:
   push:
     tags: [ "-v*" ]
-    branches: ['main']
+    branches: [ 'main' ]
 permissions:
   contents: read
   packages: write
@@ -11,11 +11,11 @@ jobs:
     uses: ./.github/workflows/test.yml
   build:
     name: build docker image
-    needs: [tests]
+    needs: [ tests ]
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go: ['stable', 'oldstable']
+        go: [ 'stable', 'oldstable' ]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -37,12 +37,12 @@ jobs:
           min-versions-to-keep: 10
           delete-only-untagged-versions: 'true'
   deploy:
-    needs: [build]
+    needs: [ build ]
     name: deploy application
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go: ['stable', 'oldstable']
+        go: [ 'stable', 'oldstable' ]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3

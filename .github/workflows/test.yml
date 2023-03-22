@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go: ['stable', 'oldstable']
+        go: [ 'stable', 'oldstable' ]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -27,11 +27,11 @@ jobs:
       - name: Go Mod Verify
         run: go mod verify
   build:
-    needs: [check]
+    needs: [ check ]
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go: ['stable', 'oldstable']
+        go: [ 'stable', 'oldstable' ]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -43,11 +43,11 @@ jobs:
       - name: Build code
         run: go build -o /dev/null ./...
   test:
-    needs: [check]
+    needs: [ check ]
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go: ['stable', 'oldstable']
+        go: [ 'stable', 'oldstable' ]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -59,11 +59,11 @@ jobs:
       - name: Test code
         run: go test -race -vet=off ./...
   generate:
-    needs: [check]
+    needs: [ check ]
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go: ['stable', 'oldstable']
+        go: [ 'stable', 'oldstable' ]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -75,11 +75,11 @@ jobs:
       - name: Go Generate
         run: go generate ./... && git diff --exit-code
   lint:
-    needs: [check]
+    needs: [ check ]
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go: ['stable', 'oldstable']
+        go: [ 'stable', 'oldstable' ]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
