@@ -17,9 +17,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
       - name: Set up Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v4
         with:
-          go-version: ${{ vars.GO_VERSION }}
+          go-version: ${{ matrix.go }}}
+          check-latest: true
       - name: Setup ko
         uses: ko-build/setup-ko@ace48d793556083a76f1e3e6068850c1f4a369aa # v0.6
         # https://api.github.com/repos/ko-build/setup-ko/tags
