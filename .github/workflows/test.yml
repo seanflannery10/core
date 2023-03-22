@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go: [ 'stable', 'oldstable' ]
+        go: ['stable', 'oldstable']
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -31,7 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go: [ 'stable', 'oldstable' ]
+        go: ['stable', 'oldstable']
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -45,6 +45,9 @@ jobs:
   test:
     needs: [check]
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go: ['stable', 'oldstable']
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -58,6 +61,9 @@ jobs:
   generate:
     needs: [check]
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go: ['stable', 'oldstable']
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -68,17 +74,12 @@ jobs:
           check-latest: true
       - name: Go Generate
         run: go generate ./... && git diff --exit-code
-#      - name: SQLC Compile
-#        run: sqlc compile --experimental && git diff --exit-code
-#      - name: SQLC Generate
-#        run: sqlc generate --experimental && git diff --exit-code
-#      - name: OAPI Server Generate
-#        run: oapi-codegen -generate chi-server -package api openapi.yaml > internal/api/server.gen.go && git diff --exit-code
-#      - name: OAPI Type Generate
-#        run: oapi-codegen -generate types -package api openapi.yaml > internal/api/types.gen.go && git diff --exit-code
   lint:
     needs: [check]
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go: ['stable', 'oldstable']
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
