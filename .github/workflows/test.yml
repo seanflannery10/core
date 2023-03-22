@@ -7,14 +7,14 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go: [ 'stable', 'oldstable' ]
+        go: ['stable', 'oldstable']
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: ${{ matrix.go }}}
+          go-version: ${{ matrix.go }}
           check-latest: true
       - name: Go Format
         run: gofmt -s -w . && git diff --exit-code
@@ -27,66 +27,74 @@ jobs:
       - name: Go Mod Verify
         run: go mod verify
   build:
-    needs: [ check ]
+    needs: [check]
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go: [ 'stable', 'oldstable' ]
+        go: ['stable', 'oldstable']
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: ${{ matrix.go }}}
+          go-version: ${{ matrix.go }}
           check-latest: true
       - name: Build code
         run: go build -o /dev/null ./...
   test:
-    needs: [ check ]
+    needs: [check]
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go: [ 'stable', 'oldstable' ]
+        go: ['stable', 'oldstable']
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: ${{ matrix.go }}}
+          go-version: ${{ matrix.go }}
           check-latest: true
       - name: Test code
         run: go test -race -vet=off ./...
   generate:
-    needs: [ check ]
+    needs: [check]
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go: [ 'stable', 'oldstable' ]
+        go: ['stable', 'oldstable']
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: ${{ matrix.go }}}
+          go-version: ${{ matrix.go }}
           check-latest: true
       - name: Go Generate
         run: go generate ./... && git diff --exit-code
+#      - name: SQLC Compile
+#        run: sqlc compile --experimental && git diff --exit-code
+#      - name: SQLC Generate
+#        run: sqlc generate --experimental && git diff --exit-code
+#      - name: OAPI Server Generate
+#        run: oapi-codegen -generate chi-server -package api openapi.yaml > internal/api/server.gen.go && git diff --exit-code
+#      - name: OAPI Type Generate
+#        run: oapi-codegen -generate types -package api openapi.yaml > internal/api/types.gen.go && git diff --exit-code
   lint:
-    needs: [ check ]
+    needs: [check]
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go: [ 'stable', 'oldstable' ]
+        go: ['stable', 'oldstable']
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: ${{ matrix.go }}}
+          go-version: ${{ matrix.go }}
           check-latest: true
       - name: Lint code
         uses: golangci/golangci-lint-action@08e2f20817b15149a52b5b3ebe7de50aff2ba8c5 # V3.4.0
