@@ -34,6 +34,8 @@ linters:
     - ifshort
     - interfacer
     - maligned
+    - nilerr
+    - nonamedreturns
     - nosnakecase
     - scopelint
     - structcheck
@@ -52,6 +54,7 @@ linters-settings:
       - style
     disabled-checks:
       - whyNoLint
+      - commentedOutCode
   gofumpt:
     extra-rules: true
   govet:
@@ -76,13 +79,15 @@ linters-settings:
         disabled: true
       - name: unused-receiver
         disabled: true
+      - name: comment-spacings
+        disabled: true
 
       - name: argument-limit
-        arguments: [4]
+        arguments: [5]
       - name: cognitive-complexity
         arguments: [22]
-      - name: comment-spacings
-        arguments: ["nolint"]
+#      - name: comment-spacings
+#        arguments: ["nolint"]
       - name: cyclomatic
         arguments: [15]
       - name: function-result-limit

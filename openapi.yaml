@@ -473,8 +473,10 @@ components:
       properties:
         name:
           type: string
+          format: name
         email:
           type: string
+          format: email
         password:
           type: string
           format: password
@@ -488,6 +490,7 @@ components:
       properties:
         email:
           type: string
+          format: email
       required:
         - email
     UserLoginRequest:
@@ -496,6 +499,7 @@ components:
       properties:
         email:
           type: string
+          format: email
         password:
           type: string
           format: password
@@ -590,8 +594,10 @@ components:
       properties:
         name:
           type: string
+          format: name
         email:
           type: string
+          format: email
         version:
           type: integer
           format: int32

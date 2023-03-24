@@ -28,10 +28,10 @@ RETURNING id, created_at, name, email, password_hash, activated, version
 `
 
 type CreateUserParams struct {
-	Name         string `json:"name"`
-	Email        string `json:"email"`
-	PasswordHash []byte `json:"password_hash"`
-	Activated    bool   `json:"activated"`
+	Name         string
+	Email        string
+	PasswordHash []byte
+	Activated    bool
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
@@ -86,9 +86,9 @@ WHERE tokens.hash = $1
 `
 
 type GetUserFromTokenParams struct {
-	Hash   []byte    `json:"hash"`
-	Scope  string    `json:"scope"`
-	Expiry time.Time `json:"expiry"`
+	Hash   []byte
+	Scope  string
+	Expiry time.Time
 }
 
 func (q *Queries) GetUserFromToken(ctx context.Context, arg GetUserFromTokenParams) (User, error) {
@@ -119,16 +119,16 @@ RETURNING id, created_at, name, email, password_hash, activated, version
 `
 
 type UpdateUserParams struct {
-	UpdateName         bool   `json:"update_name"`
-	Name               string `json:"name"`
-	UpdateEmail        bool   `json:"update_email"`
-	Email              string `json:"email"`
-	UpdatePasswordHash bool   `json:"update_password_hash"`
-	PasswordHash       []byte `json:"password_hash"`
-	UpdateActivated    bool   `json:"update_activated"`
-	Activated          bool   `json:"activated"`
-	ID                 int64  `json:"id"`
-	Version            int32  `json:"version"`
+	UpdateName         bool
+	Name               string
+	UpdateEmail        bool
+	Email              string
+	UpdatePasswordHash bool
+	PasswordHash       []byte
+	UpdateActivated    bool
+	Activated          bool
+	ID                 int64
+	Version            int32
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {

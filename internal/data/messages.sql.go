@@ -16,8 +16,8 @@ RETURNING id, created_at, message, user_id, version
 `
 
 type CreateMessageParams struct {
-	Message string `json:"message"`
-	UserID  int64  `json:"user_id"`
+	Message string
+	UserID  int64
 }
 
 func (q *Queries) CreateMessage(ctx context.Context, arg CreateMessageParams) (Message, error) {
@@ -89,9 +89,9 @@ OFFSET $2 LIMIT $3
 `
 
 type GetUserMessagesParams struct {
-	UserID int64 `json:"user_id"`
-	Offset int32 `json:"offset"`
-	Limit  int32 `json:"limit"`
+	UserID int64
+	Offset int32
+	Limit  int32
 }
 
 func (q *Queries) GetUserMessages(ctx context.Context, arg GetUserMessagesParams) ([]Message, error) {
@@ -129,8 +129,8 @@ RETURNING id, created_at, message, user_id, version
 `
 
 type UpdateMessageParams struct {
-	Message string `json:"message"`
-	ID      int64  `json:"id"`
+	Message string
+	ID      int64
 }
 
 func (q *Queries) UpdateMessage(ctx context.Context, arg UpdateMessageParams) (Message, error) {

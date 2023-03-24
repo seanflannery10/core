@@ -8,7 +8,6 @@ sql:
         package: "data"
         out: "internal/data"
         sql_package: "pgx/v5"
-        emit_json_tags: true
         overrides:
           - db_type: "citext"
             go_type: "github.com/jackc/pgx/v5/pgtype.Text"
@@ -19,5 +18,3 @@ sql:
             go_type:
               import: "time"
               type: "Time"
-          - column: users.password_hash
-            go_struct_tag: 'swaggertype:"string" format:"base64"'

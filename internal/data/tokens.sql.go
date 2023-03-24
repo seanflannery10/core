@@ -20,9 +20,9 @@ SELECT EXISTS(SELECT 1
 `
 
 type CheckTokenParams struct {
-	Scope  string `json:"scope"`
-	Hash   []byte `json:"hash"`
-	UserID int64  `json:"user_id"`
+	Scope  string
+	Hash   []byte
+	UserID int64
 }
 
 func (q *Queries) CheckToken(ctx context.Context, arg CheckTokenParams) (bool, error) {
@@ -39,10 +39,10 @@ RETURNING scope, expiry, hash, user_id, active
 `
 
 type CreateTokenParams struct {
-	Hash   []byte    `json:"hash"`
-	UserID int64     `json:"user_id"`
-	Expiry time.Time `json:"expiry"`
-	Scope  string    `json:"scope"`
+	Hash   []byte
+	UserID int64
+	Expiry time.Time
+	Scope  string
 }
 
 func (q *Queries) CreateToken(ctx context.Context, arg CreateTokenParams) (Token, error) {
@@ -72,9 +72,9 @@ WHERE scope = $1
 `
 
 type DeactivateTokenParams struct {
-	Scope  string `json:"scope"`
-	Hash   []byte `json:"hash"`
-	UserID int64  `json:"user_id"`
+	Scope  string
+	Hash   []byte
+	UserID int64
 }
 
 func (q *Queries) DeactivateToken(ctx context.Context, arg DeactivateTokenParams) error {
@@ -90,8 +90,8 @@ WHERE scope = $1
 `
 
 type DeleteTokensParams struct {
-	Scope  string `json:"scope"`
-	UserID int64  `json:"user_id"`
+	Scope  string
+	UserID int64
 }
 
 func (q *Queries) DeleteTokens(ctx context.Context, arg DeleteTokensParams) error {

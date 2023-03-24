@@ -9,27 +9,27 @@ import (
 )
 
 type Message struct {
-	ID        int64     `json:"id"`
-	CreatedAt time.Time `json:"created_at"`
-	Message   string    `json:"message"`
-	UserID    int64     `json:"user_id"`
-	Version   int32     `json:"version"`
+	ID        int64
+	CreatedAt time.Time
+	Message   string
+	UserID    int64
+	Version   int32
 }
 
 type Token struct {
-	Scope  string    `json:"scope"`
-	Expiry time.Time `json:"expiry"`
-	Hash   []byte    `json:"hash"`
-	UserID int64     `json:"user_id"`
-	Active bool      `json:"active"`
+	Scope  string
+	Expiry time.Time
+	Hash   []byte
+	UserID int64
+	Active bool
 }
 
 type User struct {
-	ID           int64     `json:"id"`
-	CreatedAt    time.Time `json:"created_at"`
-	Name         string    `json:"name"`
-	Email        string    `json:"email"`
-	PasswordHash []byte    `format:"base64" json:"password_hash" swaggertype:"string"`
-	Activated    bool      `json:"activated"`
-	Version      int32     `json:"version"`
+	ID           int64
+	CreatedAt    time.Time
+	Name         string
+	Email        string
+	PasswordHash []byte
+	Activated    bool
+	Version      int32
 }

@@ -7,15 +7,15 @@ dotenv: ['.env']
 tasks:
   default:
     cmds:
-      - task go:tidy
       - task go:audit
 
   go:tidy:
     cmds:
       - sqlc compile --experimental
       - sqlc generate --experimental
-      - oapi-codegen -generate types,chi-server -package server openapi.yaml > internal/server/server.gen.go
-#      - oapi-codegen -generate types -package server openapi.yaml > internal/server/types.gen.go
+      - ogen -no-client -no-webhook-client -no-webhook-server -generate-tests --target internal/api -package api --clean openapi.yaml
+#      - oapi-codegen -generate chi-server -package api openapi.yaml > internal/api/server.gen.go
+#      - oapi-codegen -generate types -package api openapi.yaml > internal/api/types.gen.go
       - go mod tidy -v
 
   go:audit:
