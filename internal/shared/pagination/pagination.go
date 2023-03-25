@@ -1,10 +1,7 @@
 package pagination
 
 import (
-	"fmt"
 	"math"
-
-	"github.com/seanflannery10/core/internal/shared/validator"
 )
 
 const (
@@ -22,9 +19,8 @@ const (
 
 type (
 	Pagination struct {
-		Validator *validator.Validator
-		Page      int
-		PageSize  int
+		Page     int
+		PageSize int
 	}
 
 	Metadata struct {
@@ -38,9 +34,8 @@ type (
 
 func New(page, pageSize int) Pagination {
 	return Pagination{
-		Page:      page,
-		PageSize:  pageSize,
-		Validator: validator.New(),
+		Page:     page,
+		PageSize: pageSize,
 	}
 }
 
@@ -66,8 +61,8 @@ func (p *Pagination) CalculateMetadata(totalRecords int64) Metadata {
 	}
 
 	if p.Page > metadata.LastPage {
-		msg := fmt.Sprintf("must be equal or lower than the last page value of %d", metadata.LastPage)
-		p.Validator.AddError("page", msg)
+		// msg := fmt.Sprintf("must be equal or lower than the last page value of %d", metadata.LastPage)
+		// p.Validator.AddError("page", msg)
 
 		return Metadata{}
 	}

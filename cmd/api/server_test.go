@@ -1,12 +1,10 @@
-package server_test
+package main
 
 import (
 	"os"
 	"syscall"
 	"testing"
 	"time"
-
-	"github.com/seanflannery10/core/internal/shared/server"
 )
 
 func TestServer_Run(t *testing.T) {
@@ -25,7 +23,7 @@ func TestServer_Run(t *testing.T) {
 			}
 		}()
 
-		err := server.Serve(4444, nil)
+		err := serve(4444, nil)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -46,7 +44,7 @@ func TestServer_Run(t *testing.T) {
 			}
 		}()
 
-		err := server.Serve(4444, nil)
+		err := serve(4444, nil)
 		if err != nil {
 			t.Fatal(err)
 		}

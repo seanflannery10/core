@@ -1,4 +1,4 @@
-package server
+package main
 
 import (
 	"context"
@@ -19,7 +19,7 @@ const (
 	writeTimeout = 30 * time.Second
 )
 
-func Serve(port int, routes http.Handler) error {
+func serve(port int, routes http.Handler) error {
 	shutdownError := make(chan error)
 
 	s := &http.Server{

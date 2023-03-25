@@ -36,7 +36,7 @@ import (
 //	}
 //}
 
-func (s *Handler) NewMessage(ctx context.Context, req *oas.MessageRequest) (r oas.NewMessageRes, _ error) {
+func (s *Handler) NewMessage(ctx context.Context, req *oas.MessageRequest) (oas.NewMessageRes, error) {
 	const uid = 123
 
 	messageResponse, err := newMessage(ctx, s.Queries, req.Message, uid)
@@ -47,10 +47,10 @@ func (s *Handler) NewMessage(ctx context.Context, req *oas.MessageRequest) (r oa
 	return &messageResponse, nil
 }
 
-func newMessage(ctx context.Context, q data.Queries, text string, uid int64) (oas.MessageResponse, error) {
+func newMessage(ctx context.Context, q data.Queries, m string, userID int64) (oas.MessageResponse, error) {
 	message, err := q.CreateMessage(ctx, data.CreateMessageParams{
-		Message: text,
-		UserID:  uid,
+		Message: m,
+		UserID:  userID,
 	})
 	if err != nil {
 		return oas.MessageResponse{}, fmt.Errorf("failed create message: %w", err)
@@ -65,7 +65,7 @@ func newMessage(ctx context.Context, q data.Queries, text string, uid int64) (oa
 	return messageResponse, nil
 }
 
-func (s *Handler) GetMessage(ctx context.Context, params oas.GetMessageParams) (r oas.GetMessageRes, _ error) {
+func (s *Handler) GetMessage(ctx context.Context, params oas.GetMessageParams) (oas.GetMessageRes, error) {
 	messageResponse, err := getMessage(ctx, s.Queries, params.ID)
 	if err != nil {
 		return &oas.GetMessageInternalServerError{}, nil
@@ -103,10 +103,10 @@ func (s *Handler) UpdateMessage(ctx context.Context, req *oas.MessageRequest, pa
 	return &messageResponse, nil
 }
 
-func updateMessage(ctx context.Context, q data.Queries, m string, id int64) (oas.MessageResponse, error) {
+func updateMessage(ctx context.Context, q data.Queries, m string, messageID int64) (oas.MessageResponse, error) {
 	message, err := q.UpdateMessage(ctx, data.UpdateMessageParams{
 		Message: m,
-		ID:      id,
+		ID:      messageID,
 	})
 	if err != nil {
 		switch {
@@ -133,7 +133,7 @@ func updateMessage(ctx context.Context, q data.Queries, m string, id int64) (oas
 	return messageResponse, nil
 }
 
-func (s *Handler) DeleteMessage(ctx context.Context, params oas.DeleteMessageParams) (r oas.DeleteMessageRes, _ error) {
+func (s *Handler) DeleteMessage(ctx context.Context, params oas.DeleteMessageParams) (oas.DeleteMessageRes, error) {
 	acceptanceResponse, err := deleteMessage(ctx, s.Queries, params.ID)
 	if err != nil {
 		return &oas.DeleteMessageInternalServerError{}, nil

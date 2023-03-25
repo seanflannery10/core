@@ -16,7 +16,7 @@ import (
 	"github.com/segmentio/asm/base64"
 )
 
-func (s *Handler) NewActivationToken(ctx context.Context, req *oas.UserEmailRequest) (r oas.NewActivationTokenRes, _ error) {
+func (s *Handler) NewActivationToken(ctx context.Context, req *oas.UserEmailRequest) (oas.NewActivationTokenRes, error) {
 	activationToken, err := newActivationToken(ctx, s.Queries, req.Email)
 	if err != nil {
 		return &oas.NewActivationTokenInternalServerError{}, nil
@@ -55,7 +55,7 @@ func newActivationToken(ctx context.Context, q data.Queries, email string) (oas.
 	return activationToken, nil
 }
 
-func (s *Handler) NewPasswordResetToken(ctx context.Context, req *oas.UserEmailRequest) (r oas.NewPasswordResetTokenRes, _ error) {
+func (s *Handler) NewPasswordResetToken(ctx context.Context, req *oas.UserEmailRequest) (oas.NewPasswordResetTokenRes, error) {
 	passwordResetToken, err := newPasswordResetToken(ctx, s.Queries, req.Email)
 	if err != nil {
 		return &oas.NewPasswordResetTokenInternalServerError{}, nil
@@ -139,7 +139,7 @@ func newRefreshToken(ctx context.Context, q data.Queries, email, pass string) (r
 	return refresh, access, nil
 }
 
-func (s *Handler) NewAccessToken(ctx context.Context, params oas.NewAccessTokenParams) (r oas.NewAccessTokenRes, _ error) {
+func (s *Handler) NewAccessToken(ctx context.Context, params oas.NewAccessTokenParams) (oas.NewAccessTokenRes, error) {
 	encryptedValue, err := base64.URLEncoding.DecodeString(params.CoreRefreshToken)
 	if err != nil {
 		return &oas.NewAccessTokenInternalServerError{}, nil
