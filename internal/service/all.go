@@ -14,15 +14,11 @@ var (
 	errNotActivated       = errors.New("not activated")
 	errNotFound           = errors.New("not found")
 	errReusedRefreshToken = errors.New("reused refresh token")
-	errValueTooLong       = errors.New("cookie value too long")
 )
 
 const (
-	cookieMaxSize      = 4096
 	cookieRefreshToken = "core_refreshtoken"
 	cookieTTL          = 7 * 24 * 60 * 60
-
-	lenthRandom = 16
 
 	ttlAccessToken        = time.Hour
 	ttlAcitvationToken    = 3 * 24 * time.Hour

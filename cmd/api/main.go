@@ -3,9 +3,8 @@ package main
 import (
 	"os"
 
-	"github.com/seanflannery10/core/internal/shared/mailer"
-
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/seanflannery10/core/internal/shared/mailer"
 	"github.com/seanflannery10/core/internal/shared/server"
 	"golang.org/x/exp/slog"
 )

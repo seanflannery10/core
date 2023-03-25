@@ -3,8 +3,8 @@ package validator_test
 import (
 	"testing"
 
-	"github.com/seanflannery10/core/internal/shared/assert"
 	"github.com/seanflannery10/core/internal/shared/validator"
+	"github.com/stretchr/testify/assert"
 )
 
 const (

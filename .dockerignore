@@ -13,7 +13,6 @@ README.md
 .env.example
 .golangci.yml
 fly.toml
-routes.md
 sqlc.yaml
 Taskfile.yaml
 Tiltfile

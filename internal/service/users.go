@@ -8,6 +8,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/seanflannery10/core/internal/data"
 	"github.com/seanflannery10/core/internal/oas"
+	"github.com/seanflannery10/core/internal/shared/utils"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -64,7 +65,7 @@ func (s *Handler) NewUser(ctx context.Context, req *oas.UserRequest) (oas.NewUse
 		return &oas.NewUserInternalServerError{}, fmt.Errorf("failed handler new user: %w", err)
 	}
 
-	cookie, err := newCookie(cookieRefreshToken, refreshToken.Plaintext, s.Secret)
+	cookie, err := utils.NewCookie(cookieRefreshToken, refreshToken.Plaintext, cookieTTL, s.Secret)
 	if err != nil {
 		return &oas.NewUserInternalServerError{}, nil
 	}
@@ -101,7 +102,7 @@ func newUser(ctx context.Context, q data.Queries, name, email, pass string) (oas
 		return oas.UserResponse{}, oas.TokenResponse{}, fmt.Errorf("failed create user: %w", err)
 	}
 
-	refreshToken, err := newToken(ctx, q, ttlAcitvationToken, data.ScopeActivation, user.ID)
+	refreshToken, err := utils.NewToken(ctx, q, ttlAcitvationToken, data.ScopeActivation, user.ID)
 	if err != nil {
 		return oas.UserResponse{}, oas.TokenResponse{}, fmt.Errorf("failed create new token: %w", err)
 	}

@@ -16,8 +16,8 @@ const (
 	pageMax         = 10000000
 	pageMin         = 0
 	pageSizeMax     = 100
-	pageSizeMin     = 0
-	noLength        = 0
+	pageSizeMin     = 5
+	noRecords       = 0
 )
 
 type (
@@ -36,15 +36,13 @@ type (
 	}
 )
 
-// func New(r *http.Request) Pagination {
-//	v := validator.New()
-//
-//	return Pagination{
-//		Page:      helpers.ReadIntParam(r.URL.Query(), "page", defaultPage, v),
-//		PageSize:  helpers.ReadIntParam(r.URL.Query(), "page_size", defaultPageSize, v),
-//		Validator: v,
-//	}
-//}
+func New(page, pageSize int) Pagination {
+	return Pagination{
+		Page:      page,
+		PageSize:  pageSize,
+		Validator: validator.New(),
+	}
+}
 
 func (p *Pagination) Limit() int32 {
 	return int32(p.PageSize)
@@ -55,7 +53,7 @@ func (p *Pagination) Offset() int32 {
 }
 
 func (p *Pagination) CalculateMetadata(totalRecords int64) Metadata {
-	if totalRecords == noLength {
+	if totalRecords == noRecords {
 		return Metadata{}
 	}
 
@@ -75,11 +73,4 @@ func (p *Pagination) CalculateMetadata(totalRecords int64) Metadata {
 	}
 
 	return metadata
-}
-
-func (p *Pagination) Validate() {
-	p.Validator.Check(p.Page > pageMin, keyPage, "must be greater than zero")
-	p.Validator.Check(p.Page <= pageMax, keyPage, "must be a maximum of 10 million")
-	p.Validator.Check(p.PageSize > pageSizeMin, keyPageSize, "size must be greater than zero")
-	p.Validator.Check(p.PageSize <= pageSizeMax, keyPageSize, "size must be a maximum of 100")
 }

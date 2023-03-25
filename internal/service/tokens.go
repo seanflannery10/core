@@ -12,6 +12,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/seanflannery10/core/internal/data"
 	"github.com/seanflannery10/core/internal/oas"
+	"github.com/seanflannery10/core/internal/shared/utils"
 	"github.com/segmentio/asm/base64"
 )
 
@@ -46,7 +47,7 @@ func newActivationToken(ctx context.Context, q data.Queries, email string) (oas.
 		return oas.TokenResponse{}, errNotActivated
 	}
 
-	activationToken, err := newToken(ctx, q, ttlAcitvationToken, data.ScopeActivation, user.ID)
+	activationToken, err := utils.NewToken(ctx, q, ttlAcitvationToken, data.ScopeActivation, user.ID)
 	if err != nil {
 		return oas.TokenResponse{}, fmt.Errorf("failed new activation token: %w", err)
 	}
@@ -81,9 +82,9 @@ func newPasswordResetToken(ctx context.Context, q data.Queries, email string) (o
 		}
 	}
 
-	passwordResetToken, err := newToken(ctx, q, ttlPasswordResetToken, data.ScopePasswordReset, user.ID)
+	passwordResetToken, err := utils.NewToken(ctx, q, ttlPasswordResetToken, data.ScopePasswordReset, user.ID)
 	if err != nil {
-		return oas.TokenResponse{}, err
+		return oas.TokenResponse{}, fmt.Errorf("failed create password reset token: %w", err)
 	}
 
 	return passwordResetToken, nil
@@ -95,7 +96,7 @@ func (s *Handler) NewRefreshToken(ctx context.Context, req *oas.UserLoginRequest
 		return &oas.NewRefreshTokenInternalServerError{}, nil
 	}
 
-	cookie, err := newCookie(cookieRefreshToken, refreshToken.Plaintext, s.Secret)
+	cookie, err := utils.NewCookie(cookieRefreshToken, refreshToken.Plaintext, cookieTTL, s.Secret)
 	if err != nil {
 		return &oas.NewRefreshTokenInternalServerError{}, nil
 	}
@@ -125,12 +126,12 @@ func newRefreshToken(ctx context.Context, q data.Queries, email, pass string) (r
 		return oas.TokenResponse{}, oas.TokenResponse{}, errInvalidCredentials
 	}
 
-	refresh, err = newToken(ctx, q, ttlRefreshToken, data.ScopeRefresh, user.ID)
+	refresh, err = utils.NewToken(ctx, q, ttlRefreshToken, data.ScopeRefresh, user.ID)
 	if err != nil {
 		return oas.TokenResponse{}, oas.TokenResponse{}, fmt.Errorf("failed create refresh token: %w", err)
 	}
 
-	access, err = newToken(ctx, q, ttlAccessToken, data.ScopeAccess, user.ID)
+	access, err = utils.NewToken(ctx, q, ttlAccessToken, data.ScopeAccess, user.ID)
 	if err != nil {
 		return oas.TokenResponse{}, oas.TokenResponse{}, fmt.Errorf("failed create access token: %w", err)
 	}
@@ -178,7 +179,7 @@ func (s *Handler) NewAccessToken(ctx context.Context, params oas.NewAccessTokenP
 		return &oas.NewAccessTokenInternalServerError{}, nil
 	}
 
-	cookie, err := newCookie(cookieRefreshToken, refreshToken.Plaintext, s.Secret)
+	cookie, err := utils.NewCookie(cookieRefreshToken, refreshToken.Plaintext, cookieTTL, s.Secret)
 	if err != nil {
 		return &oas.NewAccessTokenInternalServerError{}, nil
 	}
@@ -231,12 +232,12 @@ func newAccessToken(ctx context.Context, q data.Queries, plaintext string) (refr
 		return oas.TokenResponse{}, oas.TokenResponse{}, fmt.Errorf("failed deactivate refresh token: %w", err)
 	}
 
-	refresh, err = newToken(ctx, q, ttlRefreshToken, data.ScopeRefresh, user.ID)
+	refresh, err = utils.NewToken(ctx, q, ttlRefreshToken, data.ScopeRefresh, user.ID)
 	if err != nil {
 		return oas.TokenResponse{}, oas.TokenResponse{}, fmt.Errorf("failed create refresh token: %w", err)
 	}
 
-	access, err = newToken(ctx, q, ttlAccessToken, data.ScopeAccess, user.ID)
+	access, err = utils.NewToken(ctx, q, ttlAccessToken, data.ScopeAccess, user.ID)
 	if err != nil {
 		return oas.TokenResponse{}, oas.TokenResponse{}, fmt.Errorf("failed create access token: %w", err)
 	}

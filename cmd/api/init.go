@@ -10,10 +10,9 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/seanflannery10/core/internal/shared/helpers"
-
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/seanflannery10/core/internal/shared/mailer"
+	"github.com/seanflannery10/core/internal/shared/utils"
 	"github.com/sethvargo/go-envconfig"
 	"golang.org/x/exp/slog"
 )
@@ -38,7 +37,7 @@ func (app *application) init() {
 	flag.Parse()
 
 	if *displayVersion {
-		_, _ = fmt.Printf("Version:\t%s\n", helpers.GetVersion()) //nolint:forbidigo
+		_, _ = fmt.Printf("Version:\t%s\n", utils.GetVersion()) //nolint:forbidigo
 		os.Exit(exitGood)
 	}
 
@@ -75,7 +74,7 @@ func (app *application) init() {
 	app.dbpool = dbpool
 	app.mailer = mail
 
-	expvar.NewString("version").Set(helpers.GetVersion())
+	expvar.NewString("version").Set(utils.GetVersion())
 	expvar.Publish("goroutines", expvar.Func(func() any { return runtime.NumGoroutine() }))
 	expvar.Publish("timestamp", expvar.Func(func() any { return time.Now().Unix() }))
 	expvar.Publish("database", expvar.Func(func() any { return dbpool.Stat() }))

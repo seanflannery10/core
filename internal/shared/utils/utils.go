@@ -1,4 +1,4 @@
-package service
+package utils
 
 import (
 	"context"
@@ -10,19 +10,49 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"runtime/debug"
 	"time"
 
+	"github.com/go-faster/errors"
+	"github.com/ogen-go/ogen/middleware"
 	"github.com/seanflannery10/core/internal/data"
 	"github.com/seanflannery10/core/internal/oas"
 	"github.com/segmentio/asm/base64"
 )
 
-func newCookie(name, value string, secret []byte) (oas.OptString, error) {
+var errValueTooLong = errors.New("cookie value too long")
+
+const (
+	cookieMaxSize  = 4096
+	lenthRandom    = 16
+	userContextKey = contextKey("user")
+)
+
+type contextKey string
+
+func ContextSetUser(req *middleware.Request, user *data.User) *middleware.Request {
+	ctx := context.WithValue(req.Context, userContextKey, *user)
+
+	req.Raw = req.Raw.WithContext(ctx)
+
+	return req
+}
+
+func ContextGetUser(req *middleware.Request) data.User {
+	user, ok := req.Context.Value(userContextKey).(data.User)
+	if !ok {
+		panic("missing user value in request context")
+	}
+
+	return user
+}
+
+func NewCookie(name, value string, ttl int, secret []byte) (oas.OptString, error) {
 	cookie := http.Cookie{
 		Name:     name,
 		Value:    value,
 		Path:     "/",
-		MaxAge:   cookieTTL,
+		MaxAge:   ttl,
 		HttpOnly: true,
 		Secure:   true,
 		SameSite: http.SameSiteLaxMode,
@@ -60,7 +90,7 @@ func newCookie(name, value string, secret []byte) (oas.OptString, error) {
 	return optString, nil
 }
 
-func newToken(ctx context.Context, q data.Queries, ttl time.Duration, scope string, userID int64) (oas.TokenResponse, error) {
+func NewToken(ctx context.Context, q data.Queries, ttl time.Duration, scope string, userID int64) (oas.TokenResponse, error) {
 	randomBytes := make([]byte, lenthRandom)
 
 	_, err := rand.Read(randomBytes)
@@ -88,4 +118,35 @@ func newToken(ctx context.Context, q data.Queries, ttl time.Duration, scope stri
 	}
 
 	return tokenPlaintext, nil
+}
+
+func GetVersion() string {
+	var (
+		revision string
+		modified bool
+	)
+
+	bi, ok := debug.ReadBuildInfo()
+	if ok {
+		for _, s := range bi.Settings {
+			switch s.Key {
+			case "vcs.revision":
+				revision = s.Value
+			case "vcs.modified":
+				if s.Value == "true" {
+					modified = true
+				}
+			}
+		}
+	}
+
+	if revision == "" {
+		return "unavailable"
+	}
+
+	if modified {
+		return fmt.Sprintf("%s-dirty", revision)
+	}
+
+	return revision
 }
