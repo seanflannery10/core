@@ -1,15 +1,18 @@
-package handlers
+package service
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
-	"github.com/seanflannery10/core/internal/api"
-
+	"github.com/go-faster/errors"
 	"github.com/jackc/pgx/v5"
+	"github.com/seanflannery10/core/internal/api"
 	"github.com/seanflannery10/core/internal/data"
 )
+
+// func (s *Handler) GetUserMessages(ctx context.Context, params api.GetUserMessagesParams) (r api.GetUserMessagesRes, _ error) {
+//	return r, ht.ErrNotImplemented
+//}
 
 // func getUserMessages(ctx context.Context, q data.Queries, email string) http.HandlerFunc {
 //	messages, err := q.GetUserMessages(ctx, data.GetUserMessagesParams{
@@ -33,6 +36,17 @@ import (
 //	}
 //}
 
+func (s *Handler) NewMessage(ctx context.Context, req *api.MessageRequest) (r api.NewMessageRes, _ error) {
+	const uid = 123
+
+	messageResponse, err := newMessage(ctx, s.Queries, req.Message, uid)
+	if err != nil {
+		return &api.NewMessageInternalServerError{}, nil
+	}
+
+	return &messageResponse, nil
+}
+
 func newMessage(ctx context.Context, q data.Queries, text string, uid int64) (api.MessageResponse, error) {
 	message, err := q.CreateMessage(ctx, data.CreateMessageParams{
 		Message: text,
@@ -49,6 +63,15 @@ func newMessage(ctx context.Context, q data.Queries, text string, uid int64) (ap
 	}
 
 	return messageResponse, nil
+}
+
+func (s *Handler) GetMessage(ctx context.Context, params api.GetMessageParams) (r api.GetMessageRes, _ error) {
+	messageResponse, err := getMessage(ctx, s.Queries, params.ID)
+	if err != nil {
+		return &api.GetMessageInternalServerError{}, nil
+	}
+
+	return &messageResponse, nil
 }
 
 func getMessage(ctx context.Context, q data.Queries, messageID int64) (api.MessageResponse, error) {
@@ -69,6 +92,15 @@ func getMessage(ctx context.Context, q data.Queries, messageID int64) (api.Messa
 	}
 
 	return messageResponse, nil
+}
+
+func (s *Handler) UpdateMessage(ctx context.Context, req *api.MessageRequest, params api.UpdateMessageParams) (api.UpdateMessageRes, error) {
+	messageResponse, err := updateMessage(ctx, s.Queries, req.Message, params.ID)
+	if err != nil {
+		return &api.UpdateMessageInternalServerError{}, nil
+	}
+
+	return &messageResponse, nil
 }
 
 func updateMessage(ctx context.Context, q data.Queries, m string, id int64) (api.MessageResponse, error) {
@@ -99,6 +131,15 @@ func updateMessage(ctx context.Context, q data.Queries, m string, id int64) (api
 	}
 
 	return messageResponse, nil
+}
+
+func (s *Handler) DeleteMessage(ctx context.Context, params api.DeleteMessageParams) (r api.DeleteMessageRes, _ error) {
+	acceptanceResponse, err := deleteMessage(ctx, s.Queries, params.ID)
+	if err != nil {
+		return &api.DeleteMessageInternalServerError{}, nil
+	}
+
+	return &acceptanceResponse, nil
 }
 
 func deleteMessage(ctx context.Context, q data.Queries, id int64) (api.AcceptanceResponse, error) {

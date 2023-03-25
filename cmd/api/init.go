@@ -10,12 +10,10 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/seanflannery10/core/internal/data"
-	"github.com/seanflannery10/core/internal/service"
 	"github.com/seanflannery10/core/internal/shared/helpers"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/seanflannery10/core/internal/shared/mailer"
-	"github.com/seanflannery10/core/internal/shared/telemetry"
 	"github.com/sethvargo/go-envconfig"
 	"golang.org/x/exp/slog"
 )
@@ -24,6 +22,16 @@ const (
 	exitGood  = 0
 	exitError = 1
 )
+
+type Config struct {
+	SMTP         mailer.SMTP
+	Env          string `env:"ENV,default=dev"`
+	OTelEndpoint string `env:"OTEL_EXPORTER_OTLP_ENDPOINT,default=api.honeycomb.io:443"`
+	DatabaseURL  string `env:"DATABASE_URL,default=postgres://postgres:test@localhost:5432/test?sslmode=disable"`
+	SecretKey    string `env:"SECRET_KEY"`
+	Secret       []byte `env:"SECRET_KEY"`
+	Port         int    `env:"PORT,default=4000"`
+}
 
 func (app *application) init() {
 	displayVersion := flag.Bool("version", false, "Display version and exit")
@@ -34,7 +42,7 @@ func (app *application) init() {
 		os.Exit(exitGood)
 	}
 
-	cfg := &service.Config{}
+	cfg := &Config{}
 
 	err := envconfig.Process(context.Background(), cfg)
 	if err != nil {
@@ -64,21 +72,14 @@ func (app *application) init() {
 		os.Exit(exitError)
 	}
 
-	tracerProvider, err := telemetry.New(cfg.OTelEndpoint, cfg.Env)
-	if err != nil {
-		slog.Error("unable to start telemetry", err)
-		os.Exit(exitError)
-	}
+	// tracerProvider, err := telemetry.New(cfg.OTelEndpoint, cfg.Env)
+	// if err != nil {
+	//	slog.Error("unable to start telemetry", err)
+	//	os.Exit(exitError)
+	//}
 
 	app.dbpool = dbpool
-	app.tp = tracerProvider
-
-	app.env = &service.Env{
-		Queries: data.New(dbpool),
-		Mailer:  mail,
-		Tracer:  tracerProvider.Tracer("main"),
-		Config:  cfg,
-	}
+	app.mailer = mail
 
 	expvar.NewString("version").Set(helpers.GetVersion())
 	expvar.Publish("goroutines", expvar.Func(func() any { return runtime.NumGoroutine() }))

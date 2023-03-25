@@ -616,10 +616,37 @@ func (s *TokenResponse) SetPlaintext(val string) {
 	s.Plaintext = val
 }
 
-func (*TokenResponse) newAccessTokenRes()        {}
 func (*TokenResponse) newActivationTokenRes()    {}
 func (*TokenResponse) newPasswordResetTokenRes() {}
-func (*TokenResponse) newRefreshTokenRes()       {}
+
+// TokenResponseHeaders wraps TokenResponse with response headers.
+type TokenResponseHeaders struct {
+	SetCookie OptString
+	Response  TokenResponse
+}
+
+// GetSetCookie returns the value of SetCookie.
+func (s *TokenResponseHeaders) GetSetCookie() OptString {
+	return s.SetCookie
+}
+
+// GetResponse returns the value of Response.
+func (s *TokenResponseHeaders) GetResponse() TokenResponse {
+	return s.Response
+}
+
+// SetSetCookie sets the value of SetCookie.
+func (s *TokenResponseHeaders) SetSetCookie(val OptString) {
+	s.SetCookie = val
+}
+
+// SetResponse sets the value of Response.
+func (s *TokenResponseHeaders) SetResponse(val TokenResponse) {
+	s.Response = val
+}
+
+func (*TokenResponseHeaders) newAccessTokenRes()  {}
+func (*TokenResponseHeaders) newRefreshTokenRes() {}
 
 type UpdateMessageBadRequest ErrorResponse
 
@@ -812,4 +839,31 @@ func (s *UserResponse) SetVersion(val int32) {
 }
 
 func (*UserResponse) activateUserRes() {}
-func (*UserResponse) newUserRes()      {}
+
+// UserResponseHeaders wraps UserResponse with response headers.
+type UserResponseHeaders struct {
+	SetCookie OptString
+	Response  UserResponse
+}
+
+// GetSetCookie returns the value of SetCookie.
+func (s *UserResponseHeaders) GetSetCookie() OptString {
+	return s.SetCookie
+}
+
+// GetResponse returns the value of Response.
+func (s *UserResponseHeaders) GetResponse() UserResponse {
+	return s.Response
+}
+
+// SetSetCookie sets the value of SetCookie.
+func (s *UserResponseHeaders) SetSetCookie(val OptString) {
+	s.SetCookie = val
+}
+
+// SetResponse sets the value of Response.
+func (s *UserResponseHeaders) SetResponse(val UserResponse) {
+	s.Response = val
+}
+
+func (*UserResponseHeaders) newUserRes() {}

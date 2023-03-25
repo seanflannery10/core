@@ -167,6 +167,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TokenResponse'
+          headers:
+            Set-Cookie:
+              description: "Contains encrypted refresh token"
+              schema:
+                type: string
         400:
           $ref: '#/components/responses/400'
         401:
@@ -237,6 +242,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TokenResponse'
+          headers:
+            Set-Cookie:
+              description: "Contains encrypted refresh token"
+              schema:
+                type: string
         400:
           $ref: '#/components/responses/400'
         401:
@@ -289,6 +299,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserResponse'
+          headers:
+            Set-Cookie:
+              description: "Contains encrypted refresh token"
+              schema:
+                type: string
         400:
           $ref: '#/components/responses/400'
         404:

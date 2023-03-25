@@ -1,36 +1,61 @@
-package handlers
+package service
 
 import (
 	"context"
+	"crypto/aes"
+	"crypto/cipher"
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base32"
 	"fmt"
+	"io"
 	"net/http"
 	"time"
 
 	"github.com/seanflannery10/core/internal/api"
 	"github.com/seanflannery10/core/internal/data"
-	"github.com/seanflannery10/core/internal/shared/cookies"
+	"github.com/segmentio/asm/base64"
 )
 
-func NewCookie(w http.ResponseWriter, name, value string, secret []byte) (http.ResponseWriter, error) {
-	tokenCookie := &http.Cookie{
+func newCookie(name, value string, secret []byte) (http.Cookie, error) {
+	cookie := http.Cookie{
 		Name:     name,
 		Value:    value,
 		Path:     "/",
-		MaxAge:   ttlCookie,
+		MaxAge:   cookieTTL,
 		HttpOnly: true,
 		Secure:   true,
 		SameSite: http.SameSiteLaxMode,
 	}
 
-	err := cookies.WriteEncrypted(w, tokenCookie, secret)
+	block, err := aes.NewCipher(secret)
 	if err != nil {
-		return nil, fmt.Errorf("failed write encrypted: %w", err)
+		return http.Cookie{}, fmt.Errorf("failed new cipher: %w", err)
 	}
 
-	return w, nil
+	aesGCM, err := cipher.NewGCM(block)
+	if err != nil {
+		return http.Cookie{}, fmt.Errorf("failed new gcm: %w", err)
+	}
+
+	nonce := make([]byte, aesGCM.NonceSize())
+
+	_, err = io.ReadFull(rand.Reader, nonce)
+	if err != nil {
+		return http.Cookie{}, fmt.Errorf("failed read full: %w", err)
+	}
+
+	plaintext := fmt.Sprintf("%s:%s", cookie.Name, cookie.Value)
+
+	encryptedValue := aesGCM.Seal(nonce, nonce, []byte(plaintext), nil)
+
+	cookie.Value = base64.URLEncoding.EncodeToString(encryptedValue)
+
+	if len(cookie.String()) > cookieMaxSize {
+		return http.Cookie{}, fmt.Errorf("failed length check: %w", errValueTooLong)
+	}
+
+	return cookie, nil
 }
 
 func newToken(ctx context.Context, q data.Queries, ttl time.Duration, scope string, userID int64) (api.TokenResponse, error) {
