@@ -72,12 +72,6 @@ func (app *application) init() {
 		os.Exit(exitError)
 	}
 
-	// tracerProvider, err := telemetry.New(cfg.OTelEndpoint, cfg.Env)
-	// if err != nil {
-	//	slog.Error("unable to start telemetry", err)
-	//	os.Exit(exitError)
-	//}
-
 	app.dbpool = dbpool
 	app.mailer = mail
 

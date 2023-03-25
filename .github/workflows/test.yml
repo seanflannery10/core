@@ -58,9 +58,9 @@ jobs:
 #      - name: SQLC Generate
 #        run: sqlc generate --experimental && git diff --exit-code
 #      - name: OAPI Server Generate
-#        run: oapi-codegen -generate chi-server -package api openapi.yaml > internal/api/server.gen.go && git diff --exit-code
+#        run: oapi-codegen -generate chi-server -package oas openapi.yaml > internal/oas/server.gen.go && git diff --exit-code
 #      - name: OAPI Type Generate
-#        run: oapi-codegen -generate types -package api openapi.yaml > internal/api/types.gen.go && git diff --exit-code
+#        run: oapi-codegen -generate types -package oas openapi.yaml > internal/oas/types.gen.go && git diff --exit-code
   lint:
     runs-on: ubuntu-latest
     steps:

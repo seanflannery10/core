@@ -10,155 +10,154 @@ import (
 
 	"github.com/go-faster/errors"
 	"github.com/jackc/pgx/v5"
-	"github.com/seanflannery10/core/internal/api"
 	"github.com/seanflannery10/core/internal/data"
+	"github.com/seanflannery10/core/internal/oas"
 	"github.com/segmentio/asm/base64"
 )
 
-func (s *Handler) NewActivationToken(ctx context.Context, req *api.UserEmailRequest) (r api.NewActivationTokenRes, _ error) {
+func (s *Handler) NewActivationToken(ctx context.Context, req *oas.UserEmailRequest) (r oas.NewActivationTokenRes, _ error) {
 	activationToken, err := newActivationToken(ctx, s.Queries, req.Email)
 	if err != nil {
-		return &api.NewActivationTokenInternalServerError{}, nil
+		return &oas.NewActivationTokenInternalServerError{}, nil
 	}
 
 	err = s.Mailer.Send(req.Email, "token_activation.tmpl", map[string]any{
 		"activationToken": activationToken.Plaintext,
 	})
 	if err != nil {
-		return &api.NewActivationTokenInternalServerError{}, nil
+		return &oas.NewActivationTokenInternalServerError{}, nil
 	}
 
 	return &activationToken, nil
 }
 
-func newActivationToken(ctx context.Context, q data.Queries, email string) (api.TokenResponse, error) {
+func newActivationToken(ctx context.Context, q data.Queries, email string) (oas.TokenResponse, error) {
 	user, err := q.GetUserFromEmail(ctx, email)
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
-			return api.TokenResponse{}, errNotFound
+			return oas.TokenResponse{}, errNotFound
 		default:
-			return api.TokenResponse{}, fmt.Errorf("failed get user from email (activation): %w", err)
+			return oas.TokenResponse{}, fmt.Errorf("failed get user from email (activation): %w", err)
 		}
 	}
 
 	if user.Activated {
-		return api.TokenResponse{}, errNotActivated
+		return oas.TokenResponse{}, errNotActivated
 	}
 
 	activationToken, err := newToken(ctx, q, ttlAcitvationToken, data.ScopeActivation, user.ID)
 	if err != nil {
-		return api.TokenResponse{}, fmt.Errorf("failed new activation token: %w", err)
+		return oas.TokenResponse{}, fmt.Errorf("failed new activation token: %w", err)
 	}
 
 	return activationToken, nil
 }
 
-func (s *Handler) NewPasswordResetToken(ctx context.Context, req *api.UserEmailRequest) (r api.NewPasswordResetTokenRes, _ error) {
+func (s *Handler) NewPasswordResetToken(ctx context.Context, req *oas.UserEmailRequest) (r oas.NewPasswordResetTokenRes, _ error) {
 	passwordResetToken, err := newPasswordResetToken(ctx, s.Queries, req.Email)
 	if err != nil {
-		return &api.NewPasswordResetTokenInternalServerError{}, nil
+		return &oas.NewPasswordResetTokenInternalServerError{}, nil
 	}
 
 	err = s.Mailer.Send(req.Email, "token_password_reset.tmpl", map[string]any{
 		"passwordResetToken": passwordResetToken.Plaintext,
 	})
 	if err != nil {
-		return &api.NewPasswordResetTokenInternalServerError{}, nil
+		return &oas.NewPasswordResetTokenInternalServerError{}, nil
 	}
 
 	return &passwordResetToken, nil
 }
 
-func newPasswordResetToken(ctx context.Context, q data.Queries, email string) (api.TokenResponse, error) {
+func newPasswordResetToken(ctx context.Context, q data.Queries, email string) (oas.TokenResponse, error) {
 	user, err := q.GetUserFromEmail(ctx, email)
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
-			return api.TokenResponse{}, errNotFound
+			return oas.TokenResponse{}, errNotFound
 		default:
-			return api.TokenResponse{}, fmt.Errorf("failed get user from email (password): %w", err)
+			return oas.TokenResponse{}, fmt.Errorf("failed get user from email (password): %w", err)
 		}
 	}
 
 	passwordResetToken, err := newToken(ctx, q, ttlPasswordResetToken, data.ScopePasswordReset, user.ID)
 	if err != nil {
-		return api.TokenResponse{}, err
+		return oas.TokenResponse{}, err
 	}
 
 	return passwordResetToken, nil
 }
 
-func (s *Handler) NewRefreshToken(ctx context.Context, req *api.UserLoginRequest) (api.NewRefreshTokenRes, error) {
+func (s *Handler) NewRefreshToken(ctx context.Context, req *oas.UserLoginRequest) (oas.NewRefreshTokenRes, error) {
 	refreshToken, accessToken, err := newRefreshToken(ctx, s.Queries, req.Email, req.Password)
 	if err != nil {
-		return &api.NewRefreshTokenInternalServerError{}, nil
+		return &oas.NewRefreshTokenInternalServerError{}, nil
 	}
 
 	cookie, err := newCookie(cookieRefreshToken, refreshToken.Plaintext, s.Secret)
 	if err != nil {
-		return &api.NewRefreshTokenInternalServerError{}, nil
+		return &oas.NewRefreshTokenInternalServerError{}, nil
 	}
 
-	optString := api.OptString{Value: cookie.Value, Set: true}
-	tokenResponseHeaders := api.TokenResponseHeaders{SetCookie: optString, Response: accessToken}
+	tokenResponseHeaders := oas.TokenResponseHeaders{SetCookie: cookie, Response: accessToken}
 
 	return &tokenResponseHeaders, nil
 }
 
-func newRefreshToken(ctx context.Context, q data.Queries, email, pass string) (refresh, access api.TokenResponse, err error) {
+func newRefreshToken(ctx context.Context, q data.Queries, email, pass string) (refresh, access oas.TokenResponse, err error) {
 	user, err := q.GetUserFromEmail(ctx, email)
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
-			return api.TokenResponse{}, api.TokenResponse{}, errNotFound
+			return oas.TokenResponse{}, oas.TokenResponse{}, errNotFound
 		default:
-			return api.TokenResponse{}, api.TokenResponse{}, fmt.Errorf("failed get user from email (refresh): %w", err)
+			return oas.TokenResponse{}, oas.TokenResponse{}, fmt.Errorf("failed get user from email (refresh): %w", err)
 		}
 	}
 
 	match, err := user.ComparePasswords(pass)
 	if err != nil {
-		return api.TokenResponse{}, api.TokenResponse{}, fmt.Errorf("failed compare passwords: %w", err)
+		return oas.TokenResponse{}, oas.TokenResponse{}, fmt.Errorf("failed compare passwords: %w", err)
 	}
 
 	if !match {
-		return api.TokenResponse{}, api.TokenResponse{}, errInvalidCredentials
+		return oas.TokenResponse{}, oas.TokenResponse{}, errInvalidCredentials
 	}
 
 	refresh, err = newToken(ctx, q, ttlRefreshToken, data.ScopeRefresh, user.ID)
 	if err != nil {
-		return api.TokenResponse{}, api.TokenResponse{}, fmt.Errorf("failed create refresh token: %w", err)
+		return oas.TokenResponse{}, oas.TokenResponse{}, fmt.Errorf("failed create refresh token: %w", err)
 	}
 
 	access, err = newToken(ctx, q, ttlAccessToken, data.ScopeAccess, user.ID)
 	if err != nil {
-		return api.TokenResponse{}, api.TokenResponse{}, fmt.Errorf("failed create access token: %w", err)
+		return oas.TokenResponse{}, oas.TokenResponse{}, fmt.Errorf("failed create access token: %w", err)
 	}
 
 	return refresh, access, nil
 }
 
-func (s *Handler) NewAccessToken(ctx context.Context, params api.NewAccessTokenParams) (r api.NewAccessTokenRes, _ error) {
+func (s *Handler) NewAccessToken(ctx context.Context, params oas.NewAccessTokenParams) (r oas.NewAccessTokenRes, _ error) {
 	encryptedValue, err := base64.URLEncoding.DecodeString(params.CoreRefreshToken)
 	if err != nil {
-		return &api.NewAccessTokenInternalServerError{}, nil
+		return &oas.NewAccessTokenInternalServerError{}, nil
 	}
 
 	block, err := aes.NewCipher(s.Secret)
 	if err != nil {
-		return &api.NewAccessTokenInternalServerError{}, fmt.Errorf("failed new cipher: %w", err)
+		return &oas.NewAccessTokenInternalServerError{}, fmt.Errorf("failed new cipher: %w", err)
 	}
 
 	aesGCM, err := cipher.NewGCM(block)
 	if err != nil {
-		return &api.NewAccessTokenInternalServerError{}, fmt.Errorf("failed new gcm: %w", err)
+		return &oas.NewAccessTokenInternalServerError{}, fmt.Errorf("failed new gcm: %w", err)
 	}
 
 	nonceSize := aesGCM.NonceSize()
 
 	if len(encryptedValue) < nonceSize {
-		return &api.NewAccessTokenInternalServerError{}, nil
+		return &oas.NewAccessTokenInternalServerError{}, nil
 	}
 
 	nonce := encryptedValue[:nonceSize]
@@ -166,38 +165,37 @@ func (s *Handler) NewAccessToken(ctx context.Context, params api.NewAccessTokenP
 
 	plaintext, err := aesGCM.Open(nil, nonce, ciphertext, nil)
 	if err != nil {
-		return &api.NewAccessTokenInternalServerError{}, nil
+		return &oas.NewAccessTokenInternalServerError{}, nil
 	}
 
 	_, value, ok := strings.Cut(string(plaintext), ":")
 	if !ok {
-		return &api.NewAccessTokenInternalServerError{}, nil
+		return &oas.NewAccessTokenInternalServerError{}, nil
 	}
 
 	refreshToken, accessToken, err := newAccessToken(ctx, s.Queries, value)
 	if err != nil {
-		return &api.NewAccessTokenInternalServerError{}, nil
+		return &oas.NewAccessTokenInternalServerError{}, nil
 	}
 
 	cookie, err := newCookie(cookieRefreshToken, refreshToken.Plaintext, s.Secret)
 	if err != nil {
-		return &api.NewAccessTokenInternalServerError{}, nil
+		return &oas.NewAccessTokenInternalServerError{}, nil
 	}
 
-	optString := api.OptString{Value: cookie.Value, Set: true}
-	tokenResponseHeaders := api.TokenResponseHeaders{SetCookie: optString, Response: accessToken}
+	tokenResponseHeaders := oas.TokenResponseHeaders{SetCookie: cookie, Response: accessToken}
 
 	return &tokenResponseHeaders, nil
 }
 
-func newAccessToken(ctx context.Context, q data.Queries, plaintext string) (refresh, access api.TokenResponse, err error) {
+func newAccessToken(ctx context.Context, q data.Queries, plaintext string) (refresh, access oas.TokenResponse, err error) {
 	user, err := q.GetUserFromTokenHelper(ctx, plaintext, data.ScopeRefresh)
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
-			return api.TokenResponse{}, api.TokenResponse{}, errNotFound
+			return oas.TokenResponse{}, oas.TokenResponse{}, errNotFound
 		default:
-			return api.TokenResponse{}, api.TokenResponse{}, fmt.Errorf("failed get user from refresh token: %w", err)
+			return oas.TokenResponse{}, oas.TokenResponse{}, fmt.Errorf("failed get user from refresh token: %w", err)
 		}
 	}
 
@@ -209,7 +207,7 @@ func newAccessToken(ctx context.Context, q data.Queries, plaintext string) (refr
 		Scope:  data.ScopeRefresh,
 	})
 	if err != nil {
-		return api.TokenResponse{}, api.TokenResponse{}, fmt.Errorf("failed check refresh token: %w", err)
+		return oas.TokenResponse{}, oas.TokenResponse{}, fmt.Errorf("failed check refresh token: %w", err)
 	}
 
 	if badToken {
@@ -218,10 +216,10 @@ func newAccessToken(ctx context.Context, q data.Queries, plaintext string) (refr
 			UserID: user.ID,
 		})
 		if err != nil {
-			return api.TokenResponse{}, api.TokenResponse{}, fmt.Errorf("failed deactivate refresh token: %w", err)
+			return oas.TokenResponse{}, oas.TokenResponse{}, fmt.Errorf("failed deactivate refresh token: %w", err)
 		}
 
-		return api.TokenResponse{}, api.TokenResponse{}, errReusedRefreshToken
+		return oas.TokenResponse{}, oas.TokenResponse{}, errReusedRefreshToken
 	}
 
 	err = q.DeactivateToken(ctx, data.DeactivateTokenParams{
@@ -230,17 +228,17 @@ func newAccessToken(ctx context.Context, q data.Queries, plaintext string) (refr
 		UserID: user.ID,
 	})
 	if err != nil {
-		return api.TokenResponse{}, api.TokenResponse{}, fmt.Errorf("failed deactivate refresh token: %w", err)
+		return oas.TokenResponse{}, oas.TokenResponse{}, fmt.Errorf("failed deactivate refresh token: %w", err)
 	}
 
 	refresh, err = newToken(ctx, q, ttlRefreshToken, data.ScopeRefresh, user.ID)
 	if err != nil {
-		return api.TokenResponse{}, api.TokenResponse{}, fmt.Errorf("failed create refresh token: %w", err)
+		return oas.TokenResponse{}, oas.TokenResponse{}, fmt.Errorf("failed create refresh token: %w", err)
 	}
 
 	access, err = newToken(ctx, q, ttlAccessToken, data.ScopeAccess, user.ID)
 	if err != nil {
-		return api.TokenResponse{}, api.TokenResponse{}, fmt.Errorf("failed create access token: %w", err)
+		return oas.TokenResponse{}, oas.TokenResponse{}, fmt.Errorf("failed create access token: %w", err)
 	}
 
 	return refresh, access, nil

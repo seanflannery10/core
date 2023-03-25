@@ -12,12 +12,12 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/seanflannery10/core/internal/api"
 	"github.com/seanflannery10/core/internal/data"
+	"github.com/seanflannery10/core/internal/oas"
 	"github.com/segmentio/asm/base64"
 )
 
-func newCookie(name, value string, secret []byte) (http.Cookie, error) {
+func newCookie(name, value string, secret []byte) (oas.OptString, error) {
 	cookie := http.Cookie{
 		Name:     name,
 		Value:    value,
@@ -30,19 +30,19 @@ func newCookie(name, value string, secret []byte) (http.Cookie, error) {
 
 	block, err := aes.NewCipher(secret)
 	if err != nil {
-		return http.Cookie{}, fmt.Errorf("failed new cipher: %w", err)
+		return oas.OptString{}, fmt.Errorf("failed new cipher: %w", err)
 	}
 
 	aesGCM, err := cipher.NewGCM(block)
 	if err != nil {
-		return http.Cookie{}, fmt.Errorf("failed new gcm: %w", err)
+		return oas.OptString{}, fmt.Errorf("failed new gcm: %w", err)
 	}
 
 	nonce := make([]byte, aesGCM.NonceSize())
 
 	_, err = io.ReadFull(rand.Reader, nonce)
 	if err != nil {
-		return http.Cookie{}, fmt.Errorf("failed read full: %w", err)
+		return oas.OptString{}, fmt.Errorf("failed read full: %w", err)
 	}
 
 	plaintext := fmt.Sprintf("%s:%s", cookie.Name, cookie.Value)
@@ -52,18 +52,20 @@ func newCookie(name, value string, secret []byte) (http.Cookie, error) {
 	cookie.Value = base64.URLEncoding.EncodeToString(encryptedValue)
 
 	if len(cookie.String()) > cookieMaxSize {
-		return http.Cookie{}, fmt.Errorf("failed length check: %w", errValueTooLong)
+		return oas.OptString{}, fmt.Errorf("failed length check: %w", errValueTooLong)
 	}
 
-	return cookie, nil
+	optString := oas.OptString{Value: cookie.Value, Set: true}
+
+	return optString, nil
 }
 
-func newToken(ctx context.Context, q data.Queries, ttl time.Duration, scope string, userID int64) (api.TokenResponse, error) {
+func newToken(ctx context.Context, q data.Queries, ttl time.Duration, scope string, userID int64) (oas.TokenResponse, error) {
 	randomBytes := make([]byte, lenthRandom)
 
 	_, err := rand.Read(randomBytes)
 	if err != nil {
-		return api.TokenResponse{}, fmt.Errorf("failed read rand: %w", err)
+		return oas.TokenResponse{}, fmt.Errorf("failed read rand: %w", err)
 	}
 
 	plaintext := base32.StdEncoding.WithPadding(base32.NoPadding).EncodeToString(randomBytes)
@@ -76,13 +78,13 @@ func newToken(ctx context.Context, q data.Queries, ttl time.Duration, scope stri
 		Scope:  scope,
 	})
 	if err != nil {
-		return api.TokenResponse{}, fmt.Errorf("failed create token: %w", err)
+		return oas.TokenResponse{}, fmt.Errorf("failed create token: %w", err)
 	}
 
-	tokenPlaintext := api.TokenResponse{
+	tokenPlaintext := oas.TokenResponse{
 		Plaintext: plaintext,
-		Expiry:    api.OptDateTime{Value: token.Expiry, Set: true},
-		Scope:     api.OptString{Value: token.Scope, Set: true},
+		Expiry:    oas.OptDateTime{Value: token.Expiry, Set: true},
+		Scope:     oas.OptString{Value: token.Scope, Set: true},
 	}
 
 	return tokenPlaintext, nil

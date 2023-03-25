@@ -6,11 +6,11 @@ import (
 
 	"github.com/go-faster/errors"
 	"github.com/jackc/pgx/v5"
-	"github.com/seanflannery10/core/internal/api"
 	"github.com/seanflannery10/core/internal/data"
+	"github.com/seanflannery10/core/internal/oas"
 )
 
-// func (s *Handler) GetUserMessages(ctx context.Context, params api.GetUserMessagesParams) (r api.GetUserMessagesRes, _ error) {
+// func (s *Handler) GetUserMessages(ctx context.Context, params oas.GetUserMessagesParams) (r oas.GetUserMessagesRes, _ error) {
 //	return r, ht.ErrNotImplemented
 //}
 
@@ -36,27 +36,27 @@ import (
 //	}
 //}
 
-func (s *Handler) NewMessage(ctx context.Context, req *api.MessageRequest) (r api.NewMessageRes, _ error) {
+func (s *Handler) NewMessage(ctx context.Context, req *oas.MessageRequest) (r oas.NewMessageRes, _ error) {
 	const uid = 123
 
 	messageResponse, err := newMessage(ctx, s.Queries, req.Message, uid)
 	if err != nil {
-		return &api.NewMessageInternalServerError{}, nil
+		return &oas.NewMessageInternalServerError{}, nil
 	}
 
 	return &messageResponse, nil
 }
 
-func newMessage(ctx context.Context, q data.Queries, text string, uid int64) (api.MessageResponse, error) {
+func newMessage(ctx context.Context, q data.Queries, text string, uid int64) (oas.MessageResponse, error) {
 	message, err := q.CreateMessage(ctx, data.CreateMessageParams{
 		Message: text,
 		UserID:  uid,
 	})
 	if err != nil {
-		return api.MessageResponse{}, fmt.Errorf("failed create message: %w", err)
+		return oas.MessageResponse{}, fmt.Errorf("failed create message: %w", err)
 	}
 
-	messageResponse := api.MessageResponse{
+	messageResponse := oas.MessageResponse{
 		ID:      message.ID,
 		Message: message.Message,
 		Version: message.Version,
@@ -65,27 +65,27 @@ func newMessage(ctx context.Context, q data.Queries, text string, uid int64) (ap
 	return messageResponse, nil
 }
 
-func (s *Handler) GetMessage(ctx context.Context, params api.GetMessageParams) (r api.GetMessageRes, _ error) {
+func (s *Handler) GetMessage(ctx context.Context, params oas.GetMessageParams) (r oas.GetMessageRes, _ error) {
 	messageResponse, err := getMessage(ctx, s.Queries, params.ID)
 	if err != nil {
-		return &api.GetMessageInternalServerError{}, nil
+		return &oas.GetMessageInternalServerError{}, nil
 	}
 
 	return &messageResponse, nil
 }
 
-func getMessage(ctx context.Context, q data.Queries, messageID int64) (api.MessageResponse, error) {
+func getMessage(ctx context.Context, q data.Queries, messageID int64) (oas.MessageResponse, error) {
 	message, err := q.GetMessage(ctx, messageID)
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
-			return api.MessageResponse{}, errNotFound
+			return oas.MessageResponse{}, errNotFound
 		default:
-			return api.MessageResponse{}, fmt.Errorf("failed get message: %w", err)
+			return oas.MessageResponse{}, fmt.Errorf("failed get message: %w", err)
 		}
 	}
 
-	messageResponse := api.MessageResponse{
+	messageResponse := oas.MessageResponse{
 		ID:      message.ID,
 		Message: message.Message,
 		Version: message.Version,
@@ -94,16 +94,16 @@ func getMessage(ctx context.Context, q data.Queries, messageID int64) (api.Messa
 	return messageResponse, nil
 }
 
-func (s *Handler) UpdateMessage(ctx context.Context, req *api.MessageRequest, params api.UpdateMessageParams) (api.UpdateMessageRes, error) {
+func (s *Handler) UpdateMessage(ctx context.Context, req *oas.MessageRequest, params oas.UpdateMessageParams) (oas.UpdateMessageRes, error) {
 	messageResponse, err := updateMessage(ctx, s.Queries, req.Message, params.ID)
 	if err != nil {
-		return &api.UpdateMessageInternalServerError{}, nil
+		return &oas.UpdateMessageInternalServerError{}, nil
 	}
 
 	return &messageResponse, nil
 }
 
-func updateMessage(ctx context.Context, q data.Queries, m string, id int64) (api.MessageResponse, error) {
+func updateMessage(ctx context.Context, q data.Queries, m string, id int64) (oas.MessageResponse, error) {
 	message, err := q.UpdateMessage(ctx, data.UpdateMessageParams{
 		Message: m,
 		ID:      id,
@@ -111,9 +111,9 @@ func updateMessage(ctx context.Context, q data.Queries, m string, id int64) (api
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
-			return api.MessageResponse{}, errNotFound
+			return oas.MessageResponse{}, errNotFound
 		default:
-			return api.MessageResponse{}, fmt.Errorf("failed update message: %w", err)
+			return oas.MessageResponse{}, fmt.Errorf("failed update message: %w", err)
 		}
 	}
 
@@ -124,7 +124,7 @@ func updateMessage(ctx context.Context, q data.Queries, m string, id int64) (api
 	//	}
 	//}
 
-	messageResponse := api.MessageResponse{
+	messageResponse := oas.MessageResponse{
 		ID:      message.ID,
 		Message: message.Message,
 		Version: message.Version,
@@ -133,25 +133,25 @@ func updateMessage(ctx context.Context, q data.Queries, m string, id int64) (api
 	return messageResponse, nil
 }
 
-func (s *Handler) DeleteMessage(ctx context.Context, params api.DeleteMessageParams) (r api.DeleteMessageRes, _ error) {
+func (s *Handler) DeleteMessage(ctx context.Context, params oas.DeleteMessageParams) (r oas.DeleteMessageRes, _ error) {
 	acceptanceResponse, err := deleteMessage(ctx, s.Queries, params.ID)
 	if err != nil {
-		return &api.DeleteMessageInternalServerError{}, nil
+		return &oas.DeleteMessageInternalServerError{}, nil
 	}
 
 	return &acceptanceResponse, nil
 }
 
-func deleteMessage(ctx context.Context, q data.Queries, id int64) (api.AcceptanceResponse, error) {
+func deleteMessage(ctx context.Context, q data.Queries, id int64) (oas.AcceptanceResponse, error) {
 	err := q.DeleteMessage(ctx, id)
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
-			return api.AcceptanceResponse{}, errNotFound
+			return oas.AcceptanceResponse{}, errNotFound
 		default:
-			return api.AcceptanceResponse{}, fmt.Errorf("failed delete message: %w", err)
+			return oas.AcceptanceResponse{}, fmt.Errorf("failed delete message: %w", err)
 		}
 	}
 
-	return api.AcceptanceResponse{Message: "message deleted"}, nil
+	return oas.AcceptanceResponse{Message: "message deleted"}, nil
 }

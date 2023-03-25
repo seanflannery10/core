@@ -13,9 +13,7 @@ tasks:
     cmds:
       - sqlc compile --experimental
       - sqlc generate --experimental
-      - ogen -no-client -no-webhook-client -no-webhook-server -generate-tests --target internal/api -package api --clean openapi.yaml
-#      - oapi-codegen -generate chi-server -package api openapi.yaml > internal/api/server.gen.go
-#      - oapi-codegen -generate types -package api openapi.yaml > internal/api/types.gen.go
+      - ogen -no-client -no-webhook-client -no-webhook-server -generate-tests --target internal/oas -package oas --clean openapi.yaml
       - go mod tidy -v
 
   go:audit:

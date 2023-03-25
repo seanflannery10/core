@@ -15,7 +15,7 @@ func (app *application) routes() *http.ServeMux {
 	//	Secret:  app.env.Config.Secret,
 	//}
 	//
-	// srv, err := api.NewServer(han, nil)
+	// srv, err := oas.NewServer(han, nil)
 	// if err != nil {
 	//    panic(err)
 	//}

@@ -3,9 +3,7 @@ package pagination
 import (
 	"fmt"
 	"math"
-	"net/http"
 
-	"github.com/seanflannery10/core/internal/shared/helpers"
 	"github.com/seanflannery10/core/internal/shared/validator"
 )
 
@@ -38,15 +36,15 @@ type (
 	}
 )
 
-func New(r *http.Request) Pagination {
-	v := validator.New()
-
-	return Pagination{
-		Page:      helpers.ReadIntParam(r.URL.Query(), "page", defaultPage, v),
-		PageSize:  helpers.ReadIntParam(r.URL.Query(), "page_size", defaultPageSize, v),
-		Validator: v,
-	}
-}
+// func New(r *http.Request) Pagination {
+//	v := validator.New()
+//
+//	return Pagination{
+//		Page:      helpers.ReadIntParam(r.URL.Query(), "page", defaultPage, v),
+//		PageSize:  helpers.ReadIntParam(r.URL.Query(), "page_size", defaultPageSize, v),
+//		Validator: v,
+//	}
+//}
 
 func (p *Pagination) Limit() int32 {
 	return int32(p.PageSize)
