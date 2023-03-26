@@ -4,7 +4,6 @@ linters:
     # not using
     - exhaustivestruct
     - exhaustruct
-    - gci
     - godot
     - gofmt
     - ireturn

@@ -1,22 +1,28 @@
 package middleware
 
 import (
+	"context"
 	"crypto/sha256"
 	"net/http"
 	"runtime/debug"
 	"strings"
 	"time"
 
-	"golang.org/x/exp/slog"
-
-	"github.com/ogen-go/ogen/middleware"
-	"github.com/seanflannery10/core/internal/data"
-
 	"github.com/go-faster/errors"
+	"github.com/go-faster/jx"
+	"github.com/ogen-go/ogen/middleware"
+	"github.com/ogen-go/ogen/ogenerrors"
+	"github.com/seanflannery10/core/internal/data"
 	"github.com/seanflannery10/core/internal/shared/utils"
+	"golang.org/x/exp/slog"
 )
 
-var errInvalidAccesToken = errors.New("invalid access token")
+var (
+	errInvalidAccessToken   = errors.New("invalid or missing authentication token")
+	errServerError          = errors.New("the server encountered a problem and could not process your request")
+	errUserNotActivated     = errors.New("your user account must be activated to access this resource")
+	errUserNotAuthenticated = errors.New("you must be authenticated to access this resource")
+)
 
 func Authenticate(q data.Queries) middleware.Middleware {
 	return func(req middleware.Request, next func(req middleware.Request) (middleware.Response, error)) (middleware.Response, error) {
@@ -31,7 +37,7 @@ func Authenticate(q data.Queries) middleware.Middleware {
 		default:
 			headerParts := strings.Split(authorizationHeader, " ")
 			if len(headerParts) != 2 || headerParts[0] != "Bearer" { //nolint:revive
-				return middleware.Response{}, errInvalidAccesToken
+				return middleware.Response{}, errInvalidAccessToken
 			}
 
 			token := headerParts[1] //nolint:revive
@@ -43,68 +49,81 @@ func Authenticate(q data.Queries) middleware.Middleware {
 				Expiry: time.Now(),
 			})
 			if err != nil {
-				return middleware.Response{}, errInvalidAccesToken
+				return middleware.Response{}, errInvalidAccessToken
 			}
 
 			utils.ContextSetUser(&req, &user)
 		}
 
-		resp, err := next(req)
-		return resp, err
+		return next(req)
 	}
 }
 
-func RecoverPanic() middleware.Middleware {
-	return func(req middleware.Request, next func(req middleware.Request) (middleware.Response, error)) (middleware.Response, error) {
-		defer func() {
-			if rvr := recover(); rvr != nil {
-				if rvr == http.ErrAbortHandler { //nolint:errorlint,goerr113
-					panic(rvr)
-				}
+func RecoverPanic(req *middleware.Request, next func(req middleware.Request) (middleware.Response, error)) (middleware.Response, error) {
+	recovered := false
 
-				slog.Log(
-					req.Context,
-					slog.LevelError,
-					"panic recovery error",
-					"error",
-					rvr,
-					"stack",
-					string(debug.Stack()),
-				)
-
-				if req.Raw.Header.Get("Connection") != "Upgrade" {
-					// TODO Return 500 error
-				}
+	defer func() {
+		if rvr := recover(); rvr != nil {
+			if rvr == http.ErrAbortHandler { //nolint:errorlint,goerr113
+				panic(rvr)
 			}
-		}()
 
-		resp, err := next(req)
-		return resp, err
+			slog.Log(req.Context, slog.LevelError, "panic recovery error", "error", rvr, "stack", string(debug.Stack()))
+
+			req.Raw.Header.Add("Connection", "close")
+
+			recovered = true
+		}
+	}()
+
+	if recovered {
+		return middleware.Response{}, errServerError
 	}
+
+	return next(*req)
 }
 
-func RequireAuthenticatedUser() middleware.Middleware {
-	return func(req middleware.Request, next func(req middleware.Request) (middleware.Response, error)) (middleware.Response, error) {
-		user := utils.ContextGetUser(&req)
+func RequireAuthenticatedUser(req *middleware.Request, next func(req middleware.Request) (middleware.Response, error)) (middleware.Response, error) {
+	user := utils.ContextGetUser(req)
 
-		if user.IsAnonymous() {
-			// TODO return authenticationRequired error
-		}
-
-		resp, err := next(req)
-		return resp, err
+	if user.IsAnonymous() {
+		return middleware.Response{}, errUserNotAuthenticated
 	}
+
+	return next(*req)
 }
 
-func RequireActivatedUser() middleware.Middleware {
-	return func(req middleware.Request, next func(req middleware.Request) (middleware.Response, error)) (middleware.Response, error) {
-		user := utils.ContextGetUser(&req)
+func RequireActivatedUser(req *middleware.Request, next func(req middleware.Request) (middleware.Response, error)) (middleware.Response, error) {
+	user := utils.ContextGetUser(req)
 
-		if !user.Activated {
-			// TODO return actiaved user required
-		}
-
-		resp, err := next(req)
-		return resp, err
+	if !user.Activated {
+		return middleware.Response{}, errUserNotActivated
 	}
+
+	return next(*req)
+}
+
+func ErrorHandler(_ context.Context, w http.ResponseWriter, _ *http.Request, err error) {
+	code := ogenerrors.ErrorCode(err)
+
+	switch {
+	case errors.Is(err, errInvalidAccessToken):
+		w.Header().Set("WWW-Authenticate", "Bearer")
+		code = http.StatusUnauthorized
+	case errors.Is(err, errUserNotAuthenticated):
+		code = http.StatusUnauthorized
+	case errors.Is(err, errUserNotActivated):
+		code = http.StatusForbidden
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
+
+	e := jx.GetEncoder()
+	e.ObjStart()
+	e.FieldStart("error_message")
+	e.StrEscape(err.Error())
+	e.ObjEnd()
+
+	_, _ = w.Write(e.Bytes())
 }
