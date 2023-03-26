@@ -84,7 +84,7 @@ func RecoverPanic(req *middleware.Request, next func(req middleware.Request) (mi
 }
 
 func RequireAuthenticatedUser(req *middleware.Request, next func(req middleware.Request) (middleware.Response, error)) (middleware.Response, error) {
-	user := utils.ContextGetUser(req)
+	user := utils.ContextGetUser(req.Context)
 
 	if user.IsAnonymous() {
 		return middleware.Response{}, errUserNotAuthenticated
@@ -94,7 +94,7 @@ func RequireAuthenticatedUser(req *middleware.Request, next func(req middleware.
 }
 
 func RequireActivatedUser(req *middleware.Request, next func(req middleware.Request) (middleware.Response, error)) (middleware.Response, error) {
-	user := utils.ContextGetUser(req)
+	user := utils.ContextGetUser(req.Context)
 
 	if !user.Activated {
 		return middleware.Response{}, errUserNotActivated

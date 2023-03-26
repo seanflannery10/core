@@ -147,8 +147,8 @@ func decodeGetMessageParams(args [1]string, argsEscaped bool, r *http.Request) (
 
 // GetUserMessagesParams is parameters of GetUserMessages operation.
 type GetUserMessagesParams struct {
-	Page     OptInt
-	PageSize OptInt
+	Page     int32
+	PageSize int32
 }
 
 func unpackGetUserMessagesParams(packed middleware.Parameters) (params GetUserMessagesParams) {
@@ -157,18 +157,14 @@ func unpackGetUserMessagesParams(packed middleware.Parameters) (params GetUserMe
 			Name: "page",
 			In:   "query",
 		}
-		if v, ok := packed[key]; ok {
-			params.Page = v.(OptInt)
-		}
+		params.Page = packed[key].(int32)
 	}
 	{
 		key := middleware.ParameterKey{
 			Name: "page_size",
 			In:   "query",
 		}
-		if v, ok := packed[key]; ok {
-			params.PageSize = v.(OptInt)
-		}
+		params.PageSize = packed[key].(int32)
 	}
 	return params
 }
@@ -177,8 +173,8 @@ func decodeGetUserMessagesParams(args [0]string, argsEscaped bool, r *http.Reque
 	q := uri.NewQueryDecoder(r.URL.Query())
 	// Set default value for query: page.
 	{
-		val := int(1)
-		params.Page.SetTo(val)
+		val := int32(1)
+		params.Page = val
 	}
 	// Decode query: page.
 	if err := func() error {
@@ -190,28 +186,23 @@ func decodeGetUserMessagesParams(args [0]string, argsEscaped bool, r *http.Reque
 
 		if err := q.HasParam(cfg); err == nil {
 			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
-				var paramsDotPageVal int
-				if err := func() error {
-					val, err := d.DecodeValue()
-					if err != nil {
-						return err
-					}
-
-					c, err := conv.ToInt(val)
-					if err != nil {
-						return err
-					}
-
-					paramsDotPageVal = c
-					return nil
-				}(); err != nil {
+				val, err := d.DecodeValue()
+				if err != nil {
 					return err
 				}
-				params.Page.SetTo(paramsDotPageVal)
+
+				c, err := conv.ToInt32(val)
+				if err != nil {
+					return err
+				}
+
+				params.Page = c
 				return nil
 			}); err != nil {
 				return err
 			}
+		} else {
+			return validate.ErrFieldRequired
 		}
 		return nil
 	}(); err != nil {
@@ -223,8 +214,8 @@ func decodeGetUserMessagesParams(args [0]string, argsEscaped bool, r *http.Reque
 	}
 	// Set default value for query: page_size.
 	{
-		val := int(20)
-		params.PageSize.SetTo(val)
+		val := int32(20)
+		params.PageSize = val
 	}
 	// Decode query: page_size.
 	if err := func() error {
@@ -236,52 +227,40 @@ func decodeGetUserMessagesParams(args [0]string, argsEscaped bool, r *http.Reque
 
 		if err := q.HasParam(cfg); err == nil {
 			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
-				var paramsDotPageSizeVal int
-				if err := func() error {
-					val, err := d.DecodeValue()
-					if err != nil {
-						return err
-					}
-
-					c, err := conv.ToInt(val)
-					if err != nil {
-						return err
-					}
-
-					paramsDotPageSizeVal = c
-					return nil
-				}(); err != nil {
+				val, err := d.DecodeValue()
+				if err != nil {
 					return err
 				}
-				params.PageSize.SetTo(paramsDotPageSizeVal)
+
+				c, err := conv.ToInt32(val)
+				if err != nil {
+					return err
+				}
+
+				params.PageSize = c
 				return nil
 			}); err != nil {
 				return err
 			}
 			if err := func() error {
-				if params.PageSize.Set {
-					if err := func() error {
-						if err := (validate.Int{
-							MinSet:        true,
-							Min:           5,
-							MaxSet:        true,
-							Max:           100,
-							MinExclusive:  false,
-							MaxExclusive:  false,
-							MultipleOfSet: false,
-							MultipleOf:    0,
-						}).Validate(int64(params.PageSize.Value)); err != nil {
-							return errors.Wrap(err, "int")
-						}
-						return nil
-					}(); err != nil {
-						return err
-					}
+				if err := (validate.Int{
+					MinSet:        true,
+					Min:           5,
+					MaxSet:        true,
+					Max:           100,
+					MinExclusive:  false,
+					MaxExclusive:  false,
+					MultipleOfSet: false,
+					MultipleOf:    0,
+				}).Validate(int64(params.PageSize)); err != nil {
+					return errors.Wrap(err, "int")
 				}
 				return nil
 			}(); err != nil {
 				return err
 			}
+		} else {
+			return validate.ErrFieldRequired
 		}
 		return nil
 	}(); err != nil {

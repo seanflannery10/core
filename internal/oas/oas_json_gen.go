@@ -1228,27 +1228,27 @@ func (s *MessagesMetadataResponse) encodeFields(e *jx.Encoder) {
 	{
 
 		e.FieldStart("current_page")
-		e.Int(s.CurrentPage)
+		e.Int32(s.CurrentPage)
 	}
 	{
 
 		e.FieldStart("first_page")
-		e.Int(s.FirstPage)
+		e.Int32(s.FirstPage)
 	}
 	{
 
 		e.FieldStart("last_page")
-		e.Int(s.LastPage)
+		e.Int32(s.LastPage)
 	}
 	{
 
 		e.FieldStart("page_size")
-		e.Int(s.PageSize)
+		e.Int32(s.PageSize)
 	}
 	{
 
 		e.FieldStart("total_records")
-		e.Int(s.TotalRecords)
+		e.Int64(s.TotalRecords)
 	}
 }
 
@@ -1272,8 +1272,8 @@ func (s *MessagesMetadataResponse) Decode(d *jx.Decoder) error {
 		case "current_page":
 			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
-				v, err := d.Int()
-				s.CurrentPage = int(v)
+				v, err := d.Int32()
+				s.CurrentPage = int32(v)
 				if err != nil {
 					return err
 				}
@@ -1284,8 +1284,8 @@ func (s *MessagesMetadataResponse) Decode(d *jx.Decoder) error {
 		case "first_page":
 			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
-				v, err := d.Int()
-				s.FirstPage = int(v)
+				v, err := d.Int32()
+				s.FirstPage = int32(v)
 				if err != nil {
 					return err
 				}
@@ -1296,8 +1296,8 @@ func (s *MessagesMetadataResponse) Decode(d *jx.Decoder) error {
 		case "last_page":
 			requiredBitSet[0] |= 1 << 2
 			if err := func() error {
-				v, err := d.Int()
-				s.LastPage = int(v)
+				v, err := d.Int32()
+				s.LastPage = int32(v)
 				if err != nil {
 					return err
 				}
@@ -1308,8 +1308,8 @@ func (s *MessagesMetadataResponse) Decode(d *jx.Decoder) error {
 		case "page_size":
 			requiredBitSet[0] |= 1 << 3
 			if err := func() error {
-				v, err := d.Int()
-				s.PageSize = int(v)
+				v, err := d.Int32()
+				s.PageSize = int32(v)
 				if err != nil {
 					return err
 				}
@@ -1320,8 +1320,8 @@ func (s *MessagesMetadataResponse) Decode(d *jx.Decoder) error {
 		case "total_records":
 			requiredBitSet[0] |= 1 << 4
 			if err := func() error {
-				v, err := d.Int()
-				s.TotalRecords = int(v)
+				v, err := d.Int64()
+				s.TotalRecords = int64(v)
 				if err != nil {
 					return err
 				}

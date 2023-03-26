@@ -299,11 +299,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserResponse'
-          headers:
-            Set-Cookie:
-              description: "Contains encrypted refresh token"
-              schema:
-                type: string
         400:
           $ref: '#/components/responses/400'
         404:
@@ -352,16 +347,18 @@ components:
     page:
       name: page
       in: query
-      required: false
+      required: true
       schema:
         type: integer
+        format: int32
         default: 1
     pageSize:
       name: page_size
       in: query
-      required: false
+      required: true
       schema:
         type: integer
+        format: int32
         minimum: 5
         maximum: 100
         default: 20
@@ -575,14 +572,19 @@ components:
       properties:
         current_page:
           type: integer
+          format: int32
         first_page:
           type: integer
+          format: int32
         last_page:
           type: integer
+          format: int32
         page_size:
           type: integer
+          format: int32
         total_records:
           type: integer
+          format: int64
       required:
         - current_page
         - first_page

@@ -65,14 +65,14 @@ func (s *Handler) NewUser(ctx context.Context, req *oas.UserRequest) (oas.NewUse
 		return &oas.NewUserInternalServerError{}, fmt.Errorf("failed handler new user: %w", err)
 	}
 
-	cookie, err := utils.NewCookie(cookieRefreshToken, refreshToken.Plaintext, cookieTTL, s.Secret)
+	err = s.Mailer.Send(user.Email, "token_activation.tmpl", map[string]any{
+		"activationToken": refreshToken.Plaintext,
+	})
 	if err != nil {
 		return &oas.NewUserInternalServerError{}, nil
 	}
 
-	userResponseHeaders := oas.UserResponseHeaders{SetCookie: cookie, Response: user}
-
-	return &userResponseHeaders, nil
+	return &user, nil
 }
 
 func newUser(ctx context.Context, q data.Queries, name, email, pass string) (oas.UserResponse, oas.TokenResponse, error) {
@@ -102,18 +102,10 @@ func newUser(ctx context.Context, q data.Queries, name, email, pass string) (oas
 		return oas.UserResponse{}, oas.TokenResponse{}, fmt.Errorf("failed create user: %w", err)
 	}
 
-	refreshToken, err := utils.NewToken(ctx, q, ttlAcitvationToken, data.ScopeActivation, user.ID)
+	activationToken, err := utils.NewToken(ctx, q, ttlActivationToken, data.ScopeActivation, user.ID)
 	if err != nil {
 		return oas.UserResponse{}, oas.TokenResponse{}, fmt.Errorf("failed create new token: %w", err)
 	}
-
-	// err = env.Mailer.Send(user.Email, "token_activation.tmpl", map[string]any{
-	//	"activationToken": token.Plaintext,
-	// })
-	// if err != nil {
-	//	_ = render.Render(w, r, errs.ErrServerError(err))
-	//	return
-	//}
 
 	userResponse := oas.UserResponse{
 		Name:    user.Name,
@@ -121,7 +113,7 @@ func newUser(ctx context.Context, q data.Queries, name, email, pass string) (oas
 		Version: user.Version,
 	}
 
-	return userResponse, refreshToken, nil
+	return userResponse, activationToken, nil
 }
 
 func (s *Handler) UpdateUserPassword(ctx context.Context, req *oas.UpdateUserPasswordRequest) (oas.UpdateUserPasswordRes, error) {

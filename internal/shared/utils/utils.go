@@ -38,8 +38,8 @@ func ContextSetUser(req *middleware.Request, user *data.User) *middleware.Reques
 	return req
 }
 
-func ContextGetUser(req *middleware.Request) data.User {
-	user, ok := req.Context.Value(userContextKey).(data.User)
+func ContextGetUser(ctx context.Context) data.User {
+	user, ok := ctx.Value(userContextKey).(data.User)
 	if !ok {
 		panic("missing user value in request context")
 	}

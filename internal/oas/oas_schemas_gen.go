@@ -238,60 +238,60 @@ func (*MessageResponse) updateMessageRes() {}
 // Contains metadata.
 // Ref: #/components/schemas/MessagesMetadataResponse
 type MessagesMetadataResponse struct {
-	CurrentPage  int `json:"current_page"`
-	FirstPage    int `json:"first_page"`
-	LastPage     int `json:"last_page"`
-	PageSize     int `json:"page_size"`
-	TotalRecords int `json:"total_records"`
+	CurrentPage  int32 `json:"current_page"`
+	FirstPage    int32 `json:"first_page"`
+	LastPage     int32 `json:"last_page"`
+	PageSize     int32 `json:"page_size"`
+	TotalRecords int64 `json:"total_records"`
 }
 
 // GetCurrentPage returns the value of CurrentPage.
-func (s *MessagesMetadataResponse) GetCurrentPage() int {
+func (s *MessagesMetadataResponse) GetCurrentPage() int32 {
 	return s.CurrentPage
 }
 
 // GetFirstPage returns the value of FirstPage.
-func (s *MessagesMetadataResponse) GetFirstPage() int {
+func (s *MessagesMetadataResponse) GetFirstPage() int32 {
 	return s.FirstPage
 }
 
 // GetLastPage returns the value of LastPage.
-func (s *MessagesMetadataResponse) GetLastPage() int {
+func (s *MessagesMetadataResponse) GetLastPage() int32 {
 	return s.LastPage
 }
 
 // GetPageSize returns the value of PageSize.
-func (s *MessagesMetadataResponse) GetPageSize() int {
+func (s *MessagesMetadataResponse) GetPageSize() int32 {
 	return s.PageSize
 }
 
 // GetTotalRecords returns the value of TotalRecords.
-func (s *MessagesMetadataResponse) GetTotalRecords() int {
+func (s *MessagesMetadataResponse) GetTotalRecords() int64 {
 	return s.TotalRecords
 }
 
 // SetCurrentPage sets the value of CurrentPage.
-func (s *MessagesMetadataResponse) SetCurrentPage(val int) {
+func (s *MessagesMetadataResponse) SetCurrentPage(val int32) {
 	s.CurrentPage = val
 }
 
 // SetFirstPage sets the value of FirstPage.
-func (s *MessagesMetadataResponse) SetFirstPage(val int) {
+func (s *MessagesMetadataResponse) SetFirstPage(val int32) {
 	s.FirstPage = val
 }
 
 // SetLastPage sets the value of LastPage.
-func (s *MessagesMetadataResponse) SetLastPage(val int) {
+func (s *MessagesMetadataResponse) SetLastPage(val int32) {
 	s.LastPage = val
 }
 
 // SetPageSize sets the value of PageSize.
-func (s *MessagesMetadataResponse) SetPageSize(val int) {
+func (s *MessagesMetadataResponse) SetPageSize(val int32) {
 	s.PageSize = val
 }
 
 // SetTotalRecords sets the value of TotalRecords.
-func (s *MessagesMetadataResponse) SetTotalRecords(val int) {
+func (s *MessagesMetadataResponse) SetTotalRecords(val int64) {
 	s.TotalRecords = val
 }
 
@@ -464,52 +464,6 @@ func (o OptDateTime) Get() (v time.Time, ok bool) {
 
 // Or returns value if set, or given parameter if does not.
 func (o OptDateTime) Or(d time.Time) time.Time {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewOptInt returns new OptInt with value set to v.
-func NewOptInt(v int) OptInt {
-	return OptInt{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptInt is optional int.
-type OptInt struct {
-	Value int
-	Set   bool
-}
-
-// IsSet returns true if OptInt was set.
-func (o OptInt) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptInt) Reset() {
-	var v int
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptInt) SetTo(v int) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptInt) Get() (v int, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptInt) Or(d int) int {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -839,31 +793,4 @@ func (s *UserResponse) SetVersion(val int32) {
 }
 
 func (*UserResponse) activateUserRes() {}
-
-// UserResponseHeaders wraps UserResponse with response headers.
-type UserResponseHeaders struct {
-	SetCookie OptString
-	Response  UserResponse
-}
-
-// GetSetCookie returns the value of SetCookie.
-func (s *UserResponseHeaders) GetSetCookie() OptString {
-	return s.SetCookie
-}
-
-// GetResponse returns the value of Response.
-func (s *UserResponseHeaders) GetResponse() UserResponse {
-	return s.Response
-}
-
-// SetSetCookie sets the value of SetCookie.
-func (s *UserResponseHeaders) SetSetCookie(val OptString) {
-	s.SetCookie = val
-}
-
-// SetResponse sets the value of Response.
-func (s *UserResponseHeaders) SetResponse(val UserResponse) {
-	s.Response = val
-}
-
-func (*UserResponseHeaders) newUserRes() {}
+func (*UserResponse) newUserRes()      {}

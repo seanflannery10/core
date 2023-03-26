@@ -717,32 +717,13 @@ func encodeNewRefreshTokenResponse(response NewRefreshTokenRes, w http.ResponseW
 
 func encodeNewUserResponse(response NewUserRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
-	case *UserResponseHeaders:
+	case *UserResponse:
 		w.Header().Set("Content-Type", "application/json")
-		// Encoding response headers.
-		{
-			h := uri.NewHeaderEncoder(w.Header())
-			// Encode "Set-Cookie" header.
-			{
-				cfg := uri.HeaderParameterEncodingConfig{
-					Name:    "Set-Cookie",
-					Explode: false,
-				}
-				if err := h.EncodeParam(cfg, func(e uri.Encoder) error {
-					if val, ok := response.SetCookie.Get(); ok {
-						return e.EncodeValue(conv.StringToString(val))
-					}
-					return nil
-				}); err != nil {
-					return errors.Wrap(err, "encode Set-Cookie header")
-				}
-			}
-		}
 		w.WriteHeader(201)
 		span.SetStatus(codes.Ok, http.StatusText(201))
 
 		e := jx.GetEncoder()
-		response.Response.Encode(e)
+		response.Encode(e)
 		if _, err := e.WriteTo(w); err != nil {
 			return errors.Wrap(err, "write")
 		}

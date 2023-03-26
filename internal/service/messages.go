@@ -8,38 +8,61 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/seanflannery10/core/internal/data"
 	"github.com/seanflannery10/core/internal/oas"
+	"github.com/seanflannery10/core/internal/shared/pagination"
+	"github.com/seanflannery10/core/internal/shared/utils"
 )
 
-// func (s *Handler) GetUserMessages(ctx context.Context, params oas.GetUserMessagesParams) (r oas.GetUserMessagesRes, _ error) {
-//	return r, ht.ErrNotImplemented
-//}
+func (s *Handler) GetUserMessages(ctx context.Context, params oas.GetUserMessagesParams) (r oas.GetUserMessagesRes, _ error) {
+	user := utils.ContextGetUser(ctx)
 
-// func getUserMessages(ctx context.Context, q data.Queries, email string) http.HandlerFunc {
-//	messages, err := q.GetUserMessages(ctx, data.GetUserMessagesParams{
-//		UserID: env.User.ID,
-//		Offset: p.Pagination.Offset(),
-//		Limit:  p.Pagination.Limit(),
-//	})
-//	if err != nil {
-//		_ = render.Render(w, r, errs.ErrServerError(err))
-//	}
-//
-//	count, err := q.GetUserMessageCount(ctx, env.User.ID)
-//	if err != nil {
-//		_ = render.Render(w, r, errs.ErrServerError(err))
-//	}
-//
-//	metadata := p.Pagination.CalculateMetadata(count)
-//
-//	if p.Pagination.Validator.HasErrors() {
-//		_ = render.Render(w, r, errs.ErrFailedValidation(p.Pagination.Validator.Errors))
-//	}
-//}
+	messageResponse, err := getUserMessages(ctx, s.Queries, params.Page, params.PageSize, user.ID)
+	if err != nil {
+		return &oas.GetUserMessagesInternalServerError{}, nil
+	}
+
+	return &messageResponse, nil
+}
+
+func getUserMessages(ctx context.Context, q data.Queries, page, pageSize int32, userID int64) (oas.MessagesResponse, error) {
+	p := pagination.New(page, pageSize)
+
+	messagesFromDB, err := q.GetUserMessages(ctx, data.GetUserMessagesParams{
+		UserID: userID,
+		Offset: p.Offset(),
+		Limit:  p.Limit(),
+	})
+	if err != nil {
+		return oas.MessagesResponse{}, fmt.Errorf("failed get user messages: %w", err)
+	}
+
+	count, err := q.GetUserMessageCount(ctx, userID)
+	if err != nil {
+		return oas.MessagesResponse{}, fmt.Errorf("failed get user message count: %w", err)
+	}
+
+	metadata, err := p.CalculateMetadata(count)
+	if err != nil {
+		return oas.MessagesResponse{}, pagination.ErrPageValueToHigh
+	}
+
+	messages := make([]oas.MessageResponse, len(messagesFromDB))
+	for i, v := range messagesFromDB {
+		messages[i] = oas.MessageResponse{
+			ID:      v.UserID,
+			Message: v.Message,
+			Version: v.Version,
+		}
+	}
+
+	messagesResponse := oas.MessagesResponse{Messages: messages, Metadata: metadata}
+
+	return messagesResponse, nil
+}
 
 func (s *Handler) NewMessage(ctx context.Context, req *oas.MessageRequest) (oas.NewMessageRes, error) {
-	const uid = 123
+	user := utils.ContextGetUser(ctx)
 
-	messageResponse, err := newMessage(ctx, s.Queries, req.Message, uid)
+	messageResponse, err := newMessage(ctx, s.Queries, req.Message, user.ID)
 	if err != nil {
 		return &oas.NewMessageInternalServerError{}, nil
 	}

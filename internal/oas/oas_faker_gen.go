@@ -241,27 +241,27 @@ func (s *MessageResponse) SetFake() {
 func (s *MessagesMetadataResponse) SetFake() {
 	{
 		{
-			s.CurrentPage = int(0)
+			s.CurrentPage = int32(0)
 		}
 	}
 	{
 		{
-			s.FirstPage = int(0)
+			s.FirstPage = int32(0)
 		}
 	}
 	{
 		{
-			s.LastPage = int(0)
+			s.LastPage = int32(0)
 		}
 	}
 	{
 		{
-			s.PageSize = int(0)
+			s.PageSize = int32(0)
 		}
 	}
 	{
 		{
-			s.TotalRecords = int(0)
+			s.TotalRecords = int64(0)
 		}
 	}
 }

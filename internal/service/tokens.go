@@ -47,7 +47,7 @@ func newActivationToken(ctx context.Context, q data.Queries, email string) (oas.
 		return oas.TokenResponse{}, errNotActivated
 	}
 
-	activationToken, err := utils.NewToken(ctx, q, ttlAcitvationToken, data.ScopeActivation, user.ID)
+	activationToken, err := utils.NewToken(ctx, q, ttlActivationToken, data.ScopeActivation, user.ID)
 	if err != nil {
 		return oas.TokenResponse{}, fmt.Errorf("failed new activation token: %w", err)
 	}
