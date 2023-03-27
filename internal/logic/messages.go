@@ -1,4 +1,4 @@
-package service
+package logic
 
 import (
 	"context"
@@ -9,21 +9,9 @@ import (
 	"github.com/seanflannery10/core/internal/data"
 	"github.com/seanflannery10/core/internal/oas"
 	"github.com/seanflannery10/core/internal/shared/pagination"
-	"github.com/seanflannery10/core/internal/shared/utils"
 )
 
-func (s *Handler) GetUserMessages(ctx context.Context, params oas.GetUserMessagesParams) (r oas.GetUserMessagesRes, _ error) {
-	user := utils.ContextGetUser(ctx)
-
-	messageResponse, err := getUserMessages(ctx, s.Queries, params.Page, params.PageSize, user.ID)
-	if err != nil {
-		return &oas.GetUserMessagesInternalServerError{}, nil
-	}
-
-	return &messageResponse, nil
-}
-
-func getUserMessages(ctx context.Context, q data.Queries, page, pageSize int32, userID int64) (oas.MessagesResponse, error) {
+func GetUserMessages(ctx context.Context, q data.Queries, page, pageSize int32, userID int64) (oas.MessagesResponse, error) {
 	p := pagination.New(page, pageSize)
 
 	messagesFromDB, err := q.GetUserMessages(ctx, data.GetUserMessagesParams{
@@ -59,18 +47,7 @@ func getUserMessages(ctx context.Context, q data.Queries, page, pageSize int32, 
 	return messagesResponse, nil
 }
 
-func (s *Handler) NewMessage(ctx context.Context, req *oas.MessageRequest) (oas.NewMessageRes, error) {
-	user := utils.ContextGetUser(ctx)
-
-	messageResponse, err := newMessage(ctx, s.Queries, req.Message, user.ID)
-	if err != nil {
-		return &oas.NewMessageInternalServerError{}, nil
-	}
-
-	return &messageResponse, nil
-}
-
-func newMessage(ctx context.Context, q data.Queries, m string, userID int64) (oas.MessageResponse, error) {
+func NewMessage(ctx context.Context, q data.Queries, m string, userID int64) (oas.MessageResponse, error) {
 	message, err := q.CreateMessage(ctx, data.CreateMessageParams{
 		Message: m,
 		UserID:  userID,
@@ -88,16 +65,7 @@ func newMessage(ctx context.Context, q data.Queries, m string, userID int64) (oa
 	return messageResponse, nil
 }
 
-func (s *Handler) GetMessage(ctx context.Context, params oas.GetMessageParams) (oas.GetMessageRes, error) {
-	messageResponse, err := getMessage(ctx, s.Queries, params.ID)
-	if err != nil {
-		return &oas.GetMessageInternalServerError{}, nil
-	}
-
-	return &messageResponse, nil
-}
-
-func getMessage(ctx context.Context, q data.Queries, messageID int64) (oas.MessageResponse, error) {
+func GetMessage(ctx context.Context, q data.Queries, messageID int64) (oas.MessageResponse, error) {
 	message, err := q.GetMessage(ctx, messageID)
 	if err != nil {
 		switch {
@@ -117,16 +85,7 @@ func getMessage(ctx context.Context, q data.Queries, messageID int64) (oas.Messa
 	return messageResponse, nil
 }
 
-func (s *Handler) UpdateMessage(ctx context.Context, req *oas.MessageRequest, params oas.UpdateMessageParams) (oas.UpdateMessageRes, error) {
-	messageResponse, err := updateMessage(ctx, s.Queries, req.Message, params.ID)
-	if err != nil {
-		return &oas.UpdateMessageInternalServerError{}, nil
-	}
-
-	return &messageResponse, nil
-}
-
-func updateMessage(ctx context.Context, q data.Queries, m string, messageID int64) (oas.MessageResponse, error) {
+func UpdateMessage(ctx context.Context, q data.Queries, m string, messageID int64) (oas.MessageResponse, error) {
 	message, err := q.UpdateMessage(ctx, data.UpdateMessageParams{
 		Message: m,
 		ID:      messageID,
@@ -156,16 +115,7 @@ func updateMessage(ctx context.Context, q data.Queries, m string, messageID int6
 	return messageResponse, nil
 }
 
-func (s *Handler) DeleteMessage(ctx context.Context, params oas.DeleteMessageParams) (oas.DeleteMessageRes, error) {
-	acceptanceResponse, err := deleteMessage(ctx, s.Queries, params.ID)
-	if err != nil {
-		return &oas.DeleteMessageInternalServerError{}, nil
-	}
-
-	return &acceptanceResponse, nil
-}
-
-func deleteMessage(ctx context.Context, q data.Queries, id int64) (oas.AcceptanceResponse, error) {
+func DeleteMessage(ctx context.Context, q data.Queries, id int64) (oas.AcceptanceResponse, error) {
 	err := q.DeleteMessage(ctx, id)
 	if err != nil {
 		switch {

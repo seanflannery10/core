@@ -19,7 +19,7 @@ const (
 	writeTimeout = 30 * time.Second
 )
 
-func serve(port int, routes http.Handler) error {
+func serve(port int32, routes http.Handler) error {
 	shutdownError := make(chan error)
 
 	s := &http.Server{

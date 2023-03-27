@@ -27,9 +27,8 @@ type Config struct {
 	Env          string `env:"ENV,default=dev"`
 	OTelEndpoint string `env:"OTEL_EXPORTER_OTLP_ENDPOINT,default=api.honeycomb.io:443"`
 	DatabaseURL  string `env:"DATABASE_URL,default=postgres://postgres:test@localhost:5432/test?sslmode=disable"`
-	SecretKey    string `env:"SECRET_KEY"`
-	Secret       []byte `env:"SECRET_KEY"`
-	Port         int    `env:"PORT,default=4000"`
+	Secret       []byte
+	Port         int32 `env:"PORT,default=4000"`
 }
 
 func (app *application) init() {
@@ -73,6 +72,7 @@ func (app *application) init() {
 
 	app.dbpool = dbpool
 	app.mailer = mail
+	app.config = cfg
 
 	expvar.NewString("version").Set(utils.GetVersion())
 	expvar.Publish("goroutines", expvar.Func(func() any { return runtime.NumGoroutine() }))

@@ -1,4 +1,4 @@
-package service
+package logic
 
 import (
 	"context"
@@ -12,16 +12,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func (s *Handler) ActivateUser(ctx context.Context, req *oas.TokenRequest) (oas.ActivateUserRes, error) {
-	user, err := activateUser(ctx, s.Queries, req.Plaintext)
-	if err != nil {
-		return &oas.ActivateUserInternalServerError{}, fmt.Errorf("failed handler activate user: %w", err)
-	}
-
-	return &user, nil
-}
-
-func activateUser(ctx context.Context, q data.Queries, plaintext string) (oas.UserResponse, error) {
+func ActivateUser(ctx context.Context, q data.Queries, plaintext string) (oas.UserResponse, error) {
 	user, err := q.GetUserFromTokenHelper(ctx, plaintext, data.ScopeActivation)
 	if err != nil {
 		switch {
@@ -59,23 +50,7 @@ func activateUser(ctx context.Context, q data.Queries, plaintext string) (oas.Us
 	return userResponse, nil
 }
 
-func (s *Handler) NewUser(ctx context.Context, req *oas.UserRequest) (oas.NewUserRes, error) {
-	user, refreshToken, err := newUser(ctx, s.Queries, req.Name, req.Email, req.Password)
-	if err != nil {
-		return &oas.NewUserInternalServerError{}, fmt.Errorf("failed handler new user: %w", err)
-	}
-
-	err = s.Mailer.Send(user.Email, "token_activation.tmpl", map[string]any{
-		"activationToken": refreshToken.Plaintext,
-	})
-	if err != nil {
-		return &oas.NewUserInternalServerError{}, nil
-	}
-
-	return &user, nil
-}
-
-func newUser(ctx context.Context, q data.Queries, name, email, pass string) (oas.UserResponse, oas.TokenResponse, error) {
+func NewUser(ctx context.Context, q data.Queries, name, email, pass string) (oas.UserResponse, oas.TokenResponse, error) {
 	ok, err := q.CheckUser(ctx, email)
 	if err != nil {
 		return oas.UserResponse{}, oas.TokenResponse{}, fmt.Errorf("failed check user: %w", err)
@@ -116,16 +91,7 @@ func newUser(ctx context.Context, q data.Queries, name, email, pass string) (oas
 	return userResponse, activationToken, nil
 }
 
-func (s *Handler) UpdateUserPassword(ctx context.Context, req *oas.UpdateUserPasswordRequest) (oas.UpdateUserPasswordRes, error) {
-	_, err := updateUserPassword(ctx, s.Queries, req.Token, req.Password)
-	if err != nil {
-		return &oas.UpdateUserPasswordInternalServerError{}, fmt.Errorf("failed handler update user password: %w", err)
-	}
-
-	return &oas.AcceptanceResponse{Message: "password updated"}, nil
-}
-
-func updateUserPassword(ctx context.Context, q data.Queries, token, pass string) (oas.UserResponse, error) {
+func UpdateUserPassword(ctx context.Context, q data.Queries, token, pass string) (oas.UserResponse, error) {
 	user, err := q.GetUserFromTokenHelper(ctx, token, data.ScopePasswordReset)
 	if err != nil {
 		switch {

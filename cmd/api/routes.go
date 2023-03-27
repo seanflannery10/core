@@ -6,23 +6,28 @@ import (
 	"net/http/pprof"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/seanflannery10/core/internal/data"
+	"github.com/seanflannery10/core/internal/handler"
+	"github.com/seanflannery10/core/internal/oas"
+	"github.com/seanflannery10/core/internal/shared/mailer"
+	"github.com/seanflannery10/core/internal/shared/middleware"
 )
 
 func (app *application) routes() *http.ServeMux {
-	// han := handlers.ServiceHandler{
-	//	Mailer:  mailer.Mailer{},
-	//	Queries: data.Queries{},
-	//	Secret:  app.env.Config.Secret,
-	//}
-	//
-	// srv, err := oas.NewServer(han, nil)
-	// if err != nil {
-	//    panic(err)
-	//}
+	h := &handler.Handler{
+		Mailer:  mailer.Mailer{},
+		Queries: data.Queries{},
+		Secret:  app.config.Secret,
+	}
+
+	srv, err := oas.NewServer(h, oas.WithMiddleware(middleware.Authenticate(h.Queries)), oas.WithErrorHandler(middleware.ErrorHandler))
+	if err != nil {
+		panic(err)
+	}
 
 	mux := http.NewServeMux()
 
-	// mux.Handle("/", srv)
+	mux.Handle("/", srv)
 
 	mux.Handle("/metrics", promhttp.Handler())
 

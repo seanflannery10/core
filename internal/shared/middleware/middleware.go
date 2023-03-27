@@ -13,6 +13,8 @@ import (
 	"github.com/ogen-go/ogen/middleware"
 	"github.com/ogen-go/ogen/ogenerrors"
 	"github.com/seanflannery10/core/internal/data"
+	"github.com/seanflannery10/core/internal/oas"
+	"github.com/seanflannery10/core/internal/shared/mailer"
 	"github.com/seanflannery10/core/internal/shared/utils"
 	"golang.org/x/exp/slog"
 )
@@ -24,7 +26,13 @@ var (
 	errUserNotAuthenticated = errors.New("you must be authenticated to access this resource")
 )
 
-func Authenticate(q data.Queries) middleware.Middleware {
+type Middleware struct {
+	Mailer  mailer.Mailer
+	Queries data.Queries
+	Secret  []byte
+}
+
+func (m *Middleware) Authenticate(q data.Queries) middleware.Middleware {
 	return func(req middleware.Request, next func(req middleware.Request) (middleware.Response, error)) (middleware.Response, error) {
 		req.Raw.Header.Add("Vary", "Authorization")
 
@@ -59,7 +67,7 @@ func Authenticate(q data.Queries) middleware.Middleware {
 	}
 }
 
-func RecoverPanic(req *middleware.Request, next func(req middleware.Request) (middleware.Response, error)) (middleware.Response, error) {
+func (m *Middleware) RecoverPanic(req *middleware.Request, next func(req middleware.Request) (middleware.Response, error)) (middleware.Response, error) {
 	recovered := false
 
 	defer func() {
@@ -83,7 +91,7 @@ func RecoverPanic(req *middleware.Request, next func(req middleware.Request) (mi
 	return next(*req)
 }
 
-func RequireAuthenticatedUser(req *middleware.Request, next func(req middleware.Request) (middleware.Response, error)) (middleware.Response, error) {
+func (m *Middleware) RequireAuthenticatedUser(req *middleware.Request, next func(req middleware.Request) (middleware.Response, error)) (middleware.Response, error) {
 	user := utils.ContextGetUser(req.Context)
 
 	if user.IsAnonymous() {
@@ -93,7 +101,7 @@ func RequireAuthenticatedUser(req *middleware.Request, next func(req middleware.
 	return next(*req)
 }
 
-func RequireActivatedUser(req *middleware.Request, next func(req middleware.Request) (middleware.Response, error)) (middleware.Response, error) {
+func (m *Middleware) RequireActivatedUser(req *middleware.Request, next func(req middleware.Request) (middleware.Response, error)) (middleware.Response, error) {
 	user := utils.ContextGetUser(req.Context)
 
 	if !user.Activated {
@@ -103,7 +111,7 @@ func RequireActivatedUser(req *middleware.Request, next func(req middleware.Requ
 	return next(*req)
 }
 
-func ErrorHandler(_ context.Context, w http.ResponseWriter, _ *http.Request, err error) {
+func (m *Middleware) ErrorHandler(_ context.Context, w http.ResponseWriter, _ *http.Request, err error) {
 	code := ogenerrors.ErrorCode(err)
 
 	switch {
@@ -126,4 +134,9 @@ func ErrorHandler(_ context.Context, w http.ResponseWriter, _ *http.Request, err
 	e.ObjEnd()
 
 	_, _ = w.Write(e.Bytes())
+}
+
+func (m *Middleware) HandleBearerAuth(ctx context.Context, operationName string, t oas.BearerAuth) (context.Context, error) {
+	// TODO implement me
+	panic("implement me")
 }
