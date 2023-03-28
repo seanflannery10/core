@@ -4,7 +4,9 @@ import (
 	"context"
 	"crypto/sha256"
 	"net/http"
+	"regexp"
 	"runtime/debug"
+	"strings"
 	"time"
 
 	"github.com/go-faster/errors"
@@ -114,10 +116,17 @@ func ErrorHandler(_ context.Context, w http.ResponseWriter, _ *http.Request, err
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
 
+	errStr := strings.ReplaceAll(err.Error(), "\"", "")
+
+	re := regexp.MustCompile(`^operation \w*: (.+)$`)
+	errSubmatch := re.FindStringSubmatch(errStr)
+
 	e := jx.GetEncoder()
 	e.ObjStart()
+	e.FieldStart("message")
+	e.StrEscape("request error")
 	e.FieldStart("error")
-	e.StrEscape(err.Error())
+	e.StrEscape(errSubmatch[1])
 	e.ObjEnd()
 
 	_, _ = w.Write(e.Bytes())

@@ -24,7 +24,7 @@ func (app *application) routes() *http.ServeMux {
 		newHandler,
 		&middleware.Security{Queries: data.New(app.dbpool)},
 		api.WithMiddleware(middleware.RecoverPanic()),
-		// api.WithErrorHandler(middleware.ErrorHandler),
+		api.WithErrorHandler(middleware.ErrorHandler),
 	)
 	if err != nil {
 		panic("failed new server")
