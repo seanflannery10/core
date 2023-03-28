@@ -10,7 +10,7 @@ import (
 func TestServer_Run(t *testing.T) {
 	t.Run("SIGINT", func(t *testing.T) {
 		go func() {
-			time.Sleep(250 * time.Millisecond)
+			time.Sleep(300 * time.Millisecond)
 
 			p, err := os.FindProcess(os.Getpid())
 			if err != nil {
@@ -31,7 +31,7 @@ func TestServer_Run(t *testing.T) {
 
 	t.Run("SIGTERM", func(t *testing.T) {
 		go func() {
-			time.Sleep(250 * time.Millisecond)
+			time.Sleep(300 * time.Millisecond)
 
 			p, err := os.FindProcess(os.Getpid())
 			if err != nil {

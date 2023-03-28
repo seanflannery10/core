@@ -528,10 +528,8 @@ components:
         - message
     ErrorResponse:
       type: object
-      description: "Contains a message and error"
+      description: "Contains an error"
       properties:
-        message:
-          type: string
         error:
           type: string
       required:

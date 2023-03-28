@@ -30,7 +30,7 @@ func (s *Handler) ActivateUser(ctx context.Context, req *api.TokenRequest) (api.
 func (s *Handler) NewUser(ctx context.Context, req *api.UserRequest) (api.NewUserRes, error) {
 	user, refreshToken, err := logic.NewUser(ctx, s.Queries, req.Name, req.Email, req.Password)
 	if err != nil {
-		return &api.NewUserInternalServerError{Message: "tes", Error: err.Error()}, fmt.Errorf("failed handler new user: %w", err)
+		return &api.NewUserInternalServerError{Error: err.Error()}, fmt.Errorf("failed handler new user: %w", err)
 	}
 
 	err = s.Mailer.Send(user.Email, "token_activation.tmpl", map[string]any{
@@ -44,10 +44,10 @@ func (s *Handler) NewUser(ctx context.Context, req *api.UserRequest) (api.NewUse
 }
 
 func (s *Handler) UpdateUserPassword(ctx context.Context, req *api.UpdateUserPasswordRequest) (api.UpdateUserPasswordRes, error) {
-	_, err := logic.UpdateUserPassword(ctx, s.Queries, req.Token, req.Password)
+	acceptanceResponse, err := logic.UpdateUserPassword(ctx, s.Queries, req.Token, req.Password)
 	if err != nil {
 		return &api.UpdateUserPasswordInternalServerError{}, fmt.Errorf("failed handler update user password: %w", err)
 	}
 
-	return &api.AcceptanceResponse{Message: "password updated"}, nil
+	return &acceptanceResponse, nil
 }

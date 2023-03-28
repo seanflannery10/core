@@ -4,16 +4,22 @@ import (
 	"context"
 	"crypto/aes"
 	"crypto/cipher"
+	"crypto/rand"
 	"fmt"
+	"io"
+	"net/http"
 	"strings"
 
+	"github.com/go-faster/errors"
 	"github.com/seanflannery10/core/internal/api"
 	"github.com/seanflannery10/core/internal/logic"
-	"github.com/seanflannery10/core/internal/shared/utils"
 	"github.com/segmentio/asm/base64"
 )
 
+var errValueTooLong = errors.New("cookie value too long")
+
 const (
+	cookieMaxSize      = 4096
 	cookieRefreshToken = "core_refreshtoken"
 	cookieTTL          = 7 * 24 * 60 * 60
 )
@@ -56,7 +62,7 @@ func (s *Handler) NewRefreshToken(ctx context.Context, req *api.UserLoginRequest
 		return &api.NewRefreshTokenInternalServerError{}, nil
 	}
 
-	cookie, err := utils.NewCookie(cookieRefreshToken, refreshToken.Plaintext, cookieTTL, s.Secret)
+	cookie, err := newCookie(cookieRefreshToken, refreshToken.Plaintext, cookieTTL, s.Secret)
 	if err != nil {
 		return &api.NewRefreshTokenInternalServerError{}, nil
 	}
@@ -106,7 +112,7 @@ func (s *Handler) NewAccessToken(ctx context.Context, params api.NewAccessTokenP
 		return &api.NewAccessTokenInternalServerError{}, nil
 	}
 
-	cookie, err := utils.NewCookie(cookieRefreshToken, refreshToken.Plaintext, cookieTTL, s.Secret)
+	cookie, err := newCookie(cookieRefreshToken, refreshToken.Plaintext, cookieTTL, s.Secret)
 	if err != nil {
 		return &api.NewAccessTokenInternalServerError{}, nil
 	}
@@ -114,4 +120,47 @@ func (s *Handler) NewAccessToken(ctx context.Context, params api.NewAccessTokenP
 	tokenResponseHeaders := api.TokenResponseHeaders{SetCookie: cookie, Response: accessToken}
 
 	return &tokenResponseHeaders, nil
+}
+
+func newCookie(name, value string, ttl int, secret []byte) (api.OptString, error) {
+	cookie := http.Cookie{
+		Name:     name,
+		Value:    value,
+		Path:     "/",
+		MaxAge:   ttl,
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteLaxMode,
+	}
+
+	block, err := aes.NewCipher(secret)
+	if err != nil {
+		return api.OptString{}, fmt.Errorf("failed new cipher: %w", err)
+	}
+
+	aesGCM, err := cipher.NewGCM(block)
+	if err != nil {
+		return api.OptString{}, fmt.Errorf("failed new gcm: %w", err)
+	}
+
+	nonce := make([]byte, aesGCM.NonceSize())
+
+	_, err = io.ReadFull(rand.Reader, nonce)
+	if err != nil {
+		return api.OptString{}, fmt.Errorf("failed read full: %w", err)
+	}
+
+	plaintext := fmt.Sprintf("%s:%s", cookie.Name, cookie.Value)
+
+	encryptedValue := aesGCM.Seal(nonce, nonce, []byte(plaintext), nil)
+
+	cookie.Value = base64.URLEncoding.EncodeToString(encryptedValue)
+
+	if len(cookie.String()) > cookieMaxSize {
+		return api.OptString{}, fmt.Errorf("failed length check: %w", errValueTooLong)
+	}
+
+	optString := api.OptString{Value: cookie.Value, Set: true}
+
+	return optString, nil
 }

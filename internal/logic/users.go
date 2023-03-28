@@ -8,9 +8,10 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/seanflannery10/core/internal/api"
 	"github.com/seanflannery10/core/internal/data"
-	"github.com/seanflannery10/core/internal/shared/utils"
 	"golang.org/x/crypto/bcrypt"
 )
+
+const lengthRandom = 16
 
 var (
 	errAlreadyExists      = errors.New("already exists")
@@ -85,7 +86,7 @@ func NewUser(ctx context.Context, q *data.Queries, name, email, pass string) (ap
 		return api.UserResponse{}, api.TokenResponse{}, fmt.Errorf("failed create user: %w", err)
 	}
 
-	activationToken, err := utils.NewToken(ctx, q, ttlActivationToken, data.ScopeActivation, user.ID)
+	activationToken, err := newToken(ctx, q, ttlActivationToken, data.ScopeActivation, user.ID)
 	if err != nil {
 		return api.UserResponse{}, api.TokenResponse{}, fmt.Errorf("failed create new token: %w", err)
 	}
@@ -99,20 +100,20 @@ func NewUser(ctx context.Context, q *data.Queries, name, email, pass string) (ap
 	return userResponse, activationToken, nil
 }
 
-func UpdateUserPassword(ctx context.Context, q *data.Queries, token, pass string) (api.UserResponse, error) {
+func UpdateUserPassword(ctx context.Context, q *data.Queries, token, pass string) (api.AcceptanceResponse, error) {
 	user, err := q.GetUserFromTokenHelper(ctx, token, data.ScopePasswordReset)
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
-			return api.UserResponse{}, errNotFound
+			return api.AcceptanceResponse{}, errNotFound
 		default:
-			return api.UserResponse{}, fmt.Errorf("failed get user from password reset token: %w", err)
+			return api.AcceptanceResponse{}, fmt.Errorf("failed get user from password reset token: %w", err)
 		}
 	}
 
 	err = user.SetPassword(pass)
 	if err != nil {
-		return api.UserResponse{}, fmt.Errorf("failed set password: %w", err)
+		return api.AcceptanceResponse{}, fmt.Errorf("failed set password: %w", err)
 	}
 
 	user, err = q.UpdateUser(ctx, data.UpdateUserParams{
@@ -122,7 +123,7 @@ func UpdateUserPassword(ctx context.Context, q *data.Queries, token, pass string
 		Version:            user.Version,
 	})
 	if err != nil {
-		return api.UserResponse{}, fmt.Errorf("failed update user password: %w", err)
+		return api.AcceptanceResponse{}, fmt.Errorf("failed update user password: %w", err)
 	}
 
 	err = q.DeleteTokens(ctx, data.DeleteTokensParams{
@@ -130,14 +131,8 @@ func UpdateUserPassword(ctx context.Context, q *data.Queries, token, pass string
 		UserID: user.ID,
 	})
 	if err != nil {
-		return api.UserResponse{}, fmt.Errorf("failed delete password reset token: %w", err)
+		return api.AcceptanceResponse{}, fmt.Errorf("failed delete password reset token: %w", err)
 	}
 
-	userResponse := api.UserResponse{
-		Name:    user.Name,
-		Email:   user.Email,
-		Version: user.Version,
-	}
-
-	return userResponse, nil
+	return api.AcceptanceResponse{Message: "password updated"}, nil
 }

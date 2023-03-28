@@ -92,7 +92,7 @@ linters-settings:
       - name: function-result-limit
         arguments: [3]
       - name: function-length
-        arguments: [40,80]
+        arguments: [50,80]
       - name: line-length-limit
         arguments: [150]
       - name: max-public-structs

@@ -5,9 +5,8 @@ go 1.19
 require (
 	github.com/go-faster/errors v0.6.1
 	github.com/go-faster/jx v1.0.0
-	github.com/google/go-cmp v0.5.9
 	github.com/jackc/pgx/v5 v5.3.1
-	github.com/ogen-go/ogen v0.60.1
+	github.com/ogen-go/ogen v0.60.2
 	github.com/prometheus/client_golang v1.14.0
 	github.com/segmentio/asm v1.2.0
 	github.com/sethvargo/go-envconfig v0.9.0

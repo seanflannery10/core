@@ -502,19 +502,13 @@ func (s *ErrorResponse) Encode(e *jx.Encoder) {
 func (s *ErrorResponse) encodeFields(e *jx.Encoder) {
 	{
 
-		e.FieldStart("message")
-		e.Str(s.Message)
-	}
-	{
-
 		e.FieldStart("error")
 		e.Str(s.Error)
 	}
 }
 
-var jsonFieldsNameOfErrorResponse = [2]string{
-	0: "message",
-	1: "error",
+var jsonFieldsNameOfErrorResponse = [1]string{
+	0: "error",
 }
 
 // Decode decodes ErrorResponse from json.
@@ -526,20 +520,8 @@ func (s *ErrorResponse) Decode(d *jx.Decoder) error {
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
-		case "message":
-			requiredBitSet[0] |= 1 << 0
-			if err := func() error {
-				v, err := d.Str()
-				s.Message = string(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"message\"")
-			}
 		case "error":
-			requiredBitSet[0] |= 1 << 1
+			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
 				v, err := d.Str()
 				s.Error = string(v)
@@ -560,7 +542,7 @@ func (s *ErrorResponse) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000011,
+		0b00000001,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.

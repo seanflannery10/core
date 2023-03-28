@@ -84,26 +84,15 @@ type DeleteMessageUnprocessableEntity ErrorResponse
 
 func (*DeleteMessageUnprocessableEntity) deleteMessageRes() {}
 
-// Contains a message and error.
+// Contains an error.
 // Ref: #/components/schemas/ErrorResponse
 type ErrorResponse struct {
-	Message string `json:"message"`
-	Error   string `json:"error"`
-}
-
-// GetMessage returns the value of Message.
-func (s *ErrorResponse) GetMessage() string {
-	return s.Message
+	Error string `json:"error"`
 }
 
 // GetError returns the value of Error.
 func (s *ErrorResponse) GetError() string {
 	return s.Error
-}
-
-// SetMessage sets the value of Message.
-func (s *ErrorResponse) SetMessage(val string) {
-	s.Message = val
 }
 
 // SetError sets the value of Error.

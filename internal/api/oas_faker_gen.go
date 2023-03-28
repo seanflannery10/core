@@ -109,11 +109,6 @@ func (s *DeleteMessageUnprocessableEntity) SetFake() {
 func (s *ErrorResponse) SetFake() {
 	{
 		{
-			s.Message = "string"
-		}
-	}
-	{
-		{
 			s.Error = "string"
 		}
 	}

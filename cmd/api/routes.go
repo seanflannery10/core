@@ -4,13 +4,14 @@ import (
 	"expvar"
 	"net/http"
 	"net/http/pprof"
+	"os"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/seanflannery10/core/internal/api"
 	"github.com/seanflannery10/core/internal/data"
 	"github.com/seanflannery10/core/internal/handler"
 	"github.com/seanflannery10/core/internal/shared/mailer"
-	"github.com/seanflannery10/core/internal/shared/middleware"
+	"golang.org/x/exp/slog"
 )
 
 func (app *application) routes() *http.ServeMux {
@@ -22,12 +23,13 @@ func (app *application) routes() *http.ServeMux {
 
 	srv, err := api.NewServer(
 		newHandler,
-		&middleware.Security{Queries: data.New(app.dbpool)},
-		api.WithMiddleware(middleware.RecoverPanic()),
-		api.WithErrorHandler(middleware.ErrorHandler),
+		&security{Queries: data.New(app.dbpool)},
+		api.WithMiddleware(app.RecoverPanic()),
+		api.WithErrorHandler(app.ErrorHandler),
 	)
 	if err != nil {
-		panic("failed new server")
+		slog.Error("unable to create new server", err)
+		os.Exit(exitError) //nolint:revive
 	}
 
 	mux := http.NewServeMux()
