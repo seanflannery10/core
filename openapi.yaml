@@ -158,6 +158,8 @@ paths:
       tags:
         - tokens
       operationId: NewAccessToken
+      security:
+        - Refresh: [ ]
       parameters:
          - $ref: '#/components/parameters/refreshTokenCookie'
       responses:
@@ -233,6 +235,8 @@ paths:
       tags:
         - tokens
       operationId: NewRefreshToken
+      security:
+        - Refresh: [ ]
       requestBody:
         $ref: '#/components/requestBodies/UserLoginRequestBody'
       responses:
@@ -624,3 +628,7 @@ components:
     Access:
       type: http
       scheme: bearer
+    Refresh:
+      type: apiKey
+      in: cookie
+      name: core_refresh_token

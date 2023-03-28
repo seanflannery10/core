@@ -12,6 +12,8 @@ import (
 type SecurityHandler interface {
 	// HandleAccess handles Access security.
 	HandleAccess(ctx context.Context, operationName string, t Access) (context.Context, error)
+	// HandleRefresh handles Refresh security.
+	HandleRefresh(ctx context.Context, operationName string, t Refresh) (context.Context, error)
 }
 
 func findAuthorization(h http.Header, prefix string) (string, bool) {
@@ -37,6 +39,25 @@ func (s *Server) securityAccess(ctx context.Context, operationName string, req *
 	}
 	t.Token = token
 	rctx, err := s.sec.HandleAccess(ctx, operationName, t)
+	if err != nil {
+		return nil, false, err
+	}
+	return rctx, true, err
+}
+func (s *Server) securityRefresh(ctx context.Context, operationName string, req *http.Request) (context.Context, bool, error) {
+	var t Refresh
+	const parameterName = "core_refresh_token"
+	var value string
+	switch cookie, err := req.Cookie(parameterName); err {
+	case nil:
+		value = cookie.Value
+	case http.ErrNoCookie:
+		return ctx, false, nil
+	default:
+		return nil, false, err
+	}
+	t.APIKey = value
+	rctx, err := s.sec.HandleRefresh(ctx, operationName, t)
 	if err != nil {
 		return nil, false, err
 	}

@@ -38,3 +38,7 @@ func (s *security) HandleAccess(ctx context.Context, _ string, t api.Access) (co
 
 	return utils.ContextSetUser(ctx, &user), nil
 }
+
+func (s *security) HandleRefresh(_ context.Context, _ string, _ api.Refresh) (context.Context, error) {
+	panic("implement me")
+}

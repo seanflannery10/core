@@ -67,7 +67,9 @@ func (s *Handler) NewRefreshToken(ctx context.Context, req *api.UserLoginRequest
 		return &api.NewRefreshTokenInternalServerError{}, nil
 	}
 
-	tokenResponseHeaders := api.TokenResponseHeaders{SetCookie: cookie, Response: accessToken}
+	optString := api.OptString{Value: cookie.Value, Set: true}
+
+	tokenResponseHeaders := api.TokenResponseHeaders{SetCookie: optString, Response: accessToken}
 
 	return &tokenResponseHeaders, nil
 }
@@ -117,12 +119,14 @@ func (s *Handler) NewAccessToken(ctx context.Context, params api.NewAccessTokenP
 		return &api.NewAccessTokenInternalServerError{}, nil
 	}
 
-	tokenResponseHeaders := api.TokenResponseHeaders{SetCookie: cookie, Response: accessToken}
+	optString := api.OptString{Value: cookie.Value, Set: true}
+
+	tokenResponseHeaders := api.TokenResponseHeaders{SetCookie: optString, Response: accessToken}
 
 	return &tokenResponseHeaders, nil
 }
 
-func newCookie(name, value string, ttl int, secret []byte) (api.OptString, error) {
+func newCookie(name, value string, ttl int, secret []byte) (http.Cookie, error) {
 	cookie := http.Cookie{
 		Name:     name,
 		Value:    value,
@@ -135,19 +139,19 @@ func newCookie(name, value string, ttl int, secret []byte) (api.OptString, error
 
 	block, err := aes.NewCipher(secret)
 	if err != nil {
-		return api.OptString{}, fmt.Errorf("failed new cipher: %w", err)
+		return http.Cookie{}, fmt.Errorf("failed new cipher: %w", err)
 	}
 
 	aesGCM, err := cipher.NewGCM(block)
 	if err != nil {
-		return api.OptString{}, fmt.Errorf("failed new gcm: %w", err)
+		return http.Cookie{}, fmt.Errorf("failed new gcm: %w", err)
 	}
 
 	nonce := make([]byte, aesGCM.NonceSize())
 
 	_, err = io.ReadFull(rand.Reader, nonce)
 	if err != nil {
-		return api.OptString{}, fmt.Errorf("failed read full: %w", err)
+		return http.Cookie{}, fmt.Errorf("failed read full: %w", err)
 	}
 
 	plaintext := fmt.Sprintf("%s:%s", cookie.Name, cookie.Value)
@@ -157,10 +161,8 @@ func newCookie(name, value string, ttl int, secret []byte) (api.OptString, error
 	cookie.Value = base64.URLEncoding.EncodeToString(encryptedValue)
 
 	if len(cookie.String()) > cookieMaxSize {
-		return api.OptString{}, fmt.Errorf("failed length check: %w", errValueTooLong)
+		return http.Cookie{}, fmt.Errorf("failed length check: %w", errValueTooLong)
 	}
 
-	optString := api.OptString{Value: cookie.Value, Set: true}
-
-	return optString, nil
+	return cookie, nil
 }

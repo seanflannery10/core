@@ -13,8 +13,7 @@ import (
 func (app *application) ErrorHandler(_ context.Context, w http.ResponseWriter, _ *http.Request, err error) {
 	code := ogenerrors.ErrorCode(err)
 
-	switch {
-	case errors.Is(err, errUserNotActivated):
+	if errors.Is(err, errUserNotActivated) {
 		code = http.StatusForbidden
 	}
 

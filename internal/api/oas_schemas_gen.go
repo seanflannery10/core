@@ -505,6 +505,20 @@ func (o OptString) Or(d string) string {
 	return d
 }
 
+type Refresh struct {
+	APIKey string
+}
+
+// GetAPIKey returns the value of APIKey.
+func (s *Refresh) GetAPIKey() string {
+	return s.APIKey
+}
+
+// SetAPIKey sets the value of APIKey.
+func (s *Refresh) SetAPIKey(val string) {
+	s.APIKey = val
+}
+
 // Contains a plaintext token as well as optional properties.
 // Ref: #/components/schemas/TokenRequest
 type TokenRequest struct {
