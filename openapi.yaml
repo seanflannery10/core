@@ -17,7 +17,7 @@ paths:
         - messages
       operationId: GetUserMessages
       security:
-        - BearerAuth: [ ]
+        - Access: [ ]
       parameters:
         - $ref: '#/components/parameters/page'
         - $ref: '#/components/parameters/pageSize'
@@ -45,7 +45,7 @@ paths:
         - messages
       operationId: NewMessage
       security:
-        - BearerAuth: [ ]
+        - Access: [ ]
       requestBody:
         $ref: '#/components/requestBodies/MessageRequestBody'
       responses:
@@ -73,7 +73,7 @@ paths:
         - messages
       operationId: GetMessage
       security:
-        - BearerAuth: [ ]
+        - Access: [ ]
       parameters:
         - $ref: '#/components/parameters/id'
       responses:
@@ -100,7 +100,7 @@ paths:
         - messages
       operationId: UpdateMessage
       security:
-        - BearerAuth: [ ]
+        - Access: [ ]
       parameters:
         - $ref: '#/components/parameters/id'
       requestBody:
@@ -131,7 +131,7 @@ paths:
         - messages
       operationId: DeleteMessage
       security:
-        - BearerAuth: [ ]
+        - Access: [ ]
       parameters:
         - $ref: '#/components/parameters/id'
       responses:
@@ -623,6 +623,6 @@ components:
         - email
         - version
   securitySchemes:
-    BearerAuth:
+    Access:
       type: http
       scheme: bearer

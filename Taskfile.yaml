@@ -13,7 +13,7 @@ tasks:
     cmds:
       - sqlc compile --experimental
       - sqlc generate --experimental
-      - ogen -no-client -no-webhook-client -no-webhook-server -generate-tests --target internal/oas -package oas --clean openapi.yaml
+      - ogen -no-client -no-webhook-client -no-webhook-server -generate-tests --target internal/api -package api --clean openapi.yaml
       - go mod tidy -v
 
   go:audit:

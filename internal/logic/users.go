@@ -6,20 +6,28 @@ import (
 
 	"github.com/go-faster/errors"
 	"github.com/jackc/pgx/v5"
+	"github.com/seanflannery10/core/internal/api"
 	"github.com/seanflannery10/core/internal/data"
-	"github.com/seanflannery10/core/internal/oas"
 	"github.com/seanflannery10/core/internal/shared/utils"
 	"golang.org/x/crypto/bcrypt"
 )
 
-func ActivateUser(ctx context.Context, q data.Queries, plaintext string) (oas.UserResponse, error) {
+var (
+	errAlreadyExists      = errors.New("already exists")
+	errInvalidCredentials = errors.New("invalid credentials")
+	errNotActivated       = errors.New("not activated")
+	errNotFound           = errors.New("not found")
+	errReusedRefreshToken = errors.New("reused refresh token")
+)
+
+func ActivateUser(ctx context.Context, q *data.Queries, plaintext string) (api.UserResponse, error) {
 	user, err := q.GetUserFromTokenHelper(ctx, plaintext, data.ScopeActivation)
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
-			return oas.UserResponse{}, errNotFound
+			return api.UserResponse{}, errNotFound
 		default:
-			return oas.UserResponse{}, fmt.Errorf("failed get user from activation token: %w", err)
+			return api.UserResponse{}, fmt.Errorf("failed get user from activation token: %w", err)
 		}
 	}
 
@@ -30,7 +38,7 @@ func ActivateUser(ctx context.Context, q data.Queries, plaintext string) (oas.Us
 		Version:         user.Version,
 	})
 	if err != nil {
-		return oas.UserResponse{}, fmt.Errorf("failed update user: %w", err)
+		return api.UserResponse{}, fmt.Errorf("failed update user: %w", err)
 	}
 
 	err = q.DeleteTokens(ctx, data.DeleteTokensParams{
@@ -38,10 +46,10 @@ func ActivateUser(ctx context.Context, q data.Queries, plaintext string) (oas.Us
 		UserID: user.ID,
 	})
 	if err != nil {
-		return oas.UserResponse{}, fmt.Errorf("failed delete tokens: %w", err)
+		return api.UserResponse{}, fmt.Errorf("failed delete tokens: %w", err)
 	}
 
-	userResponse := oas.UserResponse{
+	userResponse := api.UserResponse{
 		Name:    user.Name,
 		Email:   user.Email,
 		Version: user.Version,
@@ -50,19 +58,19 @@ func ActivateUser(ctx context.Context, q data.Queries, plaintext string) (oas.Us
 	return userResponse, nil
 }
 
-func NewUser(ctx context.Context, q data.Queries, name, email, pass string) (oas.UserResponse, oas.TokenResponse, error) {
+func NewUser(ctx context.Context, q *data.Queries, name, email, pass string) (api.UserResponse, api.TokenResponse, error) {
 	ok, err := q.CheckUser(ctx, email)
 	if err != nil {
-		return oas.UserResponse{}, oas.TokenResponse{}, fmt.Errorf("failed check user: %w", err)
+		return api.UserResponse{}, api.TokenResponse{}, fmt.Errorf("failed check user: %w", err)
 	}
 
 	if ok {
-		return oas.UserResponse{}, oas.TokenResponse{}, errAlreadyExists
+		return api.UserResponse{}, api.TokenResponse{}, errAlreadyExists
 	}
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(pass), data.PasswordCost)
 	if err != nil {
-		return oas.UserResponse{}, oas.TokenResponse{}, fmt.Errorf("failed generate password: %w", err)
+		return api.UserResponse{}, api.TokenResponse{}, fmt.Errorf("failed generate password: %w", err)
 	}
 
 	passwordHash := hash
@@ -74,15 +82,15 @@ func NewUser(ctx context.Context, q data.Queries, name, email, pass string) (oas
 		Activated:    false,
 	})
 	if err != nil {
-		return oas.UserResponse{}, oas.TokenResponse{}, fmt.Errorf("failed create user: %w", err)
+		return api.UserResponse{}, api.TokenResponse{}, fmt.Errorf("failed create user: %w", err)
 	}
 
 	activationToken, err := utils.NewToken(ctx, q, ttlActivationToken, data.ScopeActivation, user.ID)
 	if err != nil {
-		return oas.UserResponse{}, oas.TokenResponse{}, fmt.Errorf("failed create new token: %w", err)
+		return api.UserResponse{}, api.TokenResponse{}, fmt.Errorf("failed create new token: %w", err)
 	}
 
-	userResponse := oas.UserResponse{
+	userResponse := api.UserResponse{
 		Name:    user.Name,
 		Email:   user.Email,
 		Version: user.Version,
@@ -91,20 +99,20 @@ func NewUser(ctx context.Context, q data.Queries, name, email, pass string) (oas
 	return userResponse, activationToken, nil
 }
 
-func UpdateUserPassword(ctx context.Context, q data.Queries, token, pass string) (oas.UserResponse, error) {
+func UpdateUserPassword(ctx context.Context, q *data.Queries, token, pass string) (api.UserResponse, error) {
 	user, err := q.GetUserFromTokenHelper(ctx, token, data.ScopePasswordReset)
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
-			return oas.UserResponse{}, errNotFound
+			return api.UserResponse{}, errNotFound
 		default:
-			return oas.UserResponse{}, fmt.Errorf("failed get user from password reset token: %w", err)
+			return api.UserResponse{}, fmt.Errorf("failed get user from password reset token: %w", err)
 		}
 	}
 
 	err = user.SetPassword(pass)
 	if err != nil {
-		return oas.UserResponse{}, fmt.Errorf("failed set password: %w", err)
+		return api.UserResponse{}, fmt.Errorf("failed set password: %w", err)
 	}
 
 	user, err = q.UpdateUser(ctx, data.UpdateUserParams{
@@ -114,7 +122,7 @@ func UpdateUserPassword(ctx context.Context, q data.Queries, token, pass string)
 		Version:            user.Version,
 	})
 	if err != nil {
-		return oas.UserResponse{}, fmt.Errorf("failed update user password: %w", err)
+		return api.UserResponse{}, fmt.Errorf("failed update user password: %w", err)
 	}
 
 	err = q.DeleteTokens(ctx, data.DeleteTokensParams{
@@ -122,10 +130,10 @@ func UpdateUserPassword(ctx context.Context, q data.Queries, token, pass string)
 		UserID: user.ID,
 	})
 	if err != nil {
-		return oas.UserResponse{}, fmt.Errorf("failed delete password reset token: %w", err)
+		return api.UserResponse{}, fmt.Errorf("failed delete password reset token: %w", err)
 	}
 
-	userResponse := oas.UserResponse{
+	userResponse := api.UserResponse{
 		Name:    user.Name,
 		Email:   user.Email,
 		Version: user.Version,

@@ -6,23 +6,28 @@ import (
 	"net/http/pprof"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/seanflannery10/core/internal/api"
 	"github.com/seanflannery10/core/internal/data"
 	"github.com/seanflannery10/core/internal/handler"
-	"github.com/seanflannery10/core/internal/oas"
 	"github.com/seanflannery10/core/internal/shared/mailer"
 	"github.com/seanflannery10/core/internal/shared/middleware"
 )
 
 func (app *application) routes() *http.ServeMux {
-	h := &handler.Handler{
+	newHandler := &handler.Handler{
+		Queries: data.New(app.dbpool),
 		Mailer:  mailer.Mailer{},
-		Queries: data.Queries{},
-		Secret:  app.config.Secret,
+		Secret:  app.secretKey,
 	}
 
-	srv, err := oas.NewServer(h, oas.WithMiddleware(middleware.Authenticate(h.Queries)), oas.WithErrorHandler(middleware.ErrorHandler))
+	srv, err := api.NewServer(
+		newHandler,
+		&middleware.Security{Queries: data.New(app.dbpool)},
+		api.WithMiddleware(middleware.RecoverPanic()),
+		// api.WithErrorHandler(middleware.ErrorHandler),
+	)
 	if err != nil {
-		panic(err)
+		panic("failed new server")
 	}
 
 	mux := http.NewServeMux()

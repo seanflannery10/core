@@ -23,11 +23,10 @@ const (
 )
 
 type Config struct {
-	SMTP         mailer.SMTP
 	Env          string `env:"ENV,default=dev"`
 	OTelEndpoint string `env:"OTEL_EXPORTER_OTLP_ENDPOINT,default=api.honeycomb.io:443"`
 	DatabaseURL  string `env:"DATABASE_URL,default=postgres://postgres:test@localhost:5432/test?sslmode=disable"`
-	Secret       []byte
+	SMTP         mailer.SMTP
 	Port         int32 `env:"PORT,default=4000"`
 }
 
@@ -48,13 +47,17 @@ func (app *application) init() {
 		os.Exit(exitError)
 	}
 
-	secret, err := hex.DecodeString(os.Getenv("SECRET_KEY"))
-	if err != nil || os.Getenv("SECRET_KEY") == "" {
-		slog.Error("unable to decode sercret", err)
+	secretString := os.Getenv("SECRET_KEY")
+	if secretString == "" {
+		slog.Error("secret key not set", err)
 		os.Exit(exitError)
 	}
 
-	cfg.Secret = secret
+	secret, err := hex.DecodeString(secretString)
+	if err != nil {
+		slog.Error("unable to decode secret key", err)
+		os.Exit(exitError)
+	}
 
 	slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stdout)))
 
@@ -70,9 +73,10 @@ func (app *application) init() {
 		os.Exit(exitError)
 	}
 
+	app.secretKey = secret
 	app.dbpool = dbpool
 	app.mailer = mail
-	app.config = cfg
+	app.config = *cfg
 
 	expvar.NewString("version").Set(utils.GetVersion())
 	expvar.Publish("goroutines", expvar.Func(func() any { return runtime.NumGoroutine() }))

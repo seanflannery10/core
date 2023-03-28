@@ -9,9 +9,10 @@ import (
 )
 
 type application struct {
-	dbpool *pgxpool.Pool
-	config *Config
-	mailer mailer.Mailer
+	dbpool    *pgxpool.Pool
+	mailer    mailer.Mailer
+	secretKey []byte
+	config    Config
 }
 
 func main() {

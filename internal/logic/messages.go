@@ -6,12 +6,12 @@ import (
 
 	"github.com/go-faster/errors"
 	"github.com/jackc/pgx/v5"
+	"github.com/seanflannery10/core/internal/api"
 	"github.com/seanflannery10/core/internal/data"
-	"github.com/seanflannery10/core/internal/oas"
 	"github.com/seanflannery10/core/internal/shared/pagination"
 )
 
-func GetUserMessages(ctx context.Context, q data.Queries, page, pageSize int32, userID int64) (oas.MessagesResponse, error) {
+func GetUserMessages(ctx context.Context, q *data.Queries, page, pageSize int32, userID int64) (api.MessagesResponse, error) {
 	p := pagination.New(page, pageSize)
 
 	messagesFromDB, err := q.GetUserMessages(ctx, data.GetUserMessagesParams{
@@ -20,43 +20,43 @@ func GetUserMessages(ctx context.Context, q data.Queries, page, pageSize int32, 
 		Limit:  p.Limit(),
 	})
 	if err != nil {
-		return oas.MessagesResponse{}, fmt.Errorf("failed get user messages: %w", err)
+		return api.MessagesResponse{}, fmt.Errorf("failed get user messages: %w", err)
 	}
 
 	count, err := q.GetUserMessageCount(ctx, userID)
 	if err != nil {
-		return oas.MessagesResponse{}, fmt.Errorf("failed get user message count: %w", err)
+		return api.MessagesResponse{}, fmt.Errorf("failed get user message count: %w", err)
 	}
 
 	metadata, err := p.CalculateMetadata(count)
 	if err != nil {
-		return oas.MessagesResponse{}, pagination.ErrPageValueToHigh
+		return api.MessagesResponse{}, pagination.ErrPageValueToHigh
 	}
 
-	messages := make([]oas.MessageResponse, len(messagesFromDB))
+	messages := make([]api.MessageResponse, len(messagesFromDB))
 	for i, v := range messagesFromDB {
-		messages[i] = oas.MessageResponse{
+		messages[i] = api.MessageResponse{
 			ID:      v.UserID,
 			Message: v.Message,
 			Version: v.Version,
 		}
 	}
 
-	messagesResponse := oas.MessagesResponse{Messages: messages, Metadata: metadata}
+	messagesResponse := api.MessagesResponse{Messages: messages, Metadata: metadata}
 
 	return messagesResponse, nil
 }
 
-func NewMessage(ctx context.Context, q data.Queries, m string, userID int64) (oas.MessageResponse, error) {
+func NewMessage(ctx context.Context, q *data.Queries, m string, userID int64) (api.MessageResponse, error) {
 	message, err := q.CreateMessage(ctx, data.CreateMessageParams{
 		Message: m,
 		UserID:  userID,
 	})
 	if err != nil {
-		return oas.MessageResponse{}, fmt.Errorf("failed create message: %w", err)
+		return api.MessageResponse{}, fmt.Errorf("failed create message: %w", err)
 	}
 
-	messageResponse := oas.MessageResponse{
+	messageResponse := api.MessageResponse{
 		ID:      message.ID,
 		Message: message.Message,
 		Version: message.Version,
@@ -65,18 +65,18 @@ func NewMessage(ctx context.Context, q data.Queries, m string, userID int64) (oa
 	return messageResponse, nil
 }
 
-func GetMessage(ctx context.Context, q data.Queries, messageID int64) (oas.MessageResponse, error) {
+func GetMessage(ctx context.Context, q *data.Queries, messageID int64) (api.MessageResponse, error) {
 	message, err := q.GetMessage(ctx, messageID)
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
-			return oas.MessageResponse{}, errNotFound
+			return api.MessageResponse{}, errNotFound
 		default:
-			return oas.MessageResponse{}, fmt.Errorf("failed get message: %w", err)
+			return api.MessageResponse{}, fmt.Errorf("failed get message: %w", err)
 		}
 	}
 
-	messageResponse := oas.MessageResponse{
+	messageResponse := api.MessageResponse{
 		ID:      message.ID,
 		Message: message.Message,
 		Version: message.Version,
@@ -85,7 +85,7 @@ func GetMessage(ctx context.Context, q data.Queries, messageID int64) (oas.Messa
 	return messageResponse, nil
 }
 
-func UpdateMessage(ctx context.Context, q data.Queries, m string, messageID int64) (oas.MessageResponse, error) {
+func UpdateMessage(ctx context.Context, q *data.Queries, m string, messageID int64) (api.MessageResponse, error) {
 	message, err := q.UpdateMessage(ctx, data.UpdateMessageParams{
 		Message: m,
 		ID:      messageID,
@@ -93,9 +93,9 @@ func UpdateMessage(ctx context.Context, q data.Queries, m string, messageID int6
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
-			return oas.MessageResponse{}, errNotFound
+			return api.MessageResponse{}, errNotFound
 		default:
-			return oas.MessageResponse{}, fmt.Errorf("failed update message: %w", err)
+			return api.MessageResponse{}, fmt.Errorf("failed update message: %w", err)
 		}
 	}
 
@@ -106,7 +106,7 @@ func UpdateMessage(ctx context.Context, q data.Queries, m string, messageID int6
 	//	}
 	//}
 
-	messageResponse := oas.MessageResponse{
+	messageResponse := api.MessageResponse{
 		ID:      message.ID,
 		Message: message.Message,
 		Version: message.Version,
@@ -115,16 +115,16 @@ func UpdateMessage(ctx context.Context, q data.Queries, m string, messageID int6
 	return messageResponse, nil
 }
 
-func DeleteMessage(ctx context.Context, q data.Queries, id int64) (oas.AcceptanceResponse, error) {
+func DeleteMessage(ctx context.Context, q *data.Queries, id int64) (api.AcceptanceResponse, error) {
 	err := q.DeleteMessage(ctx, id)
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
-			return oas.AcceptanceResponse{}, errNotFound
+			return api.AcceptanceResponse{}, errNotFound
 		default:
-			return oas.AcceptanceResponse{}, fmt.Errorf("failed delete message: %w", err)
+			return api.AcceptanceResponse{}, fmt.Errorf("failed delete message: %w", err)
 		}
 	}
 
-	return oas.AcceptanceResponse{Message: "message deleted"}, nil
+	return api.AcceptanceResponse{Message: "message deleted"}, nil
 }

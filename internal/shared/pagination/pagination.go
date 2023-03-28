@@ -4,7 +4,7 @@ import (
 	"math"
 
 	"github.com/go-faster/errors"
-	"github.com/seanflannery10/core/internal/oas"
+	"github.com/seanflannery10/core/internal/api"
 )
 
 const (
@@ -37,12 +37,12 @@ func (p *Pagination) Offset() int32 {
 	return (p.Page - pageOffset) * p.PageSize
 }
 
-func (p *Pagination) CalculateMetadata(totalRecords int64) (oas.MessagesMetadataResponse, error) {
+func (p *Pagination) CalculateMetadata(totalRecords int64) (api.MessagesMetadataResponse, error) {
 	if totalRecords == noRecords {
-		return oas.MessagesMetadataResponse{}, nil
+		return api.MessagesMetadataResponse{}, nil
 	}
 
-	metadata := oas.MessagesMetadataResponse{
+	metadata := api.MessagesMetadataResponse{
 		CurrentPage:  p.Page,
 		PageSize:     p.PageSize,
 		FirstPage:    fistPage,
@@ -51,7 +51,7 @@ func (p *Pagination) CalculateMetadata(totalRecords int64) (oas.MessagesMetadata
 	}
 
 	if p.Page > metadata.LastPage {
-		return oas.MessagesMetadataResponse{}, ErrPageValueToHigh
+		return api.MessagesMetadataResponse{}, ErrPageValueToHigh
 	}
 
 	return metadata, nil
