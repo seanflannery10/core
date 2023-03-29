@@ -36,7 +36,7 @@ func GetUserMessages(ctx context.Context, q *data.Queries, page, pageSize int32,
 	messages := make([]api.MessageResponse, len(messagesFromDB))
 	for i, v := range messagesFromDB {
 		messages[i] = api.MessageResponse{
-			ID:      v.UserID,
+			ID:      v.ID,
 			Message: v.Message,
 			Version: v.Version,
 		}
