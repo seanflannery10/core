@@ -26,6 +26,7 @@ func (s *MessagesResponse) Validate() error {
 	}
 	return nil
 }
+
 func (s *UserEmailRequest) Validate() error {
 	var failures []validate.FieldError
 	if err := func() error {

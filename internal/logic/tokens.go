@@ -178,9 +178,9 @@ func newToken(ctx context.Context, q *data.Queries, ttl time.Duration, scope str
 	}
 
 	tokenPlaintext := api.TokenResponse{
-		Plaintext: plaintext,
-		Expiry:    api.OptDateTime{Value: token.Expiry, Set: true},
-		Scope:     api.OptString{Value: token.Scope, Set: true},
+		Token:  plaintext,
+		Expiry: api.OptDateTime{Value: token.Expiry, Set: true},
+		Scope:  api.OptString{Value: token.Scope, Set: true},
 	}
 
 	return tokenPlaintext, nil

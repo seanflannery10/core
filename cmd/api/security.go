@@ -17,7 +17,7 @@ import (
 
 var (
 	errInvalidAccessToken = errors.New("invalid access token")
-	errUserNotActivated   = errors.New("user account not activated")
+	errUserNotActivated   = errors.New("user account must be activated")
 )
 
 type security struct {

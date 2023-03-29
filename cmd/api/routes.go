@@ -10,14 +10,13 @@ import (
 	"github.com/seanflannery10/core/internal/api"
 	"github.com/seanflannery10/core/internal/data"
 	"github.com/seanflannery10/core/internal/handler"
-	"github.com/seanflannery10/core/internal/shared/mailer"
 	"golang.org/x/exp/slog"
 )
 
 func (app *application) routes() *http.ServeMux {
 	newHandler := &handler.Handler{
 		Queries: data.New(app.dbpool),
-		Mailer:  mailer.Mailer{},
+		Mailer:  app.mailer,
 		Secret:  app.secretKey,
 	}
 

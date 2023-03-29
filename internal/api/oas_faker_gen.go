@@ -566,7 +566,7 @@ func (s *TokenResponse) SetFake() {
 	}
 	{
 		{
-			s.Plaintext = "string"
+			s.Token = "string"
 		}
 	}
 }

@@ -46,7 +46,7 @@ func (s *Handler) NewUser(ctx context.Context, req *api.UserRequest) (api.NewUse
 	}
 
 	err = s.Mailer.Send(user.Email, "token_activation.tmpl", map[string]any{
-		"activationToken": refreshToken.Plaintext,
+		"activationToken": refreshToken.Token,
 	})
 	if err != nil {
 		return &api.NewUserInternalServerError{Error: serverError}, nil

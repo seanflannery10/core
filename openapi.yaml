@@ -351,7 +351,6 @@ components:
     page:
       name: page
       in: query
-      required: true
       schema:
         type: integer
         format: int32
@@ -359,7 +358,6 @@ components:
     pageSize:
       name: page_size
       in: query
-      required: true
       schema:
         type: integer
         format: int32
@@ -596,11 +594,11 @@ components:
         expiry:
           type: string
           format: date-time
-        plaintext:
+        token:
           type: string
           format: password
       required:
-        - plaintext
+        - token
     UserResponse:
       type: object
       description: "Contains a username, email and password"

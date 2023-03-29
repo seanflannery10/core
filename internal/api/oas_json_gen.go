@@ -2706,15 +2706,15 @@ func (s *TokenResponse) encodeFields(e *jx.Encoder) {
 	}
 	{
 
-		e.FieldStart("plaintext")
-		e.Str(s.Plaintext)
+		e.FieldStart("token")
+		e.Str(s.Token)
 	}
 }
 
 var jsonFieldsNameOfTokenResponse = [3]string{
 	0: "scope",
 	1: "expiry",
-	2: "plaintext",
+	2: "token",
 }
 
 // Decode decodes TokenResponse from json.
@@ -2746,17 +2746,17 @@ func (s *TokenResponse) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"expiry\"")
 			}
-		case "plaintext":
+		case "token":
 			requiredBitSet[0] |= 1 << 2
 			if err := func() error {
 				v, err := d.Str()
-				s.Plaintext = string(v)
+				s.Token = string(v)
 				if err != nil {
 					return err
 				}
 				return nil
 			}(); err != nil {
-				return errors.Wrap(err, "decode field \"plaintext\"")
+				return errors.Wrap(err, "decode field \"token\"")
 			}
 		default:
 			return d.Skip()

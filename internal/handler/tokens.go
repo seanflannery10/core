@@ -37,9 +37,8 @@ func (s *Handler) NewActivationToken(ctx context.Context, req *api.UserEmailRequ
 		}
 	}
 
-	// TODO Fix emails
 	err = s.Mailer.Send(req.Email, "token_activation.tmpl", map[string]any{
-		"activationToken": activationToken.Plaintext,
+		"activationToken": activationToken.Token,
 	})
 	if err != nil {
 		return &api.NewActivationTokenInternalServerError{Error: serverError}, nil
@@ -62,7 +61,7 @@ func (s *Handler) NewPasswordResetToken(ctx context.Context, req *api.UserEmailR
 	}
 
 	err = s.Mailer.Send(req.Email, "token_password_reset.tmpl", map[string]any{
-		"passwordResetToken": passwordResetToken.Plaintext,
+		"passwordResetToken": passwordResetToken.Token,
 	})
 	if err != nil {
 		return &api.NewPasswordResetTokenInternalServerError{Error: serverError}, nil
@@ -82,7 +81,7 @@ func (s *Handler) NewRefreshToken(ctx context.Context, req *api.UserLoginRequest
 		}
 	}
 
-	cookie, err := newCookie(cookieRefreshToken, refreshToken.Plaintext, cookieTTL, s.Secret)
+	cookie, err := newCookie(cookieRefreshToken, refreshToken.Token, cookieTTL, s.Secret)
 	if err != nil {
 		return &api.NewRefreshTokenInternalServerError{Error: serverError}, nil
 	}
@@ -106,7 +105,7 @@ func (s *Handler) NewAccessToken(ctx context.Context) (api.NewAccessTokenRes, er
 		}
 	}
 
-	cookie, err := newCookie(cookieRefreshToken, refreshToken.Plaintext, cookieTTL, s.Secret)
+	cookie, err := newCookie(cookieRefreshToken, refreshToken.Token, cookieTTL, s.Secret)
 	if err != nil {
 		return &api.NewAccessTokenInternalServerError{Error: serverError}, nil
 	}

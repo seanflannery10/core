@@ -13,7 +13,7 @@ import (
 func (s *Handler) GetUserMessages(ctx context.Context, params api.GetUserMessagesParams) (r api.GetUserMessagesRes, _ error) {
 	user := utils.ContextGetUser(ctx)
 
-	messageResponse, err := logic.GetUserMessages(ctx, s.Queries, params.Page, params.PageSize, user.ID)
+	messageResponse, err := logic.GetUserMessages(ctx, s.Queries, params.Page.Value, params.PageSize.Value, user.ID)
 	if err != nil {
 		switch {
 		case errors.Is(err, pagination.ErrPageValueToHigh):
