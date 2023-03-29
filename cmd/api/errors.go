@@ -12,21 +12,23 @@ import (
 
 func (app *application) ErrorHandler(_ context.Context, w http.ResponseWriter, _ *http.Request, err error) {
 	code := ogenerrors.ErrorCode(err)
+	errMessage := strings.ReplaceAll(errors.Unwrap(err).Error(), "\"", "'")
 
-	if errors.Is(err, errUserNotActivated) {
+	switch {
+	case errors.Is(err, errUserNotActivated):
 		code = http.StatusForbidden
+	case errors.Is(err, ogenerrors.ErrSecurityRequirementIsNotSatisfied):
+		errMessage = "missing security token or cookie"
 	}
 
-	w.Header().Set("WWW-Authenticate", "Bearer")
+	// w.Header().Set("WWW-Authenticate", "Bearer")
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
-
-	errStr := strings.ReplaceAll(errors.Unwrap(err).Error(), "\"", "'")
 
 	e := jx.GetEncoder()
 	e.ObjStart()
 	e.FieldStart("error")
-	e.StrEscape(errStr)
+	e.StrEscape(errMessage)
 	e.ObjEnd()
 
 	_, _ = w.Write(e.Bytes())

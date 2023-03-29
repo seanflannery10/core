@@ -26,14 +26,14 @@ func NewActivationToken(ctx context.Context, q *data.Queries, email string) (api
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
-			return api.TokenResponse{}, errNotFound
+			return api.TokenResponse{}, ErrEmailNotFound
 		default:
 			return api.TokenResponse{}, fmt.Errorf("failed get user from email (activation): %w", err)
 		}
 	}
 
 	if user.Activated {
-		return api.TokenResponse{}, errNotActivated
+		return api.TokenResponse{}, ErrAlreadyActivated
 	}
 
 	activationToken, err := newToken(ctx, q, ttlActivationToken, data.ScopeActivation, user.ID)
@@ -49,10 +49,14 @@ func NewPasswordResetToken(ctx context.Context, q *data.Queries, email string) (
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
-			return api.TokenResponse{}, errNotFound
+			return api.TokenResponse{}, ErrEmailNotFound
 		default:
 			return api.TokenResponse{}, fmt.Errorf("failed get user from email (password): %w", err)
 		}
+	}
+
+	if !user.Activated {
+		return api.TokenResponse{}, ErrActivationRequired
 	}
 
 	passwordResetToken, err := newToken(ctx, q, ttlPasswordResetToken, data.ScopePasswordReset, user.ID)
@@ -68,7 +72,7 @@ func NewRefreshToken(ctx context.Context, q *data.Queries, email, pass string) (
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
-			return api.TokenResponse{}, api.TokenResponse{}, errNotFound
+			return api.TokenResponse{}, api.TokenResponse{}, ErrInvalidCredentials
 		default:
 			return api.TokenResponse{}, api.TokenResponse{}, fmt.Errorf("failed get user from email (refresh): %w", err)
 		}
@@ -80,7 +84,7 @@ func NewRefreshToken(ctx context.Context, q *data.Queries, email, pass string) (
 	}
 
 	if !match {
-		return api.TokenResponse{}, api.TokenResponse{}, errInvalidCredentials
+		return api.TokenResponse{}, api.TokenResponse{}, ErrInvalidCredentials
 	}
 
 	refresh, err = newToken(ctx, q, ttlRefreshToken, data.ScopeRefresh, user.ID)
@@ -96,18 +100,18 @@ func NewRefreshToken(ctx context.Context, q *data.Queries, email, pass string) (
 	return refresh, access, nil
 }
 
-func NewAccessToken(ctx context.Context, q *data.Queries, plaintext string) (refresh, access api.TokenResponse, err error) {
-	user, err := q.GetUserFromTokenHelper(ctx, plaintext, data.ScopeRefresh)
+func NewAccessToken(ctx context.Context, q *data.Queries, tokenFromCookie string) (refresh, access api.TokenResponse, err error) {
+	user, err := q.GetUserFromTokenHelper(ctx, tokenFromCookie, data.ScopeRefresh)
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
-			return api.TokenResponse{}, api.TokenResponse{}, errNotFound
+			return api.TokenResponse{}, api.TokenResponse{}, ErrInvalidToken
 		default:
 			return api.TokenResponse{}, api.TokenResponse{}, fmt.Errorf("failed get user from refresh token: %w", err)
 		}
 	}
 
-	tokenHash := sha256.Sum256([]byte(plaintext))
+	tokenHash := sha256.Sum256([]byte(tokenFromCookie))
 
 	badToken, err := q.CheckToken(ctx, data.CheckTokenParams{
 		Hash:   tokenHash[:],
@@ -127,7 +131,7 @@ func NewAccessToken(ctx context.Context, q *data.Queries, plaintext string) (ref
 			return api.TokenResponse{}, api.TokenResponse{}, fmt.Errorf("failed deactivate refresh token: %w", err)
 		}
 
-		return api.TokenResponse{}, api.TokenResponse{}, errReusedRefreshToken
+		return api.TokenResponse{}, api.TokenResponse{}, ErrReusedRefreshToken
 	}
 
 	err = q.DeactivateToken(ctx, data.DeactivateTokenParams{

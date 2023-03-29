@@ -337,6 +337,15 @@ func (s *NewActivationTokenNotFound) SetFake() {
 }
 
 // SetFake set fake values.
+func (s *NewActivationTokenUnauthorized) SetFake() {
+	var unwrapped ErrorResponse
+	{
+		unwrapped.SetFake()
+	}
+	*s = NewActivationTokenUnauthorized(unwrapped)
+}
+
+// SetFake set fake values.
 func (s *NewActivationTokenUnprocessableEntity) SetFake() {
 	var unwrapped ErrorResponse
 	{
@@ -415,6 +424,15 @@ func (s *NewPasswordResetTokenNotFound) SetFake() {
 		unwrapped.SetFake()
 	}
 	*s = NewPasswordResetTokenNotFound(unwrapped)
+}
+
+// SetFake set fake values.
+func (s *NewPasswordResetTokenUnauthorized) SetFake() {
+	var unwrapped ErrorResponse
+	{
+		unwrapped.SetFake()
+	}
+	*s = NewPasswordResetTokenUnauthorized(unwrapped)
 }
 
 // SetFake set fake values.
@@ -529,7 +547,7 @@ func (s *OptString) SetFake() {
 func (s *TokenRequest) SetFake() {
 	{
 		{
-			s.Plaintext = "string"
+			s.Token = "string"
 		}
 	}
 }

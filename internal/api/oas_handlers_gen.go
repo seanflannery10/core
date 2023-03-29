@@ -670,16 +670,6 @@ func (s *Server) handleNewAccessTokenRequest(args [0]string, argsEscaped bool, w
 			return
 		}
 	}
-	params, err := decodeNewAccessTokenParams(args, argsEscaped, r)
-	if err != nil {
-		err = &ogenerrors.DecodeParamsError{
-			OperationContext: opErrContext,
-			Err:              err,
-		}
-		recordError("DecodeParams", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
 
 	var response NewAccessTokenRes
 	if m := s.cfg.Middleware; m != nil {
@@ -688,18 +678,13 @@ func (s *Server) handleNewAccessTokenRequest(args [0]string, argsEscaped bool, w
 			OperationName: "NewAccessToken",
 			OperationID:   "NewAccessToken",
 			Body:          nil,
-			Params: middleware.Parameters{
-				{
-					Name: "core_refresh_token",
-					In:   "cookie",
-				}: params.CoreRefreshToken,
-			},
-			Raw: r,
+			Params:        middleware.Parameters{},
+			Raw:           r,
 		}
 
 		type (
 			Request  = struct{}
-			Params   = NewAccessTokenParams
+			Params   = struct{}
 			Response = NewAccessTokenRes
 		)
 		response, err = middleware.HookMiddleware[
@@ -709,14 +694,14 @@ func (s *Server) handleNewAccessTokenRequest(args [0]string, argsEscaped bool, w
 		](
 			m,
 			mreq,
-			unpackNewAccessTokenParams,
+			nil,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.NewAccessToken(ctx, params)
+				response, err = s.h.NewAccessToken(ctx)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.NewAccessToken(ctx, params)
+		response, err = s.h.NewAccessToken(ctx)
 	}
 	if err != nil {
 		recordError("Internal", err)
@@ -1146,50 +1131,6 @@ func (s *Server) handleNewRefreshTokenRequest(args [0]string, argsEscaped bool, 
 			ID:   "NewRefreshToken",
 		}
 	)
-	{
-		type bitset = [1]uint8
-		var satisfied bitset
-		{
-			sctx, ok, err := s.securityRefresh(ctx, "NewRefreshToken", r)
-			if err != nil {
-				err = &ogenerrors.SecurityError{
-					OperationContext: opErrContext,
-					Security:         "Refresh",
-					Err:              err,
-				}
-				recordError("Security:Refresh", err)
-				s.cfg.ErrorHandler(ctx, w, r, err)
-				return
-			}
-			if ok {
-				satisfied[0] |= 1 << 0
-				ctx = sctx
-			}
-		}
-
-		if ok := func() bool {
-		nextRequirement:
-			for _, requirement := range []bitset{
-				{0b00000001},
-			} {
-				for i, mask := range requirement {
-					if satisfied[i]&mask != mask {
-						continue nextRequirement
-					}
-				}
-				return true
-			}
-			return false
-		}(); !ok {
-			err = &ogenerrors.SecurityError{
-				OperationContext: opErrContext,
-				Err:              ogenerrors.ErrSecurityRequirementIsNotSatisfied,
-			}
-			recordError("Security", err)
-			s.cfg.ErrorHandler(ctx, w, r, err)
-			return
-		}
-	}
 	request, close, err := s.decodeNewRefreshTokenRequest(r)
 	if err != nil {
 		err = &ogenerrors.DecodeRequestError{

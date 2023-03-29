@@ -395,6 +395,18 @@ func TestNewActivationTokenNotFound_EncodeDecode(t *testing.T) {
 	var typ2 NewActivationTokenNotFound
 	require.NoError(t, typ2.Decode(jx.DecodeBytes(data)))
 }
+func TestNewActivationTokenUnauthorized_EncodeDecode(t *testing.T) {
+	var typ NewActivationTokenUnauthorized
+	typ.SetFake()
+
+	e := jx.Encoder{}
+	typ.Encode(&e)
+	data := e.Bytes()
+	require.True(t, std.Valid(data), "Encoded: %s", data)
+
+	var typ2 NewActivationTokenUnauthorized
+	require.NoError(t, typ2.Decode(jx.DecodeBytes(data)))
+}
 func TestNewActivationTokenUnprocessableEntity_EncodeDecode(t *testing.T) {
 	var typ NewActivationTokenUnprocessableEntity
 	typ.SetFake()
@@ -501,6 +513,18 @@ func TestNewPasswordResetTokenNotFound_EncodeDecode(t *testing.T) {
 	require.True(t, std.Valid(data), "Encoded: %s", data)
 
 	var typ2 NewPasswordResetTokenNotFound
+	require.NoError(t, typ2.Decode(jx.DecodeBytes(data)))
+}
+func TestNewPasswordResetTokenUnauthorized_EncodeDecode(t *testing.T) {
+	var typ NewPasswordResetTokenUnauthorized
+	typ.SetFake()
+
+	e := jx.Encoder{}
+	typ.Encode(&e)
+	data := e.Bytes()
+	require.True(t, std.Valid(data), "Encoded: %s", data)
+
+	var typ2 NewPasswordResetTokenUnauthorized
 	require.NoError(t, typ2.Decode(jx.DecodeBytes(data)))
 }
 func TestNewPasswordResetTokenUnprocessableEntity_EncodeDecode(t *testing.T) {

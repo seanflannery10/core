@@ -44,7 +44,7 @@ func (UnimplementedHandler) GetUserMessages(ctx context.Context, params GetUserM
 // NewAccessToken implements NewAccessToken operation.
 //
 // POST /v1/tokens/access
-func (UnimplementedHandler) NewAccessToken(ctx context.Context, params NewAccessTokenParams) (r NewAccessTokenRes, _ error) {
+func (UnimplementedHandler) NewAccessToken(ctx context.Context) (r NewAccessTokenRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

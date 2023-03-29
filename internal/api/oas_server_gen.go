@@ -27,7 +27,7 @@ type Handler interface {
 	// NewAccessToken implements NewAccessToken operation.
 	//
 	// POST /v1/tokens/access
-	NewAccessToken(ctx context.Context, params NewAccessTokenParams) (NewAccessTokenRes, error)
+	NewAccessToken(ctx context.Context) (NewAccessTokenRes, error)
 	// NewActivationToken implements NewActivationToken operation.
 	//
 	// POST /v1/tokens/activation

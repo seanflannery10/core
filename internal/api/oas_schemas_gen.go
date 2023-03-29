@@ -337,6 +337,10 @@ type NewActivationTokenNotFound ErrorResponse
 
 func (*NewActivationTokenNotFound) newActivationTokenRes() {}
 
+type NewActivationTokenUnauthorized ErrorResponse
+
+func (*NewActivationTokenUnauthorized) newActivationTokenRes() {}
+
 type NewActivationTokenUnprocessableEntity ErrorResponse
 
 func (*NewActivationTokenUnprocessableEntity) newActivationTokenRes() {}
@@ -372,6 +376,10 @@ func (*NewPasswordResetTokenInternalServerError) newPasswordResetTokenRes() {}
 type NewPasswordResetTokenNotFound ErrorResponse
 
 func (*NewPasswordResetTokenNotFound) newPasswordResetTokenRes() {}
+
+type NewPasswordResetTokenUnauthorized ErrorResponse
+
+func (*NewPasswordResetTokenUnauthorized) newPasswordResetTokenRes() {}
 
 type NewPasswordResetTokenUnprocessableEntity ErrorResponse
 
@@ -522,17 +530,17 @@ func (s *Refresh) SetAPIKey(val string) {
 // Contains a plaintext token as well as optional properties.
 // Ref: #/components/schemas/TokenRequest
 type TokenRequest struct {
-	Plaintext string `json:"plaintext"`
+	Token string `json:"token"`
 }
 
-// GetPlaintext returns the value of Plaintext.
-func (s *TokenRequest) GetPlaintext() string {
-	return s.Plaintext
+// GetToken returns the value of Token.
+func (s *TokenRequest) GetToken() string {
+	return s.Token
 }
 
-// SetPlaintext sets the value of Plaintext.
-func (s *TokenRequest) SetPlaintext(val string) {
-	s.Plaintext = val
+// SetToken sets the value of Token.
+func (s *TokenRequest) SetToken(val string) {
+	s.Token = val
 }
 
 // Contains a plaintext token as well as optional properties.

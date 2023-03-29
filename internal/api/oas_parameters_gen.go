@@ -273,61 +273,6 @@ func decodeGetUserMessagesParams(args [0]string, argsEscaped bool, r *http.Reque
 	return params, nil
 }
 
-// NewAccessTokenParams is parameters of NewAccessToken operation.
-type NewAccessTokenParams struct {
-	CoreRefreshToken string
-}
-
-func unpackNewAccessTokenParams(packed middleware.Parameters) (params NewAccessTokenParams) {
-	{
-		key := middleware.ParameterKey{
-			Name: "core_refresh_token",
-			In:   "cookie",
-		}
-		params.CoreRefreshToken = packed[key].(string)
-	}
-	return params
-}
-
-func decodeNewAccessTokenParams(args [0]string, argsEscaped bool, r *http.Request) (params NewAccessTokenParams, _ error) {
-	c := uri.NewCookieDecoder(r)
-	// Decode cookie: core_refresh_token.
-	if err := func() error {
-		cfg := uri.CookieParameterDecodingConfig{
-			Name:    "core_refresh_token",
-			Explode: true,
-		}
-		if err := c.HasParam(cfg); err == nil {
-			if err := c.DecodeParam(cfg, func(d uri.Decoder) error {
-				val, err := d.DecodeValue()
-				if err != nil {
-					return err
-				}
-
-				c, err := conv.ToString(val)
-				if err != nil {
-					return err
-				}
-
-				params.CoreRefreshToken = c
-				return nil
-			}); err != nil {
-				return err
-			}
-		} else {
-			return validate.ErrFieldRequired
-		}
-		return nil
-	}(); err != nil {
-		return params, &ogenerrors.DecodeParamError{
-			Name: "core_refresh_token",
-			In:   "cookie",
-			Err:  err,
-		}
-	}
-	return params, nil
-}
-
 // UpdateMessageParams is parameters of UpdateMessage operation.
 type UpdateMessageParams struct {
 	ID int64

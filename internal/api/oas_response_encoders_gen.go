@@ -430,6 +430,18 @@ func encodeNewActivationTokenResponse(response NewActivationTokenRes, w http.Res
 		}
 		return nil
 
+	case *NewActivationTokenUnauthorized:
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(401)
+		span.SetStatus(codes.Error, http.StatusText(401))
+
+		e := jx.GetEncoder()
+		response.Encode(e)
+		if _, err := e.WriteTo(w); err != nil {
+			return errors.Wrap(err, "write")
+		}
+		return nil
+
 	case *NewActivationTokenNotFound:
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(404)
@@ -568,6 +580,18 @@ func encodeNewPasswordResetTokenResponse(response NewPasswordResetTokenRes, w ht
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(400)
 		span.SetStatus(codes.Error, http.StatusText(400))
+
+		e := jx.GetEncoder()
+		response.Encode(e)
+		if _, err := e.WriteTo(w); err != nil {
+			return errors.Wrap(err, "write")
+		}
+		return nil
+
+	case *NewPasswordResetTokenUnauthorized:
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(401)
+		span.SetStatus(codes.Error, http.StatusText(401))
 
 		e := jx.GetEncoder()
 		response.Encode(e)

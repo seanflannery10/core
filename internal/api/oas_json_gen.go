@@ -1718,6 +1718,44 @@ func (s *NewActivationTokenNotFound) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
+// Encode encodes NewActivationTokenUnauthorized as json.
+func (s *NewActivationTokenUnauthorized) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes NewActivationTokenUnauthorized from json.
+func (s *NewActivationTokenUnauthorized) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode NewActivationTokenUnauthorized to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = NewActivationTokenUnauthorized(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *NewActivationTokenUnauthorized) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *NewActivationTokenUnauthorized) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
 // Encode encodes NewActivationTokenUnprocessableEntity as json.
 func (s *NewActivationTokenUnprocessableEntity) Encode(e *jx.Encoder) {
 	unwrapped := (*ErrorResponse)(s)
@@ -2056,6 +2094,44 @@ func (s *NewPasswordResetTokenNotFound) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *NewPasswordResetTokenNotFound) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes NewPasswordResetTokenUnauthorized as json.
+func (s *NewPasswordResetTokenUnauthorized) Encode(e *jx.Encoder) {
+	unwrapped := (*ErrorResponse)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes NewPasswordResetTokenUnauthorized from json.
+func (s *NewPasswordResetTokenUnauthorized) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode NewPasswordResetTokenUnauthorized to nil")
+	}
+	var unwrapped ErrorResponse
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = NewPasswordResetTokenUnauthorized(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *NewPasswordResetTokenUnauthorized) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *NewPasswordResetTokenUnauthorized) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -2521,13 +2597,13 @@ func (s *TokenRequest) Encode(e *jx.Encoder) {
 func (s *TokenRequest) encodeFields(e *jx.Encoder) {
 	{
 
-		e.FieldStart("plaintext")
-		e.Str(s.Plaintext)
+		e.FieldStart("token")
+		e.Str(s.Token)
 	}
 }
 
 var jsonFieldsNameOfTokenRequest = [1]string{
-	0: "plaintext",
+	0: "token",
 }
 
 // Decode decodes TokenRequest from json.
@@ -2539,17 +2615,17 @@ func (s *TokenRequest) Decode(d *jx.Decoder) error {
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
-		case "plaintext":
+		case "token":
 			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
 				v, err := d.Str()
-				s.Plaintext = string(v)
+				s.Token = string(v)
 				if err != nil {
 					return err
 				}
 				return nil
 			}(); err != nil {
-				return errors.Wrap(err, "decode field \"plaintext\"")
+				return errors.Wrap(err, "decode field \"token\"")
 			}
 		default:
 			return d.Skip()

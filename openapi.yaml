@@ -160,8 +160,6 @@ paths:
       operationId: NewAccessToken
       security:
         - Refresh: [ ]
-      parameters:
-         - $ref: '#/components/parameters/refreshTokenCookie'
       responses:
         201:
           description: Created
@@ -198,6 +196,8 @@ paths:
                 $ref: '#/components/schemas/TokenResponse'
         400:
           $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
         404:
           $ref: '#/components/responses/404'
         422:
@@ -222,6 +222,8 @@ paths:
                 $ref: '#/components/schemas/TokenResponse'
         400:
           $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
         404:
           $ref: '#/components/responses/404'
         422:
@@ -235,8 +237,6 @@ paths:
       tags:
         - tokens
       operationId: NewRefreshToken
-      security:
-        - Refresh: [ ]
       requestBody:
         $ref: '#/components/requestBodies/UserLoginRequestBody'
       responses:
@@ -366,12 +366,6 @@ components:
         minimum: 5
         maximum: 100
         default: 20
-    refreshTokenCookie:
-      name: core_refresh_token
-      in: cookie
-      required: true
-      schema:
-        type: string
   requestBodies:
     MessageRequestBody:
       required: true
@@ -465,11 +459,11 @@ components:
       type: object
       description: "Contains a plaintext token as well as optional properties"
       properties:
-        plaintext:
+        token:
           type: string
           format: password
       required:
-        - plaintext
+        - token
     UpdateUserPasswordRequest:
       type: object
       description: "Contains a password and token object"

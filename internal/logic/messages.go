@@ -70,7 +70,7 @@ func GetMessage(ctx context.Context, q *data.Queries, messageID int64) (api.Mess
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
-			return api.MessageResponse{}, errNotFound
+			return api.MessageResponse{}, ErrMessageNotFound
 		default:
 			return api.MessageResponse{}, fmt.Errorf("failed get message: %w", err)
 		}
@@ -93,7 +93,7 @@ func UpdateMessage(ctx context.Context, q *data.Queries, m string, messageID int
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
-			return api.MessageResponse{}, errNotFound
+			return api.MessageResponse{}, ErrMessageNotFound
 		default:
 			return api.MessageResponse{}, fmt.Errorf("failed update message: %w", err)
 		}
@@ -120,7 +120,7 @@ func DeleteMessage(ctx context.Context, q *data.Queries, id int64) (api.Acceptan
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
-			return api.AcceptanceResponse{}, errNotFound
+			return api.AcceptanceResponse{}, ErrMessageNotFound
 		default:
 			return api.AcceptanceResponse{}, fmt.Errorf("failed delete message: %w", err)
 		}

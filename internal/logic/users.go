@@ -14,11 +14,14 @@ import (
 const lengthRandom = 16
 
 var (
-	errAlreadyExists      = errors.New("already exists")
-	errInvalidCredentials = errors.New("invalid credentials")
-	errNotActivated       = errors.New("not activated")
-	errNotFound           = errors.New("not found")
-	errReusedRefreshToken = errors.New("reused refresh token")
+	ErrActivationRequired = errors.New("user account must be activated")
+	ErrAlreadyActivated   = errors.New("user has already been activated")
+	ErrEmailNotFound      = errors.New("no matching email address found")
+	ErrInvalidCredentials = errors.New("invalid authentication credentials")
+	ErrInvalidToken       = errors.New("invalid or missing token")
+	ErrMessageNotFound    = errors.New("no matching message found")
+	ErrReusedRefreshToken = errors.New("reused refresh token")
+	ErrUserExists         = errors.New("a user with this email address already exists")
 )
 
 func ActivateUser(ctx context.Context, q *data.Queries, plaintext string) (api.UserResponse, error) {
@@ -26,7 +29,7 @@ func ActivateUser(ctx context.Context, q *data.Queries, plaintext string) (api.U
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
-			return api.UserResponse{}, errNotFound
+			return api.UserResponse{}, ErrInvalidToken
 		default:
 			return api.UserResponse{}, fmt.Errorf("failed get user from activation token: %w", err)
 		}
@@ -66,7 +69,7 @@ func NewUser(ctx context.Context, q *data.Queries, name, email, pass string) (ap
 	}
 
 	if ok {
-		return api.UserResponse{}, api.TokenResponse{}, errAlreadyExists
+		return api.UserResponse{}, api.TokenResponse{}, ErrUserExists
 	}
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(pass), data.PasswordCost)
@@ -105,7 +108,7 @@ func UpdateUserPassword(ctx context.Context, q *data.Queries, token, pass string
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
-			return api.AcceptanceResponse{}, errNotFound
+			return api.AcceptanceResponse{}, ErrInvalidToken
 		default:
 			return api.AcceptanceResponse{}, fmt.Errorf("failed get user from password reset token: %w", err)
 		}

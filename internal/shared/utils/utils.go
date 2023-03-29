@@ -18,6 +18,10 @@ func ContextSetUser(ctx context.Context, user *data.User) context.Context {
 	return context.WithValue(ctx, userContextKey, *user)
 }
 
+func ContextSetCookieValue(ctx context.Context, s string) context.Context {
+	return context.WithValue(ctx, userContextKey, s)
+}
+
 func ContextGetUser(ctx context.Context) data.User {
 	user, ok := ctx.Value(userContextKey).(data.User)
 	if !ok {
@@ -25,6 +29,15 @@ func ContextGetUser(ctx context.Context) data.User {
 	}
 
 	return user
+}
+
+func ContextGetCookieValue(ctx context.Context) string {
+	cookieValue, ok := ctx.Value(userContextKey).(string)
+	if !ok {
+		panic("missing cookie value in request context")
+	}
+
+	return cookieValue
 }
 
 func GetVersion() string {

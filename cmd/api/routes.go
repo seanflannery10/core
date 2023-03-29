@@ -23,7 +23,7 @@ func (app *application) routes() *http.ServeMux {
 
 	srv, err := api.NewServer(
 		newHandler,
-		&security{Queries: data.New(app.dbpool)},
+		&security{Queries: data.New(app.dbpool), SecretKey: app.secretKey},
 		api.WithMiddleware(app.RecoverPanic()),
 		api.WithErrorHandler(app.ErrorHandler),
 	)
