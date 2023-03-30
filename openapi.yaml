@@ -28,18 +28,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MessagesResponse'
-        400:
-          $ref: '#/components/responses/400'
-        401:
-          $ref: '#/components/responses/401'
-        404:
-          $ref: '#/components/responses/404'
-        422:
-          $ref: '#/components/responses/422'
-        500:
-          $ref: '#/components/responses/500'
         default:
-          $ref: '#/components/responses/default'
+          $ref: '#/components/responses/Error'
     post:
       tags:
         - messages
@@ -55,18 +45,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MessageResponse'
-        400:
-          $ref: '#/components/responses/400'
-        401:
-          $ref: '#/components/responses/401'
-        404:
-          $ref: '#/components/responses/404'
-        422:
-          $ref: '#/components/responses/422'
-        500:
-          $ref: '#/components/responses/500'
         default:
-          $ref: '#/components/responses/default'
+          $ref: '#/components/responses/Error'
   /v1/messages/{id}:
     get:
       tags:
@@ -83,18 +63,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MessageResponse'
-        400:
-          $ref: '#/components/responses/400'
-        401:
-          $ref: '#/components/responses/401'
-        404:
-          $ref: '#/components/responses/404'
-        422:
-          $ref: '#/components/responses/422'
-        500:
-          $ref: '#/components/responses/500'
         default:
-          $ref: '#/components/responses/default'
+          $ref: '#/components/responses/Error'
     put:
       tags:
         - messages
@@ -112,20 +82,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MessageResponse'
-        400:
-          $ref: '#/components/responses/400'
-        401:
-          $ref: '#/components/responses/401'
-        404:
-          $ref: '#/components/responses/404'
-        409:
-          $ref: '#/components/responses/409'
-        422:
-          $ref: '#/components/responses/422'
-        500:
-          $ref: '#/components/responses/500'
         default:
-          $ref: '#/components/responses/default'
+          $ref: '#/components/responses/Error'
     delete:
       tags:
         - messages
@@ -141,18 +99,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AcceptanceResponse'
-        400:
-          $ref: '#/components/responses/400'
-        401:
-          $ref: '#/components/responses/401'
-        404:
-          $ref: '#/components/responses/404'
-        422:
-          $ref: '#/components/responses/422'
-        500:
-          $ref: '#/components/responses/500'
         default:
-          $ref: '#/components/responses/default'
+          $ref: '#/components/responses/Error'
   /v1/tokens/access:
     post:
       tags:
@@ -172,14 +120,8 @@ paths:
               description: "Contains encrypted refresh token"
               schema:
                 type: string
-        400:
-          $ref: '#/components/responses/400'
-        401:
-          $ref: '#/components/responses/401'
-        500:
-          $ref: '#/components/responses/500'
         default:
-          $ref: '#/components/responses/default'
+          $ref: '#/components/responses/Error'
   /v1/tokens/activation:
     post:
       tags:
@@ -194,18 +136,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TokenResponse'
-        400:
-          $ref: '#/components/responses/400'
-        401:
-          $ref: '#/components/responses/401'
-        404:
-          $ref: '#/components/responses/404'
-        422:
-          $ref: '#/components/responses/422'
-        500:
-          $ref: '#/components/responses/500'
         default:
-          $ref: '#/components/responses/default'
+          $ref: '#/components/responses/Error'
   /v1/tokens/password-reset:
     post:
       tags:
@@ -220,18 +152,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TokenResponse'
-        400:
-          $ref: '#/components/responses/400'
-        401:
-          $ref: '#/components/responses/401'
-        404:
-          $ref: '#/components/responses/404'
-        422:
-          $ref: '#/components/responses/422'
-        500:
-          $ref: '#/components/responses/500'
         default:
-          $ref: '#/components/responses/default'
+          $ref: '#/components/responses/Error'
   /v1/tokens/refresh:
     post:
       tags:
@@ -251,18 +173,8 @@ paths:
               description: "Contains encrypted refresh token"
               schema:
                 type: string
-        400:
-          $ref: '#/components/responses/400'
-        401:
-          $ref: '#/components/responses/401'
-        404:
-          $ref: '#/components/responses/404'
-        422:
-          $ref: '#/components/responses/422'
-        500:
-          $ref: '#/components/responses/500'
         default:
-          $ref: '#/components/responses/default'
+          $ref: '#/components/responses/Error'
   /v1/users/activate:
     patch:
       tags:
@@ -277,18 +189,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserResponse'
-        400:
-          $ref: '#/components/responses/400'
-        401:
-          $ref: '#/components/responses/401'
-        404:
-          $ref: '#/components/responses/404'
-        422:
-          $ref: '#/components/responses/422'
-        500:
-          $ref: '#/components/responses/500'
         default:
-          $ref: '#/components/responses/default'
+          $ref: '#/components/responses/Error'
   /v1/users/register:
     post:
       tags:
@@ -303,16 +205,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserResponse'
-        400:
-          $ref: '#/components/responses/400'
-        404:
-          $ref: '#/components/responses/404'
-        422:
-          $ref: '#/components/responses/422'
-        500:
-          $ref: '#/components/responses/500'
         default:
-          $ref: '#/components/responses/default'
+          $ref: '#/components/responses/Error'
   /v1/users/update-password:
     patch:
       tags:
@@ -327,18 +221,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AcceptanceResponse'
-        400:
-          $ref: '#/components/responses/400'
-        401:
-          $ref: '#/components/responses/401'
-        404:
-          $ref: '#/components/responses/404'
-        422:
-          $ref: '#/components/responses/422'
-        500:
-          $ref: '#/components/responses/500'
         default:
-          $ref: '#/components/responses/default'
+          $ref: '#/components/responses/Error'
 components:
   parameters:
     id:
@@ -402,43 +286,7 @@ components:
           schema:
             $ref: '#/components/schemas/TokenRequest'
   responses:
-    400:
-      description: Bad Request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-    401:
-      description: Unauthorized
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-    404:
-      description: Not Found
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-    422:
-      description: Unprocessable Entity
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-    409:
-      description: Conflict
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-    500:
-      description: Internal Server Error
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-    default:
+    Error:
       description: Default Error
       content:
         application/json:

@@ -16,84 +16,84 @@ var _ Handler = UnimplementedHandler{}
 // ActivateUser implements ActivateUser operation.
 //
 // PATCH /v1/users/activate
-func (UnimplementedHandler) ActivateUser(ctx context.Context, req *TokenRequest) (r ActivateUserRes, _ error) {
+func (UnimplementedHandler) ActivateUser(ctx context.Context, req *TokenRequest) (r *UserResponse, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
 // DeleteMessage implements DeleteMessage operation.
 //
 // DELETE /v1/messages/{id}
-func (UnimplementedHandler) DeleteMessage(ctx context.Context, params DeleteMessageParams) (r DeleteMessageRes, _ error) {
+func (UnimplementedHandler) DeleteMessage(ctx context.Context, params DeleteMessageParams) (r *AcceptanceResponse, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
 // GetMessage implements GetMessage operation.
 //
 // GET /v1/messages/{id}
-func (UnimplementedHandler) GetMessage(ctx context.Context, params GetMessageParams) (r GetMessageRes, _ error) {
+func (UnimplementedHandler) GetMessage(ctx context.Context, params GetMessageParams) (r *MessageResponse, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
 // GetUserMessages implements GetUserMessages operation.
 //
 // GET /v1/messages
-func (UnimplementedHandler) GetUserMessages(ctx context.Context, params GetUserMessagesParams) (r GetUserMessagesRes, _ error) {
+func (UnimplementedHandler) GetUserMessages(ctx context.Context, params GetUserMessagesParams) (r *MessagesResponse, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
 // NewAccessToken implements NewAccessToken operation.
 //
 // POST /v1/tokens/access
-func (UnimplementedHandler) NewAccessToken(ctx context.Context) (r NewAccessTokenRes, _ error) {
+func (UnimplementedHandler) NewAccessToken(ctx context.Context) (r *TokenResponseHeaders, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
 // NewActivationToken implements NewActivationToken operation.
 //
 // POST /v1/tokens/activation
-func (UnimplementedHandler) NewActivationToken(ctx context.Context, req *UserEmailRequest) (r NewActivationTokenRes, _ error) {
+func (UnimplementedHandler) NewActivationToken(ctx context.Context, req *UserEmailRequest) (r *TokenResponse, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
 // NewMessage implements NewMessage operation.
 //
 // POST /v1/messages
-func (UnimplementedHandler) NewMessage(ctx context.Context, req *MessageRequest) (r NewMessageRes, _ error) {
+func (UnimplementedHandler) NewMessage(ctx context.Context, req *MessageRequest) (r *MessageResponse, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
 // NewPasswordResetToken implements NewPasswordResetToken operation.
 //
 // POST /v1/tokens/password-reset
-func (UnimplementedHandler) NewPasswordResetToken(ctx context.Context, req *UserEmailRequest) (r NewPasswordResetTokenRes, _ error) {
+func (UnimplementedHandler) NewPasswordResetToken(ctx context.Context, req *UserEmailRequest) (r *TokenResponse, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
 // NewRefreshToken implements NewRefreshToken operation.
 //
 // POST /v1/tokens/refresh
-func (UnimplementedHandler) NewRefreshToken(ctx context.Context, req *UserLoginRequest) (r NewRefreshTokenRes, _ error) {
+func (UnimplementedHandler) NewRefreshToken(ctx context.Context, req *UserLoginRequest) (r *TokenResponseHeaders, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
 // NewUser implements NewUser operation.
 //
 // POST /v1/users/register
-func (UnimplementedHandler) NewUser(ctx context.Context, req *UserRequest) (r NewUserRes, _ error) {
+func (UnimplementedHandler) NewUser(ctx context.Context, req *UserRequest) (r *UserResponse, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
 // UpdateMessage implements UpdateMessage operation.
 //
 // PUT /v1/messages/{id}
-func (UnimplementedHandler) UpdateMessage(ctx context.Context, req *MessageRequest, params UpdateMessageParams) (r UpdateMessageRes, _ error) {
+func (UnimplementedHandler) UpdateMessage(ctx context.Context, req *MessageRequest, params UpdateMessageParams) (r *MessageResponse, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
 // UpdateUserPassword implements UpdateUserPassword operation.
 //
 // PATCH /v1/users/update-password
-func (UnimplementedHandler) UpdateUserPassword(ctx context.Context, req *UpdateUserPasswordRequest) (r UpdateUserPasswordRes, _ error) {
+func (UnimplementedHandler) UpdateUserPassword(ctx context.Context, req *UpdateUserPasswordRequest) (r *AcceptanceResponse, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

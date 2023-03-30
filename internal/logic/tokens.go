@@ -33,7 +33,7 @@ func NewActivationToken(ctx context.Context, q *data.Queries, email string) (api
 	}
 
 	if user.Activated {
-		return api.TokenResponse{}, ErrAlreadyActivated
+		return api.TokenResponse{}, ErrUserAlreadyActivated
 	}
 
 	activationToken, err := newToken(ctx, q, ttlActivationToken, data.ScopeActivation, user.ID)
@@ -157,6 +157,7 @@ func NewAccessToken(ctx context.Context, q *data.Queries, tokenFromCookie string
 }
 
 func newToken(ctx context.Context, q *data.Queries, ttl time.Duration, scope string, userID int64) (api.TokenResponse, error) {
+	const lengthRandom = 16
 	randomBytes := make([]byte, lengthRandom)
 
 	_, err := rand.Read(randomBytes)

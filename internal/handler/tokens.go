@@ -24,66 +24,47 @@ const (
 	cookieTTL          = 7 * 24 * 60 * 60
 )
 
-func (s *Handler) NewActivationToken(ctx context.Context, req *api.UserEmailRequest) (api.NewActivationTokenRes, error) {
+func (s *Handler) NewActivationToken(ctx context.Context, req *api.UserEmailRequest) (*api.TokenResponse, error) {
 	activationToken, err := logic.NewActivationToken(ctx, s.Queries, req.Email)
 	if err != nil {
-		switch {
-		case errors.Is(err, logic.ErrEmailNotFound):
-			return &api.NewActivationTokenNotFound{Error: err.Error()}, nil
-		case errors.Is(err, logic.ErrAlreadyActivated):
-			return &api.NewActivationTokenUnprocessableEntity{Error: err.Error()}, nil
-		default:
-			return &api.NewActivationTokenInternalServerError{Error: serverError}, nil
-		}
+		return &api.TokenResponse{}, errors.Wrap(err, "failed new activation token")
 	}
 
 	err = s.Mailer.Send(req.Email, "token_activation.tmpl", map[string]any{
 		"activationToken": activationToken.Token,
 	})
 	if err != nil {
-		return &api.NewActivationTokenInternalServerError{Error: serverError}, nil
+		return &api.TokenResponse{}, errors.Wrap(err, "failed send activation token email")
 	}
 
 	return &activationToken, nil
 }
 
-func (s *Handler) NewPasswordResetToken(ctx context.Context, req *api.UserEmailRequest) (api.NewPasswordResetTokenRes, error) {
+func (s *Handler) NewPasswordResetToken(ctx context.Context, req *api.UserEmailRequest) (*api.TokenResponse, error) {
 	passwordResetToken, err := logic.NewPasswordResetToken(ctx, s.Queries, req.Email)
 	if err != nil {
-		switch {
-		case errors.Is(err, logic.ErrEmailNotFound):
-			return &api.NewPasswordResetTokenNotFound{Error: err.Error()}, nil
-		case errors.Is(err, logic.ErrActivationRequired):
-			return &api.NewPasswordResetTokenUnprocessableEntity{Error: err.Error()}, nil
-		default:
-			return &api.NewPasswordResetTokenInternalServerError{Error: serverError}, nil
-		}
+		return &api.TokenResponse{}, errors.Wrap(err, "failed new password reset token")
 	}
 
 	err = s.Mailer.Send(req.Email, "token_password_reset.tmpl", map[string]any{
 		"passwordResetToken": passwordResetToken.Token,
 	})
 	if err != nil {
-		return &api.NewPasswordResetTokenInternalServerError{Error: serverError}, nil
+		return &api.TokenResponse{}, errors.Wrap(err, "failed send password reset token email")
 	}
 
 	return &passwordResetToken, nil
 }
 
-func (s *Handler) NewRefreshToken(ctx context.Context, req *api.UserLoginRequest) (api.NewRefreshTokenRes, error) {
+func (s *Handler) NewRefreshToken(ctx context.Context, req *api.UserLoginRequest) (*api.TokenResponseHeaders, error) {
 	refreshToken, accessToken, err := logic.NewRefreshToken(ctx, s.Queries, req.Email, req.Password)
 	if err != nil {
-		switch {
-		case errors.Is(err, logic.ErrInvalidCredentials):
-			return &api.NewRefreshTokenUnauthorized{Error: err.Error()}, nil
-		default:
-			return &api.NewRefreshTokenInternalServerError{Error: serverError}, nil
-		}
+		return &api.TokenResponseHeaders{}, errors.Wrap(err, "failed new refresh token")
 	}
 
 	cookie, err := newCookie(cookieRefreshToken, refreshToken.Token, cookieTTL, s.Secret)
 	if err != nil {
-		return &api.NewRefreshTokenInternalServerError{Error: serverError}, nil
+		return &api.TokenResponseHeaders{}, errors.Wrap(err, "failed new refresh token cookie")
 	}
 
 	optString := api.OptString{Value: cookie.String(), Set: true}
@@ -92,28 +73,23 @@ func (s *Handler) NewRefreshToken(ctx context.Context, req *api.UserLoginRequest
 	return &tokenResponseHeaders, nil
 }
 
-func (s *Handler) NewAccessToken(ctx context.Context) (api.NewAccessTokenRes, error) {
+func (s *Handler) NewAccessToken(ctx context.Context) (*api.TokenResponseHeaders, error) {
 	value := utils.ContextGetCookieValue(ctx)
 
 	refreshToken, accessToken, err := logic.NewAccessToken(ctx, s.Queries, value)
 	if err != nil {
-		switch {
-		case errors.Is(err, logic.ErrInvalidToken), errors.Is(err, logic.ErrReusedRefreshToken):
-			return &api.NewAccessTokenUnauthorized{Error: err.Error()}, nil
-		default:
-			return &api.NewAccessTokenInternalServerError{Error: serverError}, nil
-		}
+		return &api.TokenResponseHeaders{}, errors.Wrap(err, "failed new access token")
 	}
 
 	cookie, err := newCookie(cookieRefreshToken, refreshToken.Token, cookieTTL, s.Secret)
 	if err != nil {
-		return &api.NewAccessTokenInternalServerError{Error: serverError}, nil
+		return &api.TokenResponseHeaders{}, errors.Wrap(err, "failed new access token cookie")
 	}
 
 	optString := api.OptString{Value: cookie.String(), Set: true}
 	tokenResponseHeaders := api.TokenResponseHeaders{SetCookie: optString, Response: accessToken}
 
-	return &tokenResponseHeaders, nil
+	return &tokenResponseHeaders, err
 }
 
 func newCookie(name, value string, ttl int, secret []byte) (http.Cookie, error) {

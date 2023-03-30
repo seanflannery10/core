@@ -14,966 +14,198 @@ import (
 	"github.com/ogen-go/ogen/uri"
 )
 
-func encodeActivateUserResponse(response ActivateUserRes, w http.ResponseWriter, span trace.Span) error {
-	switch response := response.(type) {
-	case *UserResponse:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(200)
-		span.SetStatus(codes.Ok, http.StatusText(200))
+func encodeActivateUserResponse(response *UserResponse, w http.ResponseWriter, span trace.Span) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	span.SetStatus(codes.Ok, http.StatusText(200))
 
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *ActivateUserBadRequest:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(400)
-		span.SetStatus(codes.Error, http.StatusText(400))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *ActivateUserUnauthorized:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(401)
-		span.SetStatus(codes.Error, http.StatusText(401))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *ActivateUserNotFound:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(404)
-		span.SetStatus(codes.Error, http.StatusText(404))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *ActivateUserUnprocessableEntity:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(422)
-		span.SetStatus(codes.Error, http.StatusText(422))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *ActivateUserInternalServerError:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(500)
-		span.SetStatus(codes.Error, http.StatusText(500))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	default:
-		return errors.Errorf("unexpected response type: %T", response)
+	e := jx.GetEncoder()
+	response.Encode(e)
+	if _, err := e.WriteTo(w); err != nil {
+		return errors.Wrap(err, "write")
 	}
+	return nil
 }
 
-func encodeDeleteMessageResponse(response DeleteMessageRes, w http.ResponseWriter, span trace.Span) error {
-	switch response := response.(type) {
-	case *AcceptanceResponse:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(200)
-		span.SetStatus(codes.Ok, http.StatusText(200))
+func encodeDeleteMessageResponse(response *AcceptanceResponse, w http.ResponseWriter, span trace.Span) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	span.SetStatus(codes.Ok, http.StatusText(200))
 
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *DeleteMessageBadRequest:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(400)
-		span.SetStatus(codes.Error, http.StatusText(400))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *DeleteMessageUnauthorized:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(401)
-		span.SetStatus(codes.Error, http.StatusText(401))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *DeleteMessageNotFound:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(404)
-		span.SetStatus(codes.Error, http.StatusText(404))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *DeleteMessageUnprocessableEntity:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(422)
-		span.SetStatus(codes.Error, http.StatusText(422))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *DeleteMessageInternalServerError:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(500)
-		span.SetStatus(codes.Error, http.StatusText(500))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	default:
-		return errors.Errorf("unexpected response type: %T", response)
+	e := jx.GetEncoder()
+	response.Encode(e)
+	if _, err := e.WriteTo(w); err != nil {
+		return errors.Wrap(err, "write")
 	}
+	return nil
 }
 
-func encodeGetMessageResponse(response GetMessageRes, w http.ResponseWriter, span trace.Span) error {
-	switch response := response.(type) {
-	case *MessageResponse:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(200)
-		span.SetStatus(codes.Ok, http.StatusText(200))
+func encodeGetMessageResponse(response *MessageResponse, w http.ResponseWriter, span trace.Span) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	span.SetStatus(codes.Ok, http.StatusText(200))
 
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *GetMessageBadRequest:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(400)
-		span.SetStatus(codes.Error, http.StatusText(400))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *GetMessageUnauthorized:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(401)
-		span.SetStatus(codes.Error, http.StatusText(401))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *GetMessageNotFound:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(404)
-		span.SetStatus(codes.Error, http.StatusText(404))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *GetMessageUnprocessableEntity:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(422)
-		span.SetStatus(codes.Error, http.StatusText(422))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *GetMessageInternalServerError:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(500)
-		span.SetStatus(codes.Error, http.StatusText(500))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	default:
-		return errors.Errorf("unexpected response type: %T", response)
+	e := jx.GetEncoder()
+	response.Encode(e)
+	if _, err := e.WriteTo(w); err != nil {
+		return errors.Wrap(err, "write")
 	}
+	return nil
 }
 
-func encodeGetUserMessagesResponse(response GetUserMessagesRes, w http.ResponseWriter, span trace.Span) error {
-	switch response := response.(type) {
-	case *MessagesResponse:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(200)
-		span.SetStatus(codes.Ok, http.StatusText(200))
+func encodeGetUserMessagesResponse(response *MessagesResponse, w http.ResponseWriter, span trace.Span) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	span.SetStatus(codes.Ok, http.StatusText(200))
 
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *GetUserMessagesBadRequest:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(400)
-		span.SetStatus(codes.Error, http.StatusText(400))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *GetUserMessagesUnauthorized:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(401)
-		span.SetStatus(codes.Error, http.StatusText(401))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *GetUserMessagesNotFound:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(404)
-		span.SetStatus(codes.Error, http.StatusText(404))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *GetUserMessagesUnprocessableEntity:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(422)
-		span.SetStatus(codes.Error, http.StatusText(422))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *GetUserMessagesInternalServerError:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(500)
-		span.SetStatus(codes.Error, http.StatusText(500))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	default:
-		return errors.Errorf("unexpected response type: %T", response)
+	e := jx.GetEncoder()
+	response.Encode(e)
+	if _, err := e.WriteTo(w); err != nil {
+		return errors.Wrap(err, "write")
 	}
+	return nil
 }
 
-func encodeNewAccessTokenResponse(response NewAccessTokenRes, w http.ResponseWriter, span trace.Span) error {
-	switch response := response.(type) {
-	case *TokenResponseHeaders:
-		w.Header().Set("Content-Type", "application/json")
-		// Encoding response headers.
+func encodeNewAccessTokenResponse(response *TokenResponseHeaders, w http.ResponseWriter, span trace.Span) error {
+	w.Header().Set("Content-Type", "application/json")
+	// Encoding response headers.
+	{
+		h := uri.NewHeaderEncoder(w.Header())
+		// Encode "Set-Cookie" header.
 		{
-			h := uri.NewHeaderEncoder(w.Header())
-			// Encode "Set-Cookie" header.
-			{
-				cfg := uri.HeaderParameterEncodingConfig{
-					Name:    "Set-Cookie",
-					Explode: false,
+			cfg := uri.HeaderParameterEncodingConfig{
+				Name:    "Set-Cookie",
+				Explode: false,
+			}
+			if err := h.EncodeParam(cfg, func(e uri.Encoder) error {
+				if val, ok := response.SetCookie.Get(); ok {
+					return e.EncodeValue(conv.StringToString(val))
 				}
-				if err := h.EncodeParam(cfg, func(e uri.Encoder) error {
-					if val, ok := response.SetCookie.Get(); ok {
-						return e.EncodeValue(conv.StringToString(val))
-					}
-					return nil
-				}); err != nil {
-					return errors.Wrap(err, "encode Set-Cookie header")
-				}
+				return nil
+			}); err != nil {
+				return errors.Wrap(err, "encode Set-Cookie header")
 			}
 		}
-		w.WriteHeader(201)
-		span.SetStatus(codes.Ok, http.StatusText(201))
-
-		e := jx.GetEncoder()
-		response.Response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *NewAccessTokenBadRequest:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(400)
-		span.SetStatus(codes.Error, http.StatusText(400))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *NewAccessTokenUnauthorized:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(401)
-		span.SetStatus(codes.Error, http.StatusText(401))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *NewAccessTokenInternalServerError:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(500)
-		span.SetStatus(codes.Error, http.StatusText(500))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	default:
-		return errors.Errorf("unexpected response type: %T", response)
 	}
+	w.WriteHeader(201)
+	span.SetStatus(codes.Ok, http.StatusText(201))
+
+	e := jx.GetEncoder()
+	response.Response.Encode(e)
+	if _, err := e.WriteTo(w); err != nil {
+		return errors.Wrap(err, "write")
+	}
+	return nil
 }
 
-func encodeNewActivationTokenResponse(response NewActivationTokenRes, w http.ResponseWriter, span trace.Span) error {
-	switch response := response.(type) {
-	case *TokenResponse:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(201)
-		span.SetStatus(codes.Ok, http.StatusText(201))
+func encodeNewActivationTokenResponse(response *TokenResponse, w http.ResponseWriter, span trace.Span) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(201)
+	span.SetStatus(codes.Ok, http.StatusText(201))
 
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *NewActivationTokenBadRequest:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(400)
-		span.SetStatus(codes.Error, http.StatusText(400))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *NewActivationTokenUnauthorized:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(401)
-		span.SetStatus(codes.Error, http.StatusText(401))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *NewActivationTokenNotFound:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(404)
-		span.SetStatus(codes.Error, http.StatusText(404))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *NewActivationTokenUnprocessableEntity:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(422)
-		span.SetStatus(codes.Error, http.StatusText(422))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *NewActivationTokenInternalServerError:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(500)
-		span.SetStatus(codes.Error, http.StatusText(500))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	default:
-		return errors.Errorf("unexpected response type: %T", response)
+	e := jx.GetEncoder()
+	response.Encode(e)
+	if _, err := e.WriteTo(w); err != nil {
+		return errors.Wrap(err, "write")
 	}
+	return nil
 }
 
-func encodeNewMessageResponse(response NewMessageRes, w http.ResponseWriter, span trace.Span) error {
-	switch response := response.(type) {
-	case *MessageResponse:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(201)
-		span.SetStatus(codes.Ok, http.StatusText(201))
+func encodeNewMessageResponse(response *MessageResponse, w http.ResponseWriter, span trace.Span) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(201)
+	span.SetStatus(codes.Ok, http.StatusText(201))
 
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *NewMessageBadRequest:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(400)
-		span.SetStatus(codes.Error, http.StatusText(400))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *NewMessageUnauthorized:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(401)
-		span.SetStatus(codes.Error, http.StatusText(401))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *NewMessageNotFound:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(404)
-		span.SetStatus(codes.Error, http.StatusText(404))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *NewMessageUnprocessableEntity:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(422)
-		span.SetStatus(codes.Error, http.StatusText(422))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *NewMessageInternalServerError:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(500)
-		span.SetStatus(codes.Error, http.StatusText(500))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	default:
-		return errors.Errorf("unexpected response type: %T", response)
+	e := jx.GetEncoder()
+	response.Encode(e)
+	if _, err := e.WriteTo(w); err != nil {
+		return errors.Wrap(err, "write")
 	}
+	return nil
 }
 
-func encodeNewPasswordResetTokenResponse(response NewPasswordResetTokenRes, w http.ResponseWriter, span trace.Span) error {
-	switch response := response.(type) {
-	case *TokenResponse:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(201)
-		span.SetStatus(codes.Ok, http.StatusText(201))
+func encodeNewPasswordResetTokenResponse(response *TokenResponse, w http.ResponseWriter, span trace.Span) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(201)
+	span.SetStatus(codes.Ok, http.StatusText(201))
 
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *NewPasswordResetTokenBadRequest:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(400)
-		span.SetStatus(codes.Error, http.StatusText(400))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *NewPasswordResetTokenUnauthorized:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(401)
-		span.SetStatus(codes.Error, http.StatusText(401))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *NewPasswordResetTokenNotFound:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(404)
-		span.SetStatus(codes.Error, http.StatusText(404))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *NewPasswordResetTokenUnprocessableEntity:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(422)
-		span.SetStatus(codes.Error, http.StatusText(422))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *NewPasswordResetTokenInternalServerError:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(500)
-		span.SetStatus(codes.Error, http.StatusText(500))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	default:
-		return errors.Errorf("unexpected response type: %T", response)
+	e := jx.GetEncoder()
+	response.Encode(e)
+	if _, err := e.WriteTo(w); err != nil {
+		return errors.Wrap(err, "write")
 	}
+	return nil
 }
 
-func encodeNewRefreshTokenResponse(response NewRefreshTokenRes, w http.ResponseWriter, span trace.Span) error {
-	switch response := response.(type) {
-	case *TokenResponseHeaders:
-		w.Header().Set("Content-Type", "application/json")
-		// Encoding response headers.
+func encodeNewRefreshTokenResponse(response *TokenResponseHeaders, w http.ResponseWriter, span trace.Span) error {
+	w.Header().Set("Content-Type", "application/json")
+	// Encoding response headers.
+	{
+		h := uri.NewHeaderEncoder(w.Header())
+		// Encode "Set-Cookie" header.
 		{
-			h := uri.NewHeaderEncoder(w.Header())
-			// Encode "Set-Cookie" header.
-			{
-				cfg := uri.HeaderParameterEncodingConfig{
-					Name:    "Set-Cookie",
-					Explode: false,
+			cfg := uri.HeaderParameterEncodingConfig{
+				Name:    "Set-Cookie",
+				Explode: false,
+			}
+			if err := h.EncodeParam(cfg, func(e uri.Encoder) error {
+				if val, ok := response.SetCookie.Get(); ok {
+					return e.EncodeValue(conv.StringToString(val))
 				}
-				if err := h.EncodeParam(cfg, func(e uri.Encoder) error {
-					if val, ok := response.SetCookie.Get(); ok {
-						return e.EncodeValue(conv.StringToString(val))
-					}
-					return nil
-				}); err != nil {
-					return errors.Wrap(err, "encode Set-Cookie header")
-				}
+				return nil
+			}); err != nil {
+				return errors.Wrap(err, "encode Set-Cookie header")
 			}
 		}
-		w.WriteHeader(201)
-		span.SetStatus(codes.Ok, http.StatusText(201))
-
-		e := jx.GetEncoder()
-		response.Response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *NewRefreshTokenBadRequest:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(400)
-		span.SetStatus(codes.Error, http.StatusText(400))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *NewRefreshTokenUnauthorized:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(401)
-		span.SetStatus(codes.Error, http.StatusText(401))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *NewRefreshTokenNotFound:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(404)
-		span.SetStatus(codes.Error, http.StatusText(404))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *NewRefreshTokenUnprocessableEntity:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(422)
-		span.SetStatus(codes.Error, http.StatusText(422))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *NewRefreshTokenInternalServerError:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(500)
-		span.SetStatus(codes.Error, http.StatusText(500))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	default:
-		return errors.Errorf("unexpected response type: %T", response)
 	}
+	w.WriteHeader(201)
+	span.SetStatus(codes.Ok, http.StatusText(201))
+
+	e := jx.GetEncoder()
+	response.Response.Encode(e)
+	if _, err := e.WriteTo(w); err != nil {
+		return errors.Wrap(err, "write")
+	}
+	return nil
 }
 
-func encodeNewUserResponse(response NewUserRes, w http.ResponseWriter, span trace.Span) error {
-	switch response := response.(type) {
-	case *UserResponse:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(201)
-		span.SetStatus(codes.Ok, http.StatusText(201))
+func encodeNewUserResponse(response *UserResponse, w http.ResponseWriter, span trace.Span) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(201)
+	span.SetStatus(codes.Ok, http.StatusText(201))
 
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *NewUserBadRequest:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(400)
-		span.SetStatus(codes.Error, http.StatusText(400))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *NewUserNotFound:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(404)
-		span.SetStatus(codes.Error, http.StatusText(404))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *NewUserUnprocessableEntity:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(422)
-		span.SetStatus(codes.Error, http.StatusText(422))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *NewUserInternalServerError:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(500)
-		span.SetStatus(codes.Error, http.StatusText(500))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	default:
-		return errors.Errorf("unexpected response type: %T", response)
+	e := jx.GetEncoder()
+	response.Encode(e)
+	if _, err := e.WriteTo(w); err != nil {
+		return errors.Wrap(err, "write")
 	}
+	return nil
 }
 
-func encodeUpdateMessageResponse(response UpdateMessageRes, w http.ResponseWriter, span trace.Span) error {
-	switch response := response.(type) {
-	case *MessageResponse:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(200)
-		span.SetStatus(codes.Ok, http.StatusText(200))
+func encodeUpdateMessageResponse(response *MessageResponse, w http.ResponseWriter, span trace.Span) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	span.SetStatus(codes.Ok, http.StatusText(200))
 
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *UpdateMessageBadRequest:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(400)
-		span.SetStatus(codes.Error, http.StatusText(400))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *UpdateMessageUnauthorized:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(401)
-		span.SetStatus(codes.Error, http.StatusText(401))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *UpdateMessageNotFound:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(404)
-		span.SetStatus(codes.Error, http.StatusText(404))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *UpdateMessageConflict:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(409)
-		span.SetStatus(codes.Error, http.StatusText(409))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *UpdateMessageUnprocessableEntity:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(422)
-		span.SetStatus(codes.Error, http.StatusText(422))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *UpdateMessageInternalServerError:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(500)
-		span.SetStatus(codes.Error, http.StatusText(500))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	default:
-		return errors.Errorf("unexpected response type: %T", response)
+	e := jx.GetEncoder()
+	response.Encode(e)
+	if _, err := e.WriteTo(w); err != nil {
+		return errors.Wrap(err, "write")
 	}
+	return nil
 }
 
-func encodeUpdateUserPasswordResponse(response UpdateUserPasswordRes, w http.ResponseWriter, span trace.Span) error {
-	switch response := response.(type) {
-	case *AcceptanceResponse:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(200)
-		span.SetStatus(codes.Ok, http.StatusText(200))
+func encodeUpdateUserPasswordResponse(response *AcceptanceResponse, w http.ResponseWriter, span trace.Span) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	span.SetStatus(codes.Ok, http.StatusText(200))
 
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *UpdateUserPasswordBadRequest:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(400)
-		span.SetStatus(codes.Error, http.StatusText(400))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *UpdateUserPasswordUnauthorized:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(401)
-		span.SetStatus(codes.Error, http.StatusText(401))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *UpdateUserPasswordNotFound:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(404)
-		span.SetStatus(codes.Error, http.StatusText(404))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *UpdateUserPasswordUnprocessableEntity:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(422)
-		span.SetStatus(codes.Error, http.StatusText(422))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	case *UpdateUserPasswordInternalServerError:
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(500)
-		span.SetStatus(codes.Error, http.StatusText(500))
-
-		e := jx.GetEncoder()
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-		return nil
-
-	default:
-		return errors.Errorf("unexpected response type: %T", response)
+	e := jx.GetEncoder()
+	response.Encode(e)
+	if _, err := e.WriteTo(w); err != nil {
+		return errors.Wrap(err, "write")
 	}
+	return nil
 }
 
 func encodeErrorResponse(response *ErrorResponseStatusCode, w http.ResponseWriter, span trace.Span) error {

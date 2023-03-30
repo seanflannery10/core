@@ -11,13 +11,9 @@ import (
 	"github.com/go-faster/errors"
 	"github.com/seanflannery10/core/internal/api"
 	"github.com/seanflannery10/core/internal/data"
+	"github.com/seanflannery10/core/internal/logic"
 	"github.com/seanflannery10/core/internal/shared/utils"
 	"github.com/segmentio/asm/base64"
-)
-
-var (
-	errInvalidAccessToken = errors.New("invalid access token")
-	errUserNotActivated   = errors.New("user account must be activated")
 )
 
 type security struct {
@@ -34,11 +30,11 @@ func (s *security) HandleAccess(ctx context.Context, _ string, t api.Access) (co
 		Expiry: time.Now(),
 	})
 	if err != nil {
-		return ctx, errInvalidAccessToken
+		return ctx, logic.ErrInvalidAccessToken
 	}
 
 	if !user.Activated {
-		return ctx, errUserNotActivated
+		return ctx, logic.ErrActivationRequired
 	}
 
 	return utils.ContextSetUser(ctx, &user), nil

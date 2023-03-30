@@ -11,19 +11,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-const lengthRandom = 16
-
-var (
-	ErrActivationRequired = errors.New("user account must be activated")
-	ErrAlreadyActivated   = errors.New("user has already been activated")
-	ErrEmailNotFound      = errors.New("no matching email address found")
-	ErrInvalidCredentials = errors.New("invalid authentication credentials")
-	ErrInvalidToken       = errors.New("invalid or missing token")
-	ErrMessageNotFound    = errors.New("no matching message found")
-	ErrReusedRefreshToken = errors.New("reused refresh token")
-	ErrUserExists         = errors.New("a user with this email address already exists")
-)
-
 func ActivateUser(ctx context.Context, q *data.Queries, plaintext string) (api.UserResponse, error) {
 	user, err := q.GetUserFromTokenHelper(ctx, plaintext, data.ScopeActivation)
 	if err != nil {

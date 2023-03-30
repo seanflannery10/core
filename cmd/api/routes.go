@@ -24,7 +24,7 @@ func (app *application) routes() *http.ServeMux {
 		newHandler,
 		&security{Queries: data.New(app.dbpool), SecretKey: app.secretKey},
 		api.WithMiddleware(app.RecoverPanic()),
-		api.WithErrorHandler(app.ErrorHandler),
+		api.WithErrorHandler(handler.ErrorHandler),
 	)
 	if err != nil {
 		slog.Error("unable to create new server", err)

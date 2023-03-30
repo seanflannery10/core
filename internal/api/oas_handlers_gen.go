@@ -74,7 +74,7 @@ func (s *Server) handleActivateUserRequest(args [0]string, argsEscaped bool, w h
 		}
 	}()
 
-	var response ActivateUserRes
+	var response *UserResponse
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:       ctx,
@@ -88,7 +88,7 @@ func (s *Server) handleActivateUserRequest(args [0]string, argsEscaped bool, w h
 		type (
 			Request  = *TokenRequest
 			Params   = struct{}
-			Response = ActivateUserRes
+			Response = *UserResponse
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -221,7 +221,7 @@ func (s *Server) handleDeleteMessageRequest(args [1]string, argsEscaped bool, w 
 		return
 	}
 
-	var response DeleteMessageRes
+	var response *AcceptanceResponse
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:       ctx,
@@ -240,7 +240,7 @@ func (s *Server) handleDeleteMessageRequest(args [1]string, argsEscaped bool, w 
 		type (
 			Request  = struct{}
 			Params   = DeleteMessageParams
-			Response = DeleteMessageRes
+			Response = *AcceptanceResponse
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -373,7 +373,7 @@ func (s *Server) handleGetMessageRequest(args [1]string, argsEscaped bool, w htt
 		return
 	}
 
-	var response GetMessageRes
+	var response *MessageResponse
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:       ctx,
@@ -392,7 +392,7 @@ func (s *Server) handleGetMessageRequest(args [1]string, argsEscaped bool, w htt
 		type (
 			Request  = struct{}
 			Params   = GetMessageParams
-			Response = GetMessageRes
+			Response = *MessageResponse
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -525,7 +525,7 @@ func (s *Server) handleGetUserMessagesRequest(args [0]string, argsEscaped bool, 
 		return
 	}
 
-	var response GetUserMessagesRes
+	var response *MessagesResponse
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:       ctx,
@@ -548,7 +548,7 @@ func (s *Server) handleGetUserMessagesRequest(args [0]string, argsEscaped bool, 
 		type (
 			Request  = struct{}
 			Params   = GetUserMessagesParams
-			Response = GetUserMessagesRes
+			Response = *MessagesResponse
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -671,7 +671,7 @@ func (s *Server) handleNewAccessTokenRequest(args [0]string, argsEscaped bool, w
 		}
 	}
 
-	var response NewAccessTokenRes
+	var response *TokenResponseHeaders
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:       ctx,
@@ -685,7 +685,7 @@ func (s *Server) handleNewAccessTokenRequest(args [0]string, argsEscaped bool, w
 		type (
 			Request  = struct{}
 			Params   = struct{}
-			Response = NewAccessTokenRes
+			Response = *TokenResponseHeaders
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -779,7 +779,7 @@ func (s *Server) handleNewActivationTokenRequest(args [0]string, argsEscaped boo
 		}
 	}()
 
-	var response NewActivationTokenRes
+	var response *TokenResponse
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:       ctx,
@@ -793,7 +793,7 @@ func (s *Server) handleNewActivationTokenRequest(args [0]string, argsEscaped boo
 		type (
 			Request  = *UserEmailRequest
 			Params   = struct{}
-			Response = NewActivationTokenRes
+			Response = *TokenResponse
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -931,7 +931,7 @@ func (s *Server) handleNewMessageRequest(args [0]string, argsEscaped bool, w htt
 		}
 	}()
 
-	var response NewMessageRes
+	var response *MessageResponse
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:       ctx,
@@ -945,7 +945,7 @@ func (s *Server) handleNewMessageRequest(args [0]string, argsEscaped bool, w htt
 		type (
 			Request  = *MessageRequest
 			Params   = struct{}
-			Response = NewMessageRes
+			Response = *MessageResponse
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -1039,7 +1039,7 @@ func (s *Server) handleNewPasswordResetTokenRequest(args [0]string, argsEscaped 
 		}
 	}()
 
-	var response NewPasswordResetTokenRes
+	var response *TokenResponse
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:       ctx,
@@ -1053,7 +1053,7 @@ func (s *Server) handleNewPasswordResetTokenRequest(args [0]string, argsEscaped 
 		type (
 			Request  = *UserEmailRequest
 			Params   = struct{}
-			Response = NewPasswordResetTokenRes
+			Response = *TokenResponse
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -1147,7 +1147,7 @@ func (s *Server) handleNewRefreshTokenRequest(args [0]string, argsEscaped bool, 
 		}
 	}()
 
-	var response NewRefreshTokenRes
+	var response *TokenResponseHeaders
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:       ctx,
@@ -1161,7 +1161,7 @@ func (s *Server) handleNewRefreshTokenRequest(args [0]string, argsEscaped bool, 
 		type (
 			Request  = *UserLoginRequest
 			Params   = struct{}
-			Response = NewRefreshTokenRes
+			Response = *TokenResponseHeaders
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -1255,7 +1255,7 @@ func (s *Server) handleNewUserRequest(args [0]string, argsEscaped bool, w http.R
 		}
 	}()
 
-	var response NewUserRes
+	var response *UserResponse
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:       ctx,
@@ -1269,7 +1269,7 @@ func (s *Server) handleNewUserRequest(args [0]string, argsEscaped bool, w http.R
 		type (
 			Request  = *UserRequest
 			Params   = struct{}
-			Response = NewUserRes
+			Response = *UserResponse
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -1417,7 +1417,7 @@ func (s *Server) handleUpdateMessageRequest(args [1]string, argsEscaped bool, w 
 		}
 	}()
 
-	var response UpdateMessageRes
+	var response *MessageResponse
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:       ctx,
@@ -1436,7 +1436,7 @@ func (s *Server) handleUpdateMessageRequest(args [1]string, argsEscaped bool, w 
 		type (
 			Request  = *MessageRequest
 			Params   = UpdateMessageParams
-			Response = UpdateMessageRes
+			Response = *MessageResponse
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -1530,7 +1530,7 @@ func (s *Server) handleUpdateUserPasswordRequest(args [0]string, argsEscaped boo
 		}
 	}()
 
-	var response UpdateUserPasswordRes
+	var response *AcceptanceResponse
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:       ctx,
@@ -1544,7 +1544,7 @@ func (s *Server) handleUpdateUserPasswordRequest(args [0]string, argsEscaped boo
 		type (
 			Request  = *UpdateUserPasswordRequest
 			Params   = struct{}
-			Response = UpdateUserPasswordRes
+			Response = *AcceptanceResponse
 		)
 		response, err = middleware.HookMiddleware[
 			Request,

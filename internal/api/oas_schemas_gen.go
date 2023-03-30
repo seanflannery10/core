@@ -27,9 +27,6 @@ func (s *AcceptanceResponse) SetMessage(val string) {
 	s.Message = val
 }
 
-func (*AcceptanceResponse) deleteMessageRes()      {}
-func (*AcceptanceResponse) updateUserPasswordRes() {}
-
 type Access struct {
 	Token string
 }
@@ -43,46 +40,6 @@ func (s *Access) GetToken() string {
 func (s *Access) SetToken(val string) {
 	s.Token = val
 }
-
-type ActivateUserBadRequest ErrorResponse
-
-func (*ActivateUserBadRequest) activateUserRes() {}
-
-type ActivateUserInternalServerError ErrorResponse
-
-func (*ActivateUserInternalServerError) activateUserRes() {}
-
-type ActivateUserNotFound ErrorResponse
-
-func (*ActivateUserNotFound) activateUserRes() {}
-
-type ActivateUserUnauthorized ErrorResponse
-
-func (*ActivateUserUnauthorized) activateUserRes() {}
-
-type ActivateUserUnprocessableEntity ErrorResponse
-
-func (*ActivateUserUnprocessableEntity) activateUserRes() {}
-
-type DeleteMessageBadRequest ErrorResponse
-
-func (*DeleteMessageBadRequest) deleteMessageRes() {}
-
-type DeleteMessageInternalServerError ErrorResponse
-
-func (*DeleteMessageInternalServerError) deleteMessageRes() {}
-
-type DeleteMessageNotFound ErrorResponse
-
-func (*DeleteMessageNotFound) deleteMessageRes() {}
-
-type DeleteMessageUnauthorized ErrorResponse
-
-func (*DeleteMessageUnauthorized) deleteMessageRes() {}
-
-type DeleteMessageUnprocessableEntity ErrorResponse
-
-func (*DeleteMessageUnprocessableEntity) deleteMessageRes() {}
 
 // Contains an error.
 // Ref: #/components/schemas/ErrorResponse
@@ -125,46 +82,6 @@ func (s *ErrorResponseStatusCode) SetStatusCode(val int) {
 func (s *ErrorResponseStatusCode) SetResponse(val ErrorResponse) {
 	s.Response = val
 }
-
-type GetMessageBadRequest ErrorResponse
-
-func (*GetMessageBadRequest) getMessageRes() {}
-
-type GetMessageInternalServerError ErrorResponse
-
-func (*GetMessageInternalServerError) getMessageRes() {}
-
-type GetMessageNotFound ErrorResponse
-
-func (*GetMessageNotFound) getMessageRes() {}
-
-type GetMessageUnauthorized ErrorResponse
-
-func (*GetMessageUnauthorized) getMessageRes() {}
-
-type GetMessageUnprocessableEntity ErrorResponse
-
-func (*GetMessageUnprocessableEntity) getMessageRes() {}
-
-type GetUserMessagesBadRequest ErrorResponse
-
-func (*GetUserMessagesBadRequest) getUserMessagesRes() {}
-
-type GetUserMessagesInternalServerError ErrorResponse
-
-func (*GetUserMessagesInternalServerError) getUserMessagesRes() {}
-
-type GetUserMessagesNotFound ErrorResponse
-
-func (*GetUserMessagesNotFound) getUserMessagesRes() {}
-
-type GetUserMessagesUnauthorized ErrorResponse
-
-func (*GetUserMessagesUnauthorized) getUserMessagesRes() {}
-
-type GetUserMessagesUnprocessableEntity ErrorResponse
-
-func (*GetUserMessagesUnprocessableEntity) getUserMessagesRes() {}
 
 // Contains a message as well as optional properties.
 // Ref: #/components/schemas/MessageRequest
@@ -219,10 +136,6 @@ func (s *MessageResponse) SetMessage(val string) {
 func (s *MessageResponse) SetVersion(val int32) {
 	s.Version = val
 }
-
-func (*MessageResponse) getMessageRes()    {}
-func (*MessageResponse) newMessageRes()    {}
-func (*MessageResponse) updateMessageRes() {}
 
 // Contains metadata.
 // Ref: #/components/schemas/MessagesMetadataResponse
@@ -310,116 +223,6 @@ func (s *MessagesResponse) SetMessages(val []MessageResponse) {
 func (s *MessagesResponse) SetMetadata(val MessagesMetadataResponse) {
 	s.Metadata = val
 }
-
-func (*MessagesResponse) getUserMessagesRes() {}
-
-type NewAccessTokenBadRequest ErrorResponse
-
-func (*NewAccessTokenBadRequest) newAccessTokenRes() {}
-
-type NewAccessTokenInternalServerError ErrorResponse
-
-func (*NewAccessTokenInternalServerError) newAccessTokenRes() {}
-
-type NewAccessTokenUnauthorized ErrorResponse
-
-func (*NewAccessTokenUnauthorized) newAccessTokenRes() {}
-
-type NewActivationTokenBadRequest ErrorResponse
-
-func (*NewActivationTokenBadRequest) newActivationTokenRes() {}
-
-type NewActivationTokenInternalServerError ErrorResponse
-
-func (*NewActivationTokenInternalServerError) newActivationTokenRes() {}
-
-type NewActivationTokenNotFound ErrorResponse
-
-func (*NewActivationTokenNotFound) newActivationTokenRes() {}
-
-type NewActivationTokenUnauthorized ErrorResponse
-
-func (*NewActivationTokenUnauthorized) newActivationTokenRes() {}
-
-type NewActivationTokenUnprocessableEntity ErrorResponse
-
-func (*NewActivationTokenUnprocessableEntity) newActivationTokenRes() {}
-
-type NewMessageBadRequest ErrorResponse
-
-func (*NewMessageBadRequest) newMessageRes() {}
-
-type NewMessageInternalServerError ErrorResponse
-
-func (*NewMessageInternalServerError) newMessageRes() {}
-
-type NewMessageNotFound ErrorResponse
-
-func (*NewMessageNotFound) newMessageRes() {}
-
-type NewMessageUnauthorized ErrorResponse
-
-func (*NewMessageUnauthorized) newMessageRes() {}
-
-type NewMessageUnprocessableEntity ErrorResponse
-
-func (*NewMessageUnprocessableEntity) newMessageRes() {}
-
-type NewPasswordResetTokenBadRequest ErrorResponse
-
-func (*NewPasswordResetTokenBadRequest) newPasswordResetTokenRes() {}
-
-type NewPasswordResetTokenInternalServerError ErrorResponse
-
-func (*NewPasswordResetTokenInternalServerError) newPasswordResetTokenRes() {}
-
-type NewPasswordResetTokenNotFound ErrorResponse
-
-func (*NewPasswordResetTokenNotFound) newPasswordResetTokenRes() {}
-
-type NewPasswordResetTokenUnauthorized ErrorResponse
-
-func (*NewPasswordResetTokenUnauthorized) newPasswordResetTokenRes() {}
-
-type NewPasswordResetTokenUnprocessableEntity ErrorResponse
-
-func (*NewPasswordResetTokenUnprocessableEntity) newPasswordResetTokenRes() {}
-
-type NewRefreshTokenBadRequest ErrorResponse
-
-func (*NewRefreshTokenBadRequest) newRefreshTokenRes() {}
-
-type NewRefreshTokenInternalServerError ErrorResponse
-
-func (*NewRefreshTokenInternalServerError) newRefreshTokenRes() {}
-
-type NewRefreshTokenNotFound ErrorResponse
-
-func (*NewRefreshTokenNotFound) newRefreshTokenRes() {}
-
-type NewRefreshTokenUnauthorized ErrorResponse
-
-func (*NewRefreshTokenUnauthorized) newRefreshTokenRes() {}
-
-type NewRefreshTokenUnprocessableEntity ErrorResponse
-
-func (*NewRefreshTokenUnprocessableEntity) newRefreshTokenRes() {}
-
-type NewUserBadRequest ErrorResponse
-
-func (*NewUserBadRequest) newUserRes() {}
-
-type NewUserInternalServerError ErrorResponse
-
-func (*NewUserInternalServerError) newUserRes() {}
-
-type NewUserNotFound ErrorResponse
-
-func (*NewUserNotFound) newUserRes() {}
-
-type NewUserUnprocessableEntity ErrorResponse
-
-func (*NewUserUnprocessableEntity) newUserRes() {}
 
 // NewOptDateTime returns new OptDateTime with value set to v.
 func NewOptDateTime(v time.Time) OptDateTime {
@@ -627,9 +430,6 @@ func (s *TokenResponse) SetToken(val string) {
 	s.Token = val
 }
 
-func (*TokenResponse) newActivationTokenRes()    {}
-func (*TokenResponse) newPasswordResetTokenRes() {}
-
 // TokenResponseHeaders wraps TokenResponse with response headers.
 type TokenResponseHeaders struct {
 	SetCookie OptString
@@ -655,45 +455,6 @@ func (s *TokenResponseHeaders) SetSetCookie(val OptString) {
 func (s *TokenResponseHeaders) SetResponse(val TokenResponse) {
 	s.Response = val
 }
-
-func (*TokenResponseHeaders) newAccessTokenRes()  {}
-func (*TokenResponseHeaders) newRefreshTokenRes() {}
-
-type UpdateMessageBadRequest ErrorResponse
-
-func (*UpdateMessageBadRequest) updateMessageRes() {}
-
-type UpdateMessageConflict ErrorResponse
-
-func (*UpdateMessageConflict) updateMessageRes() {}
-
-type UpdateMessageInternalServerError ErrorResponse
-
-func (*UpdateMessageInternalServerError) updateMessageRes() {}
-
-type UpdateMessageNotFound ErrorResponse
-
-func (*UpdateMessageNotFound) updateMessageRes() {}
-
-type UpdateMessageUnauthorized ErrorResponse
-
-func (*UpdateMessageUnauthorized) updateMessageRes() {}
-
-type UpdateMessageUnprocessableEntity ErrorResponse
-
-func (*UpdateMessageUnprocessableEntity) updateMessageRes() {}
-
-type UpdateUserPasswordBadRequest ErrorResponse
-
-func (*UpdateUserPasswordBadRequest) updateUserPasswordRes() {}
-
-type UpdateUserPasswordInternalServerError ErrorResponse
-
-func (*UpdateUserPasswordInternalServerError) updateUserPasswordRes() {}
-
-type UpdateUserPasswordNotFound ErrorResponse
-
-func (*UpdateUserPasswordNotFound) updateUserPasswordRes() {}
 
 // Contains a password and token object.
 // Ref: #/components/schemas/UpdateUserPasswordRequest
@@ -721,14 +482,6 @@ func (s *UpdateUserPasswordRequest) SetPassword(val string) {
 func (s *UpdateUserPasswordRequest) SetToken(val string) {
 	s.Token = val
 }
-
-type UpdateUserPasswordUnauthorized ErrorResponse
-
-func (*UpdateUserPasswordUnauthorized) updateUserPasswordRes() {}
-
-type UpdateUserPasswordUnprocessableEntity ErrorResponse
-
-func (*UpdateUserPasswordUnprocessableEntity) updateUserPasswordRes() {}
 
 // Contains an email address.
 // Ref: #/components/schemas/UserEmailRequest
@@ -848,6 +601,3 @@ func (s *UserResponse) SetEmail(val string) {
 func (s *UserResponse) SetVersion(val int32) {
 	s.Version = val
 }
-
-func (*UserResponse) activateUserRes() {}
-func (*UserResponse) newUserRes()      {}
