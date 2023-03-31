@@ -51,19 +51,14 @@ jobs:
         with:
           go-version: stable
           check-latest: true
-
       - name: Install sqlc
         run: go install github.com/kyleconroy/sqlc/cmd/sqlc@v1.17.2
-
       - name: Install ogen
         run: go install github.com/ogen-go/ogen/cmd/ogen@v0.60.2
-
       - name: sqlc Compile
         run: sqlc compile --experimental
-
       - name: sqlc Generate
         run: sqlc generate --experimental && git diff --exit-code
-
       - name: ogen Server Generate
         run: ogen -no-client -no-webhook-client -no-webhook-server -generate-tests --target internal/api -package api --clean openapi.yaml && git diff --exit-code
   lint:

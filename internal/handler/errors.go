@@ -54,7 +54,7 @@ func (s *Handler) NewError(_ context.Context, err error) *api.ErrorResponseStatu
 		slog.Error("server error", "error", err)
 
 		code = http.StatusInternalServerError
-		errMessage = "the server encountered a problem and could not process your request"
+		errMessage = logic.ErrServerError.Error()
 	}
 
 	return &api.ErrorResponseStatusCode{StatusCode: code, Response: api.ErrorResponse{Error: errMessage}}

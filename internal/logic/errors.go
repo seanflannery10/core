@@ -11,6 +11,7 @@ var (
 	ErrInvalidToken         = errors.New("invalid or missing token")
 	ErrMessageNotFound      = errors.New("no matching message found")
 	ErrReusedRefreshToken   = errors.New("reused refresh token")
+	ErrServerError          = errors.New("the server encountered a problem and could not process your request")
 	ErrUserAlreadyActivated = errors.New("user has already been activated")
 	ErrUserExists           = errors.New("a user with this email address already exists")
 )

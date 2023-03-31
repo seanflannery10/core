@@ -4,12 +4,10 @@ import (
 	"net/http"
 	"runtime/debug"
 
-	"github.com/go-faster/errors"
 	"github.com/ogen-go/ogen/middleware"
+	"github.com/seanflannery10/core/internal/logic"
 	"golang.org/x/exp/slog"
 )
-
-var errServerError = errors.New("the server encountered a problem and could not process your request")
 
 func (app *application) RecoverPanic() middleware.Middleware {
 	return func(req middleware.Request, next func(req middleware.Request) (middleware.Response, error)) (middleware.Response, error) {
@@ -30,7 +28,7 @@ func (app *application) RecoverPanic() middleware.Middleware {
 		}()
 
 		if recovered {
-			return middleware.Response{}, errServerError
+			return middleware.Response{}, logic.ErrServerError
 		}
 
 		return next(req)
