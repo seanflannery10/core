@@ -16,6 +16,8 @@ import (
 	"golang.org/x/exp/slog"
 )
 
+var _ api.Handler = (*Handler)(nil)
+
 type Handler struct {
 	Mailer  mailer.Mailer
 	Queries *data.Queries

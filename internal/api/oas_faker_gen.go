@@ -103,24 +103,6 @@ func (s *MessagesResponse) SetFake() {
 }
 
 // SetFake set fake values.
-func (s *OptDateTime) SetFake() {
-	var elem time.Time
-	{
-		elem = time.Now()
-	}
-	s.SetTo(elem)
-}
-
-// SetFake set fake values.
-func (s *OptString) SetFake() {
-	var elem string
-	{
-		elem = "string"
-	}
-	s.SetTo(elem)
-}
-
-// SetFake set fake values.
 func (s *TokenRequest) SetFake() {
 	{
 		{
@@ -133,12 +115,12 @@ func (s *TokenRequest) SetFake() {
 func (s *TokenResponse) SetFake() {
 	{
 		{
-			s.Scope.SetFake()
+			s.Scope = "string"
 		}
 	}
 	{
 		{
-			s.Expiry.SetFake()
+			s.Expiry = time.Now()
 		}
 	}
 	{

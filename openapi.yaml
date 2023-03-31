@@ -299,6 +299,7 @@ components:
       properties:
         message:
           type: string
+          maxLength: 512
       required:
         - message
     TokenRequest:
@@ -308,6 +309,8 @@ components:
         token:
           type: string
           format: password
+          minLength: 26
+          maxLength: 26
       required:
         - token
     UpdateUserPasswordRequest:
@@ -317,9 +320,13 @@ components:
         password:
           type: string
           format: password
+          minLength: 8
+          maxLength: 72
         token:
           type: string
           format: password
+          minLength: 26
+          maxLength: 26
       required:
         - password
         - token
@@ -330,12 +337,15 @@ components:
         name:
           type: string
           format: name
+          maxLength: 100
         email:
           type: string
           format: email
         password:
           type: string
           format: password
+          minLength: 8
+          maxLength: 72
       required:
         - name
         - email
@@ -359,6 +369,8 @@ components:
         password:
           type: string
           format: password
+          minLength: 8
+          maxLength: 72
       required:
         - email
         - password
@@ -377,7 +389,6 @@ components:
         error:
           type: string
       required:
-        - message
         - error
     MessageResponse:
       type: object
@@ -446,6 +457,8 @@ components:
           type: string
           format: password
       required:
+        - scope
+        - expiry
         - token
     UserResponse:
       type: object

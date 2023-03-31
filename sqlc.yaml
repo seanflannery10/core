@@ -8,6 +8,7 @@ sql:
         package: "data"
         out: "internal/data"
         sql_package: "pgx/v5"
+        emit_result_struct_pointers: true
         overrides:
           - db_type: "citext"
             go_type: "github.com/jackc/pgx/v5/pgtype.Text"

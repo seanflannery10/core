@@ -20,7 +20,7 @@ type CreateMessageParams struct {
 	UserID  int64
 }
 
-func (q *Queries) CreateMessage(ctx context.Context, arg CreateMessageParams) (Message, error) {
+func (q *Queries) CreateMessage(ctx context.Context, arg CreateMessageParams) (*Message, error) {
 	row := q.db.QueryRow(ctx, createMessage, arg.Message, arg.UserID)
 	var i Message
 	err := row.Scan(
@@ -30,7 +30,7 @@ func (q *Queries) CreateMessage(ctx context.Context, arg CreateMessageParams) (M
 		&i.UserID,
 		&i.Version,
 	)
-	return i, err
+	return &i, err
 }
 
 const deleteMessage = `-- name: DeleteMessage :exec
@@ -50,7 +50,7 @@ FROM messages
 WHERE id = $1
 `
 
-func (q *Queries) GetMessage(ctx context.Context, id int64) (Message, error) {
+func (q *Queries) GetMessage(ctx context.Context, id int64) (*Message, error) {
 	row := q.db.QueryRow(ctx, getMessage, id)
 	var i Message
 	err := row.Scan(
@@ -60,7 +60,7 @@ func (q *Queries) GetMessage(ctx context.Context, id int64) (Message, error) {
 		&i.UserID,
 		&i.Version,
 	)
-	return i, err
+	return &i, err
 }
 
 const getUserMessageCount = `-- name: GetUserMessageCount :one
@@ -94,13 +94,13 @@ type GetUserMessagesParams struct {
 	Limit  int32
 }
 
-func (q *Queries) GetUserMessages(ctx context.Context, arg GetUserMessagesParams) ([]Message, error) {
+func (q *Queries) GetUserMessages(ctx context.Context, arg GetUserMessagesParams) ([]*Message, error) {
 	rows, err := q.db.Query(ctx, getUserMessages, arg.UserID, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Message
+	var items []*Message
 	for rows.Next() {
 		var i Message
 		if err := rows.Scan(
@@ -112,7 +112,7 @@ func (q *Queries) GetUserMessages(ctx context.Context, arg GetUserMessagesParams
 		); err != nil {
 			return nil, err
 		}
-		items = append(items, i)
+		items = append(items, &i)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -133,7 +133,7 @@ type UpdateMessageParams struct {
 	ID      int64
 }
 
-func (q *Queries) UpdateMessage(ctx context.Context, arg UpdateMessageParams) (Message, error) {
+func (q *Queries) UpdateMessage(ctx context.Context, arg UpdateMessageParams) (*Message, error) {
 	row := q.db.QueryRow(ctx, updateMessage, arg.Message, arg.ID)
 	var i Message
 	err := row.Scan(
@@ -143,5 +143,5 @@ func (q *Queries) UpdateMessage(ctx context.Context, arg UpdateMessageParams) (M
 		&i.UserID,
 		&i.Version,
 	)
-	return i, err
+	return &i, err
 }

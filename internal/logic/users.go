@@ -11,99 +11,77 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func ActivateUser(ctx context.Context, q *data.Queries, plaintext string) (api.UserResponse, error) {
-	user, err := q.GetUserFromTokenHelper(ctx, plaintext, data.ScopeActivation)
+func ActivateUser(ctx context.Context, q *data.Queries, plaintext string) (*api.UserResponse, error) {
+	user, err := getUserFromToken(ctx, q, plaintext, ScopeActivation)
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
-			return api.UserResponse{}, ErrInvalidToken
+			return nil, ErrInvalidToken
 		default:
-			return api.UserResponse{}, fmt.Errorf("failed get user from activation token: %w", err)
+			return nil, fmt.Errorf("failed get user from activation token: %w", err)
 		}
 	}
 
-	user, err = q.UpdateUser(ctx, data.UpdateUserParams{
-		UpdateActivated: true,
-		Activated:       true,
-		ID:              user.ID,
-		Version:         user.Version,
-	})
+	user, err = q.UpdateUser(ctx, data.UpdateUserParams{UpdateActivated: true, Activated: true, ID: user.ID, Version: user.Version})
 	if err != nil {
-		return api.UserResponse{}, fmt.Errorf("failed update user: %w", err)
+		return nil, fmt.Errorf("failed update user: %w", err)
 	}
 
-	err = q.DeleteTokens(ctx, data.DeleteTokensParams{
-		Scope:  data.ScopeActivation,
-		UserID: user.ID,
-	})
-	if err != nil {
-		return api.UserResponse{}, fmt.Errorf("failed delete tokens: %w", err)
+	if err = q.DeleteTokens(ctx, data.DeleteTokensParams{Scope: ScopeActivation, UserID: user.ID}); err != nil {
+		return nil, fmt.Errorf("failed delete tokens: %w", err)
 	}
 
-	userResponse := api.UserResponse{
-		Name:    user.Name,
-		Email:   user.Email,
-		Version: user.Version,
-	}
+	userResponse := &api.UserResponse{Name: user.Name, Email: user.Email, Version: user.Version}
 
 	return userResponse, nil
 }
 
-func NewUser(ctx context.Context, q *data.Queries, name, email, pass string) (api.UserResponse, api.TokenResponse, error) {
+func NewUser(ctx context.Context, q *data.Queries, name, email, pass string) (*api.UserResponse, *api.TokenResponse, error) {
 	ok, err := q.CheckUser(ctx, email)
 	if err != nil {
-		return api.UserResponse{}, api.TokenResponse{}, fmt.Errorf("failed check user: %w", err)
+		return nil, nil, fmt.Errorf("failed check user: %w", err)
 	}
 
 	if ok {
-		return api.UserResponse{}, api.TokenResponse{}, ErrUserExists
+		return nil, nil, ErrUserExists
 	}
 
-	hash, err := bcrypt.GenerateFromPassword([]byte(pass), data.PasswordCost)
+	hash, err := bcrypt.GenerateFromPassword([]byte(pass), PasswordCost)
 	if err != nil {
-		return api.UserResponse{}, api.TokenResponse{}, fmt.Errorf("failed generate password: %w", err)
+		return nil, nil, fmt.Errorf("failed generate password: %w", err)
 	}
 
 	passwordHash := hash
 
-	user, err := q.CreateUser(ctx, data.CreateUserParams{
-		Name:         name,
-		Email:        email,
-		PasswordHash: passwordHash,
-		Activated:    false,
-	})
+	user, err := q.CreateUser(ctx, data.CreateUserParams{Name: name, Email: email, PasswordHash: passwordHash, Activated: false})
 	if err != nil {
-		return api.UserResponse{}, api.TokenResponse{}, fmt.Errorf("failed create user: %w", err)
+		return nil, nil, fmt.Errorf("failed create user: %w", err)
 	}
 
-	activationToken, err := newToken(ctx, q, ttlActivationToken, data.ScopeActivation, user.ID)
+	activationToken, err := newToken(ctx, q, ttlActivationToken, ScopeActivation, user.ID)
 	if err != nil {
-		return api.UserResponse{}, api.TokenResponse{}, fmt.Errorf("failed create new token: %w", err)
+		return nil, nil, fmt.Errorf("failed create new token: %w", err)
 	}
 
-	userResponse := api.UserResponse{
-		Name:    user.Name,
-		Email:   user.Email,
-		Version: user.Version,
-	}
+	userResponse := &api.UserResponse{Name: user.Name, Email: user.Email, Version: user.Version}
 
 	return userResponse, activationToken, nil
 }
 
-func UpdateUserPassword(ctx context.Context, q *data.Queries, token, pass string) (api.AcceptanceResponse, error) {
-	user, err := q.GetUserFromTokenHelper(ctx, token, data.ScopePasswordReset)
+func UpdateUserPassword(ctx context.Context, q *data.Queries, token, pass string) (*api.AcceptanceResponse, error) {
+	user, err := getUserFromToken(ctx, q, token, ScopePasswordReset)
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
-			return api.AcceptanceResponse{}, ErrInvalidToken
+			return nil, ErrInvalidToken
 		default:
-			return api.AcceptanceResponse{}, fmt.Errorf("failed get user from password reset token: %w", err)
+			return nil, fmt.Errorf("failed get user from password reset token: %w", err)
 		}
 	}
 
-	err = user.SetPassword(pass)
+	user, err = setPassword(user, pass)
 	if err != nil {
-		return api.AcceptanceResponse{}, fmt.Errorf("failed set password: %w", err)
+		return nil, fmt.Errorf("failed set password: %w", err)
 	}
 
 	user, err = q.UpdateUser(ctx, data.UpdateUserParams{
@@ -113,16 +91,14 @@ func UpdateUserPassword(ctx context.Context, q *data.Queries, token, pass string
 		Version:            user.Version,
 	})
 	if err != nil {
-		return api.AcceptanceResponse{}, fmt.Errorf("failed update user password: %w", err)
+		return nil, fmt.Errorf("failed update user password: %w", err)
 	}
 
-	err = q.DeleteTokens(ctx, data.DeleteTokensParams{
-		Scope:  data.ScopePasswordReset,
-		UserID: user.ID,
-	})
-	if err != nil {
-		return api.AcceptanceResponse{}, fmt.Errorf("failed delete password reset token: %w", err)
+	if err = q.DeleteTokens(ctx, data.DeleteTokensParams{Scope: ScopePasswordReset, UserID: user.ID}); err != nil {
+		return nil, fmt.Errorf("failed delete password reset token: %w", err)
 	}
 
-	return api.AcceptanceResponse{Message: "password updated"}, nil
+	acceptanceResponse := &api.AcceptanceResponse{Message: "password updated"}
+
+	return acceptanceResponse, nil
 }

@@ -5,7 +5,6 @@ package api
 import (
 	"math/bits"
 	"strconv"
-	"time"
 
 	"github.com/go-faster/errors"
 	"github.com/go-faster/jx"
@@ -730,76 +729,6 @@ func (s *MessagesResponse) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
-// Encode encodes time.Time as json.
-func (o OptDateTime) Encode(e *jx.Encoder, format func(*jx.Encoder, time.Time)) {
-	if !o.Set {
-		return
-	}
-	format(e, o.Value)
-}
-
-// Decode decodes time.Time from json.
-func (o *OptDateTime) Decode(d *jx.Decoder, format func(*jx.Decoder) (time.Time, error)) error {
-	if o == nil {
-		return errors.New("invalid: unable to decode OptDateTime to nil")
-	}
-	o.Set = true
-	v, err := format(d)
-	if err != nil {
-		return err
-	}
-	o.Value = v
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s OptDateTime) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e, json.EncodeDateTime)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *OptDateTime) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d, json.DecodeDateTime)
-}
-
-// Encode encodes string as json.
-func (o OptString) Encode(e *jx.Encoder) {
-	if !o.Set {
-		return
-	}
-	e.Str(string(o.Value))
-}
-
-// Decode decodes string from json.
-func (o *OptString) Decode(d *jx.Decoder) error {
-	if o == nil {
-		return errors.New("invalid: unable to decode OptString to nil")
-	}
-	o.Set = true
-	v, err := d.Str()
-	if err != nil {
-		return err
-	}
-	o.Value = string(v)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s OptString) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *OptString) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
 // Encode implements json.Marshaler.
 func (s *TokenRequest) Encode(e *jx.Encoder) {
 	e.ObjStart()
@@ -907,16 +836,14 @@ func (s *TokenResponse) Encode(e *jx.Encoder) {
 // encodeFields encodes fields.
 func (s *TokenResponse) encodeFields(e *jx.Encoder) {
 	{
-		if s.Scope.Set {
-			e.FieldStart("scope")
-			s.Scope.Encode(e)
-		}
+
+		e.FieldStart("scope")
+		e.Str(s.Scope)
 	}
 	{
-		if s.Expiry.Set {
-			e.FieldStart("expiry")
-			s.Expiry.Encode(e, json.EncodeDateTime)
-		}
+
+		e.FieldStart("expiry")
+		json.EncodeDateTime(e, s.Expiry)
 	}
 	{
 
@@ -941,9 +868,11 @@ func (s *TokenResponse) Decode(d *jx.Decoder) error {
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
 		case "scope":
+			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
-				s.Scope.Reset()
-				if err := s.Scope.Decode(d); err != nil {
+				v, err := d.Str()
+				s.Scope = string(v)
+				if err != nil {
 					return err
 				}
 				return nil
@@ -951,9 +880,11 @@ func (s *TokenResponse) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"scope\"")
 			}
 		case "expiry":
+			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
-				s.Expiry.Reset()
-				if err := s.Expiry.Decode(d, json.DecodeDateTime); err != nil {
+				v, err := json.DecodeDateTime(d)
+				s.Expiry = v
+				if err != nil {
 					return err
 				}
 				return nil
@@ -982,7 +913,7 @@ func (s *TokenResponse) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000100,
+		0b00000111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.

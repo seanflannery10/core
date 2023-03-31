@@ -26,7 +26,7 @@ func (s *security) HandleAccess(ctx context.Context, _ string, t api.Access) (co
 
 	user, err := s.Queries.GetUserFromToken(ctx, data.GetUserFromTokenParams{
 		Hash:   tokenHash[:],
-		Scope:  data.ScopeAccess,
+		Scope:  logic.ScopeAccess,
 		Expiry: time.Now(),
 	})
 	if err != nil {
@@ -37,7 +37,7 @@ func (s *security) HandleAccess(ctx context.Context, _ string, t api.Access) (co
 		return ctx, logic.ErrActivationRequired
 	}
 
-	return utils.ContextSetUser(ctx, &user), nil
+	return utils.ContextSetUser(ctx, user), nil
 }
 
 func (s *security) HandleRefresh(ctx context.Context, _ string, r api.Refresh) (context.Context, error) {

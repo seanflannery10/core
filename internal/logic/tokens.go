@@ -2,9 +2,7 @@ package logic
 
 import (
 	"context"
-	"crypto/rand"
 	"crypto/sha256"
-	"encoding/base32"
 	"fmt"
 	"time"
 
@@ -21,168 +19,119 @@ const (
 	ttlRefreshToken       = 7 * 24 * time.Hour
 )
 
-func NewActivationToken(ctx context.Context, q *data.Queries, email string) (api.TokenResponse, error) {
+func NewActivationToken(ctx context.Context, q *data.Queries, email string) (*api.TokenResponse, error) {
 	user, err := q.GetUserFromEmail(ctx, email)
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
-			return api.TokenResponse{}, ErrEmailNotFound
+			return nil, ErrEmailNotFound
 		default:
-			return api.TokenResponse{}, fmt.Errorf("failed get user from email (activation): %w", err)
+			return nil, fmt.Errorf("failed get user from email (activation): %w", err)
 		}
 	}
 
 	if user.Activated {
-		return api.TokenResponse{}, ErrUserAlreadyActivated
+		return nil, ErrUserAlreadyActivated
 	}
 
-	activationToken, err := newToken(ctx, q, ttlActivationToken, data.ScopeActivation, user.ID)
+	activationToken, err := newToken(ctx, q, ttlActivationToken, ScopeActivation, user.ID)
 	if err != nil {
-		return api.TokenResponse{}, fmt.Errorf("failed new activation token: %w", err)
+		return nil, fmt.Errorf("failed new activation token: %w", err)
 	}
 
 	return activationToken, nil
 }
 
-func NewPasswordResetToken(ctx context.Context, q *data.Queries, email string) (api.TokenResponse, error) {
+func NewPasswordResetToken(ctx context.Context, q *data.Queries, email string) (*api.TokenResponse, error) {
 	user, err := q.GetUserFromEmail(ctx, email)
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
-			return api.TokenResponse{}, ErrEmailNotFound
+			return nil, ErrEmailNotFound
 		default:
-			return api.TokenResponse{}, fmt.Errorf("failed get user from email (password): %w", err)
+			return nil, fmt.Errorf("failed get user from email (password): %w", err)
 		}
 	}
 
 	if !user.Activated {
-		return api.TokenResponse{}, ErrActivationRequired
+		return nil, ErrActivationRequired
 	}
 
-	passwordResetToken, err := newToken(ctx, q, ttlPasswordResetToken, data.ScopePasswordReset, user.ID)
+	passwordResetToken, err := newToken(ctx, q, ttlPasswordResetToken, ScopePasswordReset, user.ID)
 	if err != nil {
-		return api.TokenResponse{}, fmt.Errorf("failed create password reset token: %w", err)
+		return nil, fmt.Errorf("failed create password reset token: %w", err)
 	}
 
 	return passwordResetToken, nil
 }
 
-func NewRefreshToken(ctx context.Context, q *data.Queries, email, pass string) (refresh, access api.TokenResponse, err error) {
+func NewRefreshToken(ctx context.Context, q *data.Queries, email, pass string) (refresh, access *api.TokenResponse, err error) {
 	user, err := q.GetUserFromEmail(ctx, email)
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
-			return api.TokenResponse{}, api.TokenResponse{}, ErrInvalidCredentials
+			return nil, nil, ErrInvalidCredentials
 		default:
-			return api.TokenResponse{}, api.TokenResponse{}, fmt.Errorf("failed get user from email (refresh): %w", err)
+			return nil, nil, fmt.Errorf("failed get user from email (refresh): %w", err)
 		}
 	}
 
-	match, err := user.ComparePasswords(pass)
-	if err != nil {
-		return api.TokenResponse{}, api.TokenResponse{}, fmt.Errorf("failed compare passwords: %w", err)
+	if err = comparePasswords(user, pass); err != nil {
+		return nil, nil, fmt.Errorf("failed compare passwords: %w", err)
 	}
 
-	if !match {
-		return api.TokenResponse{}, api.TokenResponse{}, ErrInvalidCredentials
+	refresh, err = newToken(ctx, q, ttlRefreshToken, ScopeRefresh, user.ID)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed create refresh token: %w", err)
 	}
 
-	refresh, err = newToken(ctx, q, ttlRefreshToken, data.ScopeRefresh, user.ID)
+	access, err = newToken(ctx, q, ttlAccessToken, ScopeAccess, user.ID)
 	if err != nil {
-		return api.TokenResponse{}, api.TokenResponse{}, fmt.Errorf("failed create refresh token: %w", err)
-	}
-
-	access, err = newToken(ctx, q, ttlAccessToken, data.ScopeAccess, user.ID)
-	if err != nil {
-		return api.TokenResponse{}, api.TokenResponse{}, fmt.Errorf("failed create access token: %w", err)
+		return nil, nil, fmt.Errorf("failed create access token: %w", err)
 	}
 
 	return refresh, access, nil
 }
 
-func NewAccessToken(ctx context.Context, q *data.Queries, tokenFromCookie string) (refresh, access api.TokenResponse, err error) {
-	user, err := q.GetUserFromTokenHelper(ctx, tokenFromCookie, data.ScopeRefresh)
+func NewAccessToken(ctx context.Context, q *data.Queries, tokenFromCookie string) (refresh, access *api.TokenResponse, err error) {
+	user, err := getUserFromToken(ctx, q, tokenFromCookie, ScopeRefresh)
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
-			return api.TokenResponse{}, api.TokenResponse{}, ErrInvalidToken
+			return nil, nil, ErrInvalidToken
 		default:
-			return api.TokenResponse{}, api.TokenResponse{}, fmt.Errorf("failed get user from refresh token: %w", err)
+			return nil, nil, fmt.Errorf("failed get user from refresh token: %w", err)
 		}
 	}
 
 	tokenHash := sha256.Sum256([]byte(tokenFromCookie))
 
-	badToken, err := q.CheckToken(ctx, data.CheckTokenParams{
-		Hash:   tokenHash[:],
-		UserID: user.ID,
-		Scope:  data.ScopeRefresh,
-	})
+	badToken, err := q.CheckToken(ctx, data.CheckTokenParams{Hash: tokenHash[:], UserID: user.ID, Scope: ScopeRefresh})
 	if err != nil {
-		return api.TokenResponse{}, api.TokenResponse{}, fmt.Errorf("failed check refresh token: %w", err)
+		return nil, nil, fmt.Errorf("failed check refresh token: %w", err)
 	}
 
 	if badToken {
-		err = q.DeleteTokens(ctx, data.DeleteTokensParams{
-			Scope:  data.ScopeRefresh,
-			UserID: user.ID,
-		})
-		if err != nil {
-			return api.TokenResponse{}, api.TokenResponse{}, fmt.Errorf("failed deactivate refresh token: %w", err)
+		if err = q.DeleteTokens(ctx, data.DeleteTokensParams{Scope: ScopeRefresh, UserID: user.ID}); err != nil {
+			return nil, nil, fmt.Errorf("failed deactivate refresh token: %w", err)
 		}
 
-		return api.TokenResponse{}, api.TokenResponse{}, ErrReusedRefreshToken
+		return nil, nil, ErrReusedRefreshToken
 	}
 
-	err = q.DeactivateToken(ctx, data.DeactivateTokenParams{
-		Scope:  data.ScopeRefresh,
-		Hash:   tokenHash[:],
-		UserID: user.ID,
-	})
-	if err != nil {
-		return api.TokenResponse{}, api.TokenResponse{}, fmt.Errorf("failed deactivate refresh token: %w", err)
+	if err = q.DeactivateToken(ctx, data.DeactivateTokenParams{Scope: ScopeRefresh, Hash: tokenHash[:], UserID: user.ID}); err != nil {
+		return nil, nil, fmt.Errorf("failed deactivate refresh token: %w", err)
 	}
 
-	refresh, err = newToken(ctx, q, ttlRefreshToken, data.ScopeRefresh, user.ID)
+	refresh, err = newToken(ctx, q, ttlRefreshToken, ScopeRefresh, user.ID)
 	if err != nil {
-		return api.TokenResponse{}, api.TokenResponse{}, fmt.Errorf("failed create refresh token: %w", err)
+		return nil, nil, fmt.Errorf("failed create refresh token: %w", err)
 	}
 
-	access, err = newToken(ctx, q, ttlAccessToken, data.ScopeAccess, user.ID)
+	access, err = newToken(ctx, q, ttlAccessToken, ScopeAccess, user.ID)
 	if err != nil {
-		return api.TokenResponse{}, api.TokenResponse{}, fmt.Errorf("failed create access token: %w", err)
+		return nil, nil, fmt.Errorf("failed create access token: %w", err)
 	}
 
 	return refresh, access, nil
-}
-
-func newToken(ctx context.Context, q *data.Queries, ttl time.Duration, scope string, userID int64) (api.TokenResponse, error) {
-	const lengthRandom = 16
-	randomBytes := make([]byte, lengthRandom)
-
-	_, err := rand.Read(randomBytes)
-	if err != nil {
-		return api.TokenResponse{}, fmt.Errorf("failed read rand: %w", err)
-	}
-
-	plaintext := base32.StdEncoding.WithPadding(base32.NoPadding).EncodeToString(randomBytes)
-	hash := sha256.Sum256([]byte(plaintext))
-
-	token, err := q.CreateToken(ctx, data.CreateTokenParams{
-		Hash:   hash[:],
-		UserID: userID,
-		Expiry: time.Now().Add(ttl),
-		Scope:  scope,
-	})
-	if err != nil {
-		return api.TokenResponse{}, fmt.Errorf("failed create token: %w", err)
-	}
-
-	tokenPlaintext := api.TokenResponse{
-		Token:  plaintext,
-		Expiry: api.OptDateTime{Value: token.Expiry, Set: true},
-		Scope:  api.OptString{Value: token.Scope, Set: true},
-	}
-
-	return tokenPlaintext, nil
 }

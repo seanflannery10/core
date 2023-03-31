@@ -224,52 +224,6 @@ func (s *MessagesResponse) SetMetadata(val MessagesMetadataResponse) {
 	s.Metadata = val
 }
 
-// NewOptDateTime returns new OptDateTime with value set to v.
-func NewOptDateTime(v time.Time) OptDateTime {
-	return OptDateTime{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptDateTime is optional time.Time.
-type OptDateTime struct {
-	Value time.Time
-	Set   bool
-}
-
-// IsSet returns true if OptDateTime was set.
-func (o OptDateTime) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptDateTime) Reset() {
-	var v time.Time
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptDateTime) SetTo(v time.Time) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptDateTime) Get() (v time.Time, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptDateTime) Or(d time.Time) time.Time {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
 // NewOptInt32 returns new OptInt32 with value set to v.
 func NewOptInt32(v int32) OptInt32 {
 	return OptInt32{
@@ -395,18 +349,18 @@ func (s *TokenRequest) SetToken(val string) {
 // Contains a plaintext token as well as optional properties.
 // Ref: #/components/schemas/TokenResponse
 type TokenResponse struct {
-	Scope  OptString   `json:"scope"`
-	Expiry OptDateTime `json:"expiry"`
-	Token  string      `json:"token"`
+	Scope  string    `json:"scope"`
+	Expiry time.Time `json:"expiry"`
+	Token  string    `json:"token"`
 }
 
 // GetScope returns the value of Scope.
-func (s *TokenResponse) GetScope() OptString {
+func (s *TokenResponse) GetScope() string {
 	return s.Scope
 }
 
 // GetExpiry returns the value of Expiry.
-func (s *TokenResponse) GetExpiry() OptDateTime {
+func (s *TokenResponse) GetExpiry() time.Time {
 	return s.Expiry
 }
 
@@ -416,12 +370,12 @@ func (s *TokenResponse) GetToken() string {
 }
 
 // SetScope sets the value of Scope.
-func (s *TokenResponse) SetScope(val OptString) {
+func (s *TokenResponse) SetScope(val string) {
 	s.Scope = val
 }
 
 // SetExpiry sets the value of Expiry.
-func (s *TokenResponse) SetExpiry(val OptDateTime) {
+func (s *TokenResponse) SetExpiry(val time.Time) {
 	s.Expiry = val
 }
 

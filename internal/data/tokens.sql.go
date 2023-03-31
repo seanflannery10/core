@@ -45,7 +45,7 @@ type CreateTokenParams struct {
 	Scope  string
 }
 
-func (q *Queries) CreateToken(ctx context.Context, arg CreateTokenParams) (Token, error) {
+func (q *Queries) CreateToken(ctx context.Context, arg CreateTokenParams) (*Token, error) {
 	row := q.db.QueryRow(ctx, createToken,
 		arg.Hash,
 		arg.UserID,
@@ -60,7 +60,7 @@ func (q *Queries) CreateToken(ctx context.Context, arg CreateTokenParams) (Token
 		&i.UserID,
 		&i.Active,
 	)
-	return i, err
+	return &i, err
 }
 
 const deactivateToken = `-- name: DeactivateToken :exec

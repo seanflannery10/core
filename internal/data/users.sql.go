@@ -34,7 +34,7 @@ type CreateUserParams struct {
 	Activated    bool
 }
 
-func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (*User, error) {
 	row := q.db.QueryRow(ctx, createUser,
 		arg.Name,
 		arg.Email,
@@ -51,7 +51,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.Activated,
 		&i.Version,
 	)
-	return i, err
+	return &i, err
 }
 
 const getUserFromEmail = `-- name: GetUserFromEmail :one
@@ -60,7 +60,7 @@ FROM users
 WHERE email = $1
 `
 
-func (q *Queries) GetUserFromEmail(ctx context.Context, email string) (User, error) {
+func (q *Queries) GetUserFromEmail(ctx context.Context, email string) (*User, error) {
 	row := q.db.QueryRow(ctx, getUserFromEmail, email)
 	var i User
 	err := row.Scan(
@@ -72,7 +72,7 @@ func (q *Queries) GetUserFromEmail(ctx context.Context, email string) (User, err
 		&i.Activated,
 		&i.Version,
 	)
-	return i, err
+	return &i, err
 }
 
 const getUserFromToken = `-- name: GetUserFromToken :one
@@ -91,7 +91,7 @@ type GetUserFromTokenParams struct {
 	Expiry time.Time
 }
 
-func (q *Queries) GetUserFromToken(ctx context.Context, arg GetUserFromTokenParams) (User, error) {
+func (q *Queries) GetUserFromToken(ctx context.Context, arg GetUserFromTokenParams) (*User, error) {
 	row := q.db.QueryRow(ctx, getUserFromToken, arg.Hash, arg.Scope, arg.Expiry)
 	var i User
 	err := row.Scan(
@@ -103,7 +103,7 @@ func (q *Queries) GetUserFromToken(ctx context.Context, arg GetUserFromTokenPara
 		&i.Activated,
 		&i.Version,
 	)
-	return i, err
+	return &i, err
 }
 
 const updateUser = `-- name: UpdateUser :one
@@ -131,7 +131,7 @@ type UpdateUserParams struct {
 	Version            int32
 }
 
-func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
+func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (*User, error) {
 	row := q.db.QueryRow(ctx, updateUser,
 		arg.UpdateName,
 		arg.Name,
@@ -154,5 +154,5 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 		&i.Activated,
 		&i.Version,
 	)
-	return i, err
+	return &i, err
 }
