@@ -25,10 +25,11 @@ tasks:
 
   go:test:
     cmds:
-      - docker stop postgres-test > /dev/null 2>&1 || true && docker rm postgres-test > /dev/null 2>&1 || true
-      - docker run --rm --stop-timeout 120 --name postgres-test -p 5433:5432 --tmpfs /var/lib/postgresql/data:rw -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=test -e POSTGRES_DB=test --pull always -d postgres:15
-      - timeout 5m bash -c 'until pg_isready -q -h localhost -p 5433 --timeout=30 -d test; do sleep 1; done'
-      - dbmate -d "./db/migrations" --url postgres://postgres:test@localhost:5433/test?sslmode=disable up
+      - docker run --name postgres-test -p 5433:5432 --tmpfs /var/lib/postgresql/data:rw -e POSTGRES_USER=$POSTGRES_USER -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -e POSTGRES_DB=$POSTGRES_DB --rm --pull always -d postgres:15
+      - defer: docker stop postgres-test > /dev/null 2>&1
+      - timeout 1m bash -c 'until pg_isready -q -h localhost -p 5433 -d $POSTGRES_DB; do sleep 1; done'
+      - dbmate -d "./db/migrations" --url postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@localhost:5433/$POSTGRES_DB?sslmode=disable up
+      - dbmate -d "./db/data" --url postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@localhost:5433/$POSTGRES_DB?sslmode=disable up
       - go test -race -vet=off ./...
 
   go:upgrade:

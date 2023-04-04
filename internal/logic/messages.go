@@ -50,8 +50,8 @@ func NewMessage(ctx context.Context, q *data.Queries, m string, userID int64) (*
 	return messageResponse, nil
 }
 
-func GetMessage(ctx context.Context, q *data.Queries, messageID int64) (*api.MessageResponse, error) {
-	message, err := q.GetMessage(ctx, messageID)
+func GetMessage(ctx context.Context, q *data.Queries, mid, uid int64) (*api.MessageResponse, error) {
+	message, err := q.GetMessage(ctx, data.GetMessageParams{ID: mid, UserID: uid})
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
@@ -66,8 +66,8 @@ func GetMessage(ctx context.Context, q *data.Queries, messageID int64) (*api.Mes
 	return messageResponse, nil
 }
 
-func UpdateMessage(ctx context.Context, q *data.Queries, m string, messageID int64) (*api.MessageResponse, error) {
-	message, err := q.UpdateMessage(ctx, data.UpdateMessageParams{Message: m, ID: messageID})
+func UpdateMessage(ctx context.Context, q *data.Queries, m string, mid, uid int64) (*api.MessageResponse, error) {
+	message, err := q.UpdateMessage(ctx, data.UpdateMessageParams{Message: m, ID: mid, UserID: uid})
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
@@ -77,20 +77,13 @@ func UpdateMessage(ctx context.Context, q *data.Queries, m string, messageID int
 		}
 	}
 
-	// if r.Header.Get("X-Expected-Version") != "" {
-	//	if strconv.FormatInt(int64(message.Version), 32) != r.Header.Get("X-Expected-Version") {
-	//		_ = render.Render(w, r, errs.ErrEditConflict())
-	//		return
-	//	}
-	//}
-
 	messageResponse := &api.MessageResponse{ID: message.ID, Message: message.Message, Version: message.Version}
 
 	return messageResponse, nil
 }
 
-func DeleteMessage(ctx context.Context, q *data.Queries, id int64) (*api.AcceptanceResponse, error) {
-	err := q.DeleteMessage(ctx, id)
+func DeleteMessage(ctx context.Context, q *data.Queries, mid, uid int64) (*api.AcceptanceResponse, error) {
+	err := q.DeleteMessage(ctx, data.DeleteMessageParams{ID: mid, UserID: uid})
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):

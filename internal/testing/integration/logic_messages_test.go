@@ -16,11 +16,10 @@ const (
 	missingMessageID = 500
 	testMessage      = "First!"
 	connString       = "postgres://postgres:test@localhost:5433/test?sslmode=disable"
-
-	testID          = 1
-	testUserID      = 1
-	testVersion     = 1
-	unexpectedError = "unexpected error: %v"
+	testMessageID    = 1
+	testUserID       = 1
+	testVersion      = 1
+	unexpectedError  = "unexpected error: %v"
 )
 
 func TestNewMessage_Success(t *testing.T) {
@@ -32,7 +31,7 @@ func TestNewMessage_Success(t *testing.T) {
 	ctx := context.Background()
 	q := data.New(dbpool)
 	expectedResponse := &api.MessageResponse{
-		ID:      testID,
+		ID:      testMessageID,
 		Message: testMessage,
 		Version: testVersion,
 	}
@@ -54,12 +53,12 @@ func TestGetMessage_Success(t *testing.T) {
 	ctx := context.Background()
 	q := data.New(dbpool)
 	expectedResponse := &api.MessageResponse{
-		ID:      testID,
+		ID:      testMessageID,
 		Message: "First!",
 		Version: testVersion,
 	}
 
-	response, err := logic.GetMessage(ctx, q, testID)
+	response, err := logic.GetMessage(ctx, q, testMessageID, testUserID)
 	if err != nil {
 		t.Fatalf(unexpectedError, err)
 	}
@@ -76,7 +75,7 @@ func TestGetMessage_NotFound(t *testing.T) {
 	ctx := context.Background()
 	q := data.New(dbpool)
 
-	response, err := logic.GetMessage(ctx, q, missingMessageID)
+	response, err := logic.GetMessage(ctx, q, missingMessageID, testUserID)
 	if !errors.Is(err, logic.ErrMessageNotFound) {
 		t.Fatalf(unexpectedError, err)
 	}

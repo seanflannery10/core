@@ -13,15 +13,10 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 
 OTEL_EXPORTER_OTLP_HEADERS = os.getenv('OTEL_EXPORTER_OTLP_HEADERS')
 
-# Tests
-load('ext://tests/golang', 'test_go')
-test_go('test-core-cmd', './cmd/...', './cmd')
-test_go('test-core-internal', './internal/...', './internal')
-
 # Build App
 local_resource(
   'core-compile',
-  'CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -gcflags="all=-N -l" -o ./bin/api ./cmd/api',
+  'CGO_ENABLED=0 GOOS=linux go build -gcflags="all=-N -l" -o ./bin/api ./cmd/api',
    deps=['./cmd/api/', './internal/', './pkg'],
 )
 

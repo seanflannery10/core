@@ -8,17 +8,20 @@ UPDATE messages
 SET message = $1,
     version = version + 1
 WHERE id = $2
+  AND user_id = $3
 RETURNING *;
 
 -- name: DeleteMessage :exec
 DELETE
 FROM messages
-WHERE id = $1;
+WHERE id = $1
+  AND user_id = $2;
 
 -- name: GetMessage :one
 SELECT id, created_at, message, user_id, version
 FROM messages
-WHERE id = $1;
+WHERE id = $1
+  AND user_id = $2;
 
 -- name: GetUserMessages :many
 SELECT id,

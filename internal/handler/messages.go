@@ -32,7 +32,9 @@ func (s *Handler) NewMessage(ctx context.Context, req *api.MessageRequest) (*api
 }
 
 func (s *Handler) GetMessage(ctx context.Context, params api.GetMessageParams) (*api.MessageResponse, error) {
-	messageResponse, err := logic.GetMessage(ctx, s.Queries, params.ID)
+	user := utils.ContextGetUser(ctx)
+
+	messageResponse, err := logic.GetMessage(ctx, s.Queries, params.ID, user.ID)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed get message")
 	}
@@ -41,16 +43,27 @@ func (s *Handler) GetMessage(ctx context.Context, params api.GetMessageParams) (
 }
 
 func (s *Handler) UpdateMessage(ctx context.Context, req *api.MessageRequest, params api.UpdateMessageParams) (*api.MessageResponse, error) {
-	messageResponse, err := logic.UpdateMessage(ctx, s.Queries, req.Message, params.ID)
+	user := utils.ContextGetUser(ctx)
+
+	messageResponse, err := logic.UpdateMessage(ctx, s.Queries, req.Message, params.ID, user.ID)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed update message")
 	}
+
+	// if r.Header.Get("X-Expected-Version") != "" {
+	//	if strconv.FormatInt(int64(message.Version), 32) != r.Header.Get("X-Expected-Version") {
+	//		_ = render.Render(w, r, errs.ErrEditConflict())
+	//		return
+	//	}
+	//}
 
 	return messageResponse, nil
 }
 
 func (s *Handler) DeleteMessage(ctx context.Context, params api.DeleteMessageParams) (*api.AcceptanceResponse, error) {
-	acceptanceResponse, err := logic.DeleteMessage(ctx, s.Queries, params.ID)
+	user := utils.ContextGetUser(ctx)
+
+	acceptanceResponse, err := logic.DeleteMessage(ctx, s.Queries, params.ID, user.ID)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed delete message")
 	}

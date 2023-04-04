@@ -37,10 +37,16 @@ const deleteMessage = `-- name: DeleteMessage :exec
 DELETE
 FROM messages
 WHERE id = $1
+  AND user_id = $2
 `
 
-func (q *Queries) DeleteMessage(ctx context.Context, id int64) error {
-	_, err := q.db.Exec(ctx, deleteMessage, id)
+type DeleteMessageParams struct {
+	ID     int64
+	UserID int64
+}
+
+func (q *Queries) DeleteMessage(ctx context.Context, arg DeleteMessageParams) error {
+	_, err := q.db.Exec(ctx, deleteMessage, arg.ID, arg.UserID)
 	return err
 }
 
@@ -48,10 +54,16 @@ const getMessage = `-- name: GetMessage :one
 SELECT id, created_at, message, user_id, version
 FROM messages
 WHERE id = $1
+  AND user_id = $2
 `
 
-func (q *Queries) GetMessage(ctx context.Context, id int64) (*Message, error) {
-	row := q.db.QueryRow(ctx, getMessage, id)
+type GetMessageParams struct {
+	ID     int64
+	UserID int64
+}
+
+func (q *Queries) GetMessage(ctx context.Context, arg GetMessageParams) (*Message, error) {
+	row := q.db.QueryRow(ctx, getMessage, arg.ID, arg.UserID)
 	var i Message
 	err := row.Scan(
 		&i.ID,
@@ -125,16 +137,18 @@ UPDATE messages
 SET message = $1,
     version = version + 1
 WHERE id = $2
+  AND user_id = $3
 RETURNING id, created_at, message, user_id, version
 `
 
 type UpdateMessageParams struct {
 	Message string
 	ID      int64
+	UserID  int64
 }
 
 func (q *Queries) UpdateMessage(ctx context.Context, arg UpdateMessageParams) (*Message, error) {
-	row := q.db.QueryRow(ctx, updateMessage, arg.Message, arg.ID)
+	row := q.db.QueryRow(ctx, updateMessage, arg.Message, arg.ID, arg.UserID)
 	var i Message
 	err := row.Scan(
 		&i.ID,
