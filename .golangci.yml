@@ -74,11 +74,11 @@ linters-settings:
       #disabled
       - name: banned-characters
         disabled: true
+      - name: comment-spacings
+        disabled: true
       - name: file-header
         disabled: true
       - name: unused-receiver
-        disabled: true
-      - name: comment-spacings
         disabled: true
 
       - name: argument-limit

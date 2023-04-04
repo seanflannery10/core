@@ -1,4 +1,4 @@
-package logic_test
+package integration_test
 
 import (
 	"context"
@@ -15,7 +15,7 @@ import (
 const (
 	missingMessageID = 500
 	testMessage      = "First!"
-	connString       = "postgres://postgres:test@localhost:5432/test?sslmode=disable"
+	connString       = "postgres://postgres:test@localhost:5433/test?sslmode=disable"
 
 	testID          = 1
 	testUserID      = 1
@@ -24,7 +24,7 @@ const (
 )
 
 func TestNewMessage_Success(t *testing.T) {
-	dbpool, err := pgxpool.New(context.Background(), "postgres://postgres:test@localhost:5432/test?sslmode=disable")
+	dbpool, err := pgxpool.New(context.Background(), connString)
 	if err != nil {
 		t.Fatalf(unexpectedError, err)
 	}
@@ -46,7 +46,7 @@ func TestNewMessage_Success(t *testing.T) {
 }
 
 func TestGetMessage_Success(t *testing.T) {
-	dbpool, err := pgxpool.New(context.Background(), "postgres://postgres:test@localhost:5432/test?sslmode=disable")
+	dbpool, err := pgxpool.New(context.Background(), connString)
 	if err != nil {
 		t.Fatalf(unexpectedError, err)
 	}
