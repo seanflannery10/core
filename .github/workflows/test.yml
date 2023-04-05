@@ -28,6 +28,20 @@ jobs:
         run: go build -o /dev/null ./...
   test:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: test
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     strategy:
       matrix:
         go: [ 'stable', 'oldstable' ]
@@ -39,6 +53,15 @@ jobs:
         with:
           go-version: ${{ matrix.go }}
           check-latest: true
+      - name: Install dbmate
+        run: |
+          curl -L https://github.com/amacneil/dbmate/releases/download/v2.2.0/dbmate-linux-amd64
+          sudo mv dbmate-linux-amd64 /usr/bin/dbmate
+          which dbmate
+      - name: Apply Migrations
+        run: |
+          dbmate -d "./db/migrations" --url postgres://postgres:test@localhost:5433/test?sslmode=disable up
+          dbmate -d "./db/test_data" --url postgres://postgres:test@localhost:5433/test?sslmode=disable up
       - name: Test code
         run: go test -race -vet=off ./...
   generate:
@@ -52,9 +75,12 @@ jobs:
           go-version: stable
           check-latest: true
       - name: Install sqlc
-        run: go install github.com/kyleconroy/sqlc/cmd/sqlc@v1.17.2
+        run: |
+          curl -L https://github.com/kyleconroy/sqlc/releases/download/v1.17.2/sqlc_1.17.2_darwin_amd64.tar.gz | tar xvz
+          sudo mv sqlc /usr/bin/sqlc
+          which sqlc
       - name: Install ogen
-        run: go install github.com/ogen-go/ogen/cmd/ogen@v0.60.2
+        run: go install github.com/ogen-go/ogen/cmd/ogen@v0.61.0
       - name: sqlc Compile
         run: sqlc compile --experimental
       - name: sqlc Generate
