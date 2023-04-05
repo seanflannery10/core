@@ -77,7 +77,7 @@ jobs:
           check-latest: true
       - name: Install sqlc
         run: |
-          curl -L https://github.com/kyleconroy/sqlc/releases/download/v1.17.2/sqlc_1.17.2_darwin_amd64.tar.gz | tar xvz
+          curl -L https://github.com/kyleconroy/sqlc/releases/download/v1.17.2/sqlc_1.17.2_linux_amd64.tar.gz | tar xvz
           sudo mv sqlc /usr/local/bin/sqlc
           which sqlc
       - name: Install ogen
