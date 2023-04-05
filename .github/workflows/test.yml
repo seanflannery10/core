@@ -42,13 +42,16 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+    strategy:
+      matrix:
+        go: [ 'stable', 'oldstable' ]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: stable
+          go-version: ${{ matrix.go }}
           check-latest: true
       - name: Install dbmate
         run: |
@@ -58,8 +61,6 @@ jobs:
           which dbmate
       - name: Apply Migrations
         run: |
-          dbmate -d "./db/migrations" --url postgres://postgres:test@localhost:5433/test?sslmode=disable down
-          dbmate -d "./db/test_data" --url postgres://postgres:test@localhost:5433/test?sslmode=disable down
           dbmate -d "./db/migrations" --url postgres://postgres:test@localhost:5433/test?sslmode=disable up
           dbmate -d "./db/test_data" --url postgres://postgres:test@localhost:5433/test?sslmode=disable up
       - name: Test code

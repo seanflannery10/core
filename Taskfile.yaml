@@ -30,7 +30,7 @@ tasks:
       - timeout 1m bash -c 'until pg_isready -q -h localhost -p 5433 -d $POSTGRES_DB; do sleep 1; done'
       - dbmate -d "./db/migrations" --url postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@localhost:5433/$POSTGRES_DB?sslmode=disable up
       - dbmate -d "./db/test_data" --url postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@localhost:5433/$POSTGRES_DB?sslmode=disable up
-      - go test -race -vet=off ./...
+      - go test -race -vet=off ./internal/api/ ./internal/testing/... -count 1
 
   go:upgrade:
     cmds:
