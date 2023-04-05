@@ -2,9 +2,37 @@ name: test
 on:
   workflow_call:
   pull_request:
+  schedule:
+    - cron: '18 3 * * 4'
 jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'go' ]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: ${{ matrix.language }}
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v2
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+        with:
+          category: "/language:${{matrix.language}}"
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     strategy:
       matrix:
         go: [ 'stable', 'oldstable' ]
@@ -28,6 +56,8 @@ jobs:
         run: go build -o /dev/null ./...
   test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     services:
       postgres:
         image: postgres:15
@@ -67,6 +97,8 @@ jobs:
         run: go test -race -vet=off ./...
   generate:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -90,6 +122,8 @@ jobs:
         run: ogen -no-client -no-webhook-client -no-webhook-server -generate-tests --target internal/api -package api --clean openapi.yaml && git diff --exit-code
   lint:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
