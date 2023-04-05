@@ -7,7 +7,7 @@ dotenv: ['.env']
 tasks:
   default:
     cmds:
-      - task go:audit
+      - task go:test
 
   go:tidy:
     cmds:
@@ -20,10 +20,10 @@ tasks:
     deps: [go:tidy]
     cmds:
       - golangci-lint run --fix
-      - go test -race -vet=off ./internal/testing/unit/
       - go mod verify
 
   go:test:
+    deps: [go:audit]
     cmds:
       - docker run --name postgres-test -p 5433:5432 --tmpfs /var/lib/postgresql/data:rw -e POSTGRES_USER=$POSTGRES_USER -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -e POSTGRES_DB=$POSTGRES_DB --rm --pull always -d postgres:15
       - defer: docker stop postgres-test > /dev/null 2>&1
