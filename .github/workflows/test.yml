@@ -55,8 +55,9 @@ jobs:
           check-latest: true
       - name: Install dbmate
         run: |
-          curl -L https://github.com/amacneil/dbmate/releases/download/v2.2.0/dbmate-linux-amd64
-          sudo mv dbmate-linux-amd64 /usr/bin/dbmate
+          curl -L https://github.com/amacneil/dbmate/releases/download/v2.2.0/dbmate-linux-amd64 --output dbmate
+          sudo chmod +x dbmate
+          sudo mv dbmate /usr/local/bin/dbmate
           which dbmate
       - name: Apply Migrations
         run: |
@@ -77,7 +78,7 @@ jobs:
       - name: Install sqlc
         run: |
           curl -L https://github.com/kyleconroy/sqlc/releases/download/v1.17.2/sqlc_1.17.2_darwin_amd64.tar.gz | tar xvz
-          sudo mv sqlc /usr/bin/sqlc
+          sudo mv sqlc /usr/local/bin/sqlc
           which sqlc
       - name: Install ogen
         run: go install github.com/ogen-go/ogen/cmd/ogen@v0.61.0
