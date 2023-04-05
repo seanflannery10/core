@@ -3,6 +3,22 @@ on:
   workflow_call:
   pull_request:
 jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: go
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v2
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@v2
+        with:
+          category: "/language:go"
   build:
     runs-on: ubuntu-latest
     strategy:
@@ -26,7 +42,7 @@ jobs:
         run: go mod verify
       - name: Build code
         run: go build -o /dev/null ./...
-  test:
+  test (stable):
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -42,16 +58,49 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-    strategy:
-      matrix:
-        go: [ 'stable', 'oldstable' ]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: ${{ matrix.go }}
+          go-version: stable
+          check-latest: true
+      - name: Install dbmate
+        run: |
+          curl -L https://github.com/amacneil/dbmate/releases/download/v2.2.0/dbmate-linux-amd64 --output dbmate
+          sudo chmod +x dbmate
+          sudo mv dbmate /usr/local/bin/dbmate
+          which dbmate
+      - name: Apply Migrations
+        run: |
+          dbmate -d "./db/migrations" --url postgres://postgres:test@localhost:5433/test?sslmode=disable up
+          dbmate -d "./db/test_data" --url postgres://postgres:test@localhost:5433/test?sslmode=disable up
+      - name: Test code
+        run: go test -race -vet=off ./...
+  test (oldstable):
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: test
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: oldstable
           check-latest: true
       - name: Install dbmate
         run: |
