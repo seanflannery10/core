@@ -11,11 +11,12 @@ WHERE id = $2
   AND user_id = $3
 RETURNING *;
 
--- name: DeleteMessage :exec
+-- name: DeleteMessage :one
 DELETE
 FROM messages
 WHERE id = $1
-  AND user_id = $2;
+  AND user_id = $2
+RETURNING *;
 
 -- name: GetMessage :one
 SELECT id, created_at, message, user_id, version

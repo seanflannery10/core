@@ -83,7 +83,7 @@ func UpdateMessage(ctx context.Context, q *data.Queries, m string, mid, uid int6
 }
 
 func DeleteMessage(ctx context.Context, q *data.Queries, mid, uid int64) (*api.AcceptanceResponse, error) {
-	err := q.DeleteMessage(ctx, data.DeleteMessageParams{ID: mid, UserID: uid})
+	_, err := q.DeleteMessage(ctx, data.DeleteMessageParams{ID: mid, UserID: uid})
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):

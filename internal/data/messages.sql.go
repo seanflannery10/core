@@ -33,11 +33,12 @@ func (q *Queries) CreateMessage(ctx context.Context, arg CreateMessageParams) (*
 	return &i, err
 }
 
-const deleteMessage = `-- name: DeleteMessage :exec
+const deleteMessage = `-- name: DeleteMessage :one
 DELETE
 FROM messages
 WHERE id = $1
   AND user_id = $2
+RETURNING id, created_at, message, user_id, version
 `
 
 type DeleteMessageParams struct {
@@ -45,9 +46,17 @@ type DeleteMessageParams struct {
 	UserID int64
 }
 
-func (q *Queries) DeleteMessage(ctx context.Context, arg DeleteMessageParams) error {
-	_, err := q.db.Exec(ctx, deleteMessage, arg.ID, arg.UserID)
-	return err
+func (q *Queries) DeleteMessage(ctx context.Context, arg DeleteMessageParams) (*Message, error) {
+	row := q.db.QueryRow(ctx, deleteMessage, arg.ID, arg.UserID)
+	var i Message
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.Message,
+		&i.UserID,
+		&i.Version,
+	)
+	return &i, err
 }
 
 const getMessage = `-- name: GetMessage :one
