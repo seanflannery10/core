@@ -42,7 +42,7 @@ jobs:
         run: go mod verify
       - name: Build code
         run: go build -o /dev/null ./...
-  test (stable):
+  test_stable:
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -78,7 +78,7 @@ jobs:
           dbmate -d "./db/test_data" --url postgres://postgres:test@localhost:5433/test?sslmode=disable up
       - name: Test code
         run: go test -race -vet=off ./...
-  test (oldstable):
+  test_oldstable:
     runs-on: ubuntu-latest
     services:
       postgres:
