@@ -58,6 +58,8 @@ jobs:
           which dbmate
       - name: Apply Migrations
         run: |
+          dbmate -d "./db/migrations" --url postgres://postgres:test@localhost:5433/test?sslmode=disable down
+          dbmate -d "./db/test_data" --url postgres://postgres:test@localhost:5433/test?sslmode=disable down
           dbmate -d "./db/migrations" --url postgres://postgres:test@localhost:5433/test?sslmode=disable up
           dbmate -d "./db/test_data" --url postgres://postgres:test@localhost:5433/test?sslmode=disable up
       - name: Test code
