@@ -3,9 +3,6 @@ on:
   push:
     tags: [ "-v*" ]
     branches: [ 'main' ]
-permissions:
-  contents: read
-  packages: write
 jobs:
   tests:
     uses: ./.github/workflows/test.yml
@@ -13,6 +10,9 @@ jobs:
     name: build docker image
     needs: [ tests ]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
