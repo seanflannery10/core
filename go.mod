@@ -6,7 +6,7 @@ require (
 	github.com/go-faster/errors v0.6.1
 	github.com/go-faster/jx v1.0.0
 	github.com/jackc/pgx/v5 v5.3.1
-	github.com/ogen-go/ogen v0.61.0
+	github.com/ogen-go/ogen v0.62.0
 	github.com/prometheus/client_golang v1.14.0
 	github.com/segmentio/asm v1.2.0
 	github.com/sethvargo/go-envconfig v0.9.0
@@ -24,7 +24,7 @@ require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/dlclark/regexp2 v1.8.1 // indirect
+	github.com/dlclark/regexp2 v1.9.0 // indirect
 	github.com/fatih/color v1.15.0 // indirect
 	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/go-faster/yaml v0.4.3 // indirect
@@ -46,10 +46,10 @@ require (
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/goleak v1.2.1 // indirect
 	go.uber.org/zap v1.24.0 // indirect
-	golang.org/x/net v0.8.0 // indirect
+	golang.org/x/net v0.9.0 // indirect
 	golang.org/x/sync v0.1.0 // indirect
 	golang.org/x/sys v0.7.0 // indirect
-	golang.org/x/text v0.8.0 // indirect
+	golang.org/x/text v0.9.0 // indirect
 	google.golang.org/protobuf v1.30.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
