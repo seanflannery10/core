@@ -1,4 +1,4 @@
-package integration_test
+package handler_test
 
 import (
 	"context"
@@ -14,19 +14,8 @@ import (
 )
 
 const (
-	secretKey            = "ff2636f4a5abf829042c96d38caa8007427773980fddab20fd7c43d93dc186ca" //nolint:gosec
-	connString           = "postgres://postgres:test@localhost:5433/test?sslmode=disable"
-	page                 = 1
-	pageSize             = 20
-	testMessage          = "First!"
-	testMessageEdit      = "Edit!"
-	testMessageID        = 1
-	testUserID           = 1
-	testMessageIDMissing = 500
-	testVersion          = 1
-	testVersionEdit      = 2
-	unexpectedError      = "unexpected error: %v"
-	unexpectedResponse   = "unexpected response"
+	secretKey  = "ff2636f4a5abf829042c96d38caa8007427773980fddab20fd7c43d93dc186ca" //nolint:gosec
+	connString = "postgres://postgres:test@localhost:5433/test?sslmode=disable"
 )
 
 func newTestHandler() *handler.Handler {
