@@ -5,9 +5,6 @@ import (
 	"encoding/hex"
 	"os"
 
-
-	"github.com/seanflannery10/core/internal/shared/utils"
-
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/seanflannery10/core/internal/data"
 	"github.com/seanflannery10/core/internal/handler"
