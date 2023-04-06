@@ -12,22 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const (
-	connString           = "postgres://postgres:test@localhost:5433/test?sslmode=disable"
-	page                 = 1
-	pageSize             = 20
-	testMessage          = "First!"
-	testMessageEdit      = "Edit!"
-	testMessageID        = 1
-	testUserID           = 1
-	testMessageIDMissing = 500
-	testVersion          = 1
-	testVersionEdit      = 2
-	unexpectedError      = "unexpected error: %v"
-	unexpectedResponse   = "unexpected response"
-)
-
-func TestGetUserMessages_Empty(t *testing.T) {
+func TestGetUserMessages_SuccessEmpty(t *testing.T) {
 	dbpool, err := pgxpool.New(context.Background(), connString)
 	if err != nil {
 		t.Fatalf(unexpectedError, err)
@@ -152,7 +137,7 @@ func TestUpdateMessage_NotFound(t *testing.T) {
 	}
 }
 
-func TestGetUserMessages_WithMessage(t *testing.T) {
+func TestGetUserMessages_SuccessWithMessage(t *testing.T) {
 	dbpool, err := pgxpool.New(context.Background(), connString)
 	if err != nil {
 		t.Fatalf(unexpectedError, err)
