@@ -59,8 +59,6 @@ func (app *application) init() {
 		os.Exit(exitError)
 	}
 
-	slog.Info("test", "test", secret)
-
 	slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stdout)))
 
 	mail, err := mailer.New(cfg.SMTP)

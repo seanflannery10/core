@@ -25,8 +25,8 @@ tasks:
   go:test:
     deps: [go:audit]
     cmds:
-      - docker run --name postgres-test -p 5433:5432 --tmpfs /var/lib/postgresql/data:rw -e POSTGRES_USER=$POSTGRES_USER -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -e POSTGRES_DB=$POSTGRES_DB --rm --pull always -d postgres:15
-      - docker run --name smtp4dev-test -p 2525:25 --rm --pull always -d rnwood/smtp4dev
+      - docker run --name postgres-test -p 5433:5432 --tmpfs /var/lib/postgresql/data:rw -e POSTGRES_USER=$POSTGRES_USER -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -e POSTGRES_DB=$POSTGRES_DB --rm --pull always -d postgres:15 #postgres -c log_statement=all
+      - docker run --name smtp4dev-test -p 2525:25 --tmpfs /smtp4dev:rw --rm --pull always -d rnwood/smtp4dev
       - defer: docker stop postgres-test smtp4dev-test
       - timeout 1m bash -c 'until pg_isready -q -h localhost -p 5433 -d $POSTGRES_DB; do sleep 1; done'
       - dbmate -d "./db/migrations" --url postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@localhost:5433/$POSTGRES_DB?sslmode=disable up
