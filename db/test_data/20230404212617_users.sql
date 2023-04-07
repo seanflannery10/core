@@ -7,3 +7,4 @@ VALUES ('unactivated', 'unactivated@test.com', '$2a$13$JHR5woNGzCO6MMhChSgs7OtU/
 
 -- migrate:down
 DELETE FROM users WHERE id = 1;
+DELETE FROM users WHERE id = 2;

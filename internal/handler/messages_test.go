@@ -31,7 +31,7 @@ func TestGetUserMessages_SuccessEmpty(t *testing.T) {
 
 	expected := &api.MessagesResponse{Messages: []api.MessageResponse{}, Metadata: api.MessagesMetadataResponse{}}
 
-	response, err := newTestHandler().GetUserMessages(ctxWithTestUser(), params)
+	response, err := newTestHandler(t).GetUserMessages(ctxWithTestUser(t), params)
 	if err != nil {
 		t.Fatalf(unexpectedError, err)
 	}
@@ -44,7 +44,7 @@ func TestNewMessage_Success(t *testing.T) {
 
 	expected := &api.MessageResponse{ID: testMessageID, Message: testMessage, Version: testVersion}
 
-	response, err := newTestHandler().NewMessage(ctxWithTestUser(), request)
+	response, err := newTestHandler(t).NewMessage(ctxWithTestUser(t), request)
 	if err != nil {
 		t.Fatalf(unexpectedError, err)
 	}
@@ -57,7 +57,7 @@ func TestGetMessage_Success(t *testing.T) {
 
 	expected := &api.MessageResponse{ID: testMessageID, Message: testMessage, Version: testVersion}
 
-	response, err := newTestHandler().GetMessage(ctxWithTestUser(), params)
+	response, err := newTestHandler(t).GetMessage(ctxWithTestUser(t), params)
 	if err != nil {
 		t.Fatalf(unexpectedError, err)
 	}
@@ -68,7 +68,7 @@ func TestGetMessage_Success(t *testing.T) {
 func TestGetMessage_NotFound(t *testing.T) {
 	params := api.GetMessageParams{ID: testMessageIDMissing}
 
-	response, err := newTestHandler().GetMessage(ctxWithTestUser(), params)
+	response, err := newTestHandler(t).GetMessage(ctxWithTestUser(t), params)
 	if !errors.Is(err, logic.ErrMessageNotFound) {
 		t.Fatalf(unexpectedError, err)
 	}
@@ -84,7 +84,7 @@ func TestUpdateMessage_Success(t *testing.T) {
 
 	expected := &api.MessageResponse{ID: testMessageID, Message: testMessageEdit, Version: testVersionEdit}
 
-	response, err := newTestHandler().UpdateMessage(ctxWithTestUser(), request, params)
+	response, err := newTestHandler(t).UpdateMessage(ctxWithTestUser(t), request, params)
 	if err != nil {
 		t.Fatalf(unexpectedError, err)
 	}
@@ -96,7 +96,7 @@ func TestUpdateMessage_NotFound(t *testing.T) {
 	request := &api.MessageRequest{Message: testMessageEdit}
 	params := api.UpdateMessageParams{ID: testMessageIDMissing}
 
-	response, err := newTestHandler().UpdateMessage(ctxWithTestUser(), request, params)
+	response, err := newTestHandler(t).UpdateMessage(ctxWithTestUser(t), request, params)
 	if !errors.Is(err, logic.ErrMessageNotFound) {
 		t.Fatalf(unexpectedError, err)
 	}
@@ -117,7 +117,7 @@ func TestGetUserMessages_SuccessWithMessage(t *testing.T) {
 		Metadata: api.MessagesMetadataResponse{CurrentPage: page, FirstPage: page, LastPage: page, PageSize: pageSize, TotalRecords: page},
 	}
 
-	response, err := newTestHandler().GetUserMessages(ctxWithTestUser(), params)
+	response, err := newTestHandler(t).GetUserMessages(ctxWithTestUser(t), params)
 	if err != nil {
 		t.Fatalf(unexpectedError, err)
 	}
@@ -130,7 +130,7 @@ func TestDeleteMessage_Success(t *testing.T) {
 
 	expected := &api.AcceptanceResponse{Message: "message deleted"}
 
-	response, err := newTestHandler().DeleteMessage(ctxWithTestUser(), params)
+	response, err := newTestHandler(t).DeleteMessage(ctxWithTestUser(t), params)
 	if err != nil {
 		t.Fatalf(unexpectedError, err)
 	}
@@ -141,7 +141,7 @@ func TestDeleteMessage_Success(t *testing.T) {
 func TestDeleteMessage_NotFound(t *testing.T) {
 	params := api.DeleteMessageParams{ID: testMessageIDMissing}
 
-	response, err := newTestHandler().DeleteMessage(ctxWithTestUser(), params)
+	response, err := newTestHandler(t).DeleteMessage(ctxWithTestUser(t), params)
 	if !errors.Is(err, logic.ErrMessageNotFound) {
 		t.Fatalf(unexpectedError, err)
 	}
