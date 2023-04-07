@@ -78,6 +78,8 @@ linters-settings:
         disabled: true
       - name: file-header
         disabled: true
+      - name: line-length-limit
+        disabled: true
       - name: unused-receiver
         disabled: true
 
@@ -93,8 +95,6 @@ linters-settings:
         arguments: [3]
       - name: function-length
         arguments: [50,80]
-      - name: line-length-limit
-        arguments: [150]
       - name: max-public-structs
         arguments: [3]
   prealloc:

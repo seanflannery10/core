@@ -19,6 +19,7 @@ type (
 		Password string `env:"SMTP_PASSWORD"`
 		Sender   string `env:"SMTP_SENDER,default=Test <no-reply@testdomain.com>"`
 		Port     int    `env:"SMTP_PORT,default=25"`
+		Test     bool
 	}
 	Mailer struct {
 		client *mail.Client
@@ -27,12 +28,19 @@ type (
 )
 
 func New(smtp SMTP) (Mailer, error) {
+	tlsPolicy := mail.TLSMandatory
+
+	if smtp.Test {
+		tlsPolicy = mail.TLSOpportunistic
+	}
+
 	client, err := mail.NewClient(
 		smtp.Host,
 		mail.WithPort(smtp.Port),
 		mail.WithUsername(smtp.Username),
 		mail.WithPassword(smtp.Password),
 		mail.WithSMTPAuth(mail.SMTPAuthPlain),
+		mail.WithTLSPolicy(tlsPolicy),
 	)
 	if err != nil {
 		return Mailer{}, fmt.Errorf("failed new mail client: %w", err)
