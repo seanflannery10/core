@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"runtime/debug"
 
-	"github.com/seanflannery10/core/internal/data"
+	"github.com/seanflannery10/core/internal/generated/data"
 )
 
 const (

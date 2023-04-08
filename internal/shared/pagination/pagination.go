@@ -4,7 +4,7 @@ import (
 	"math"
 
 	"github.com/go-faster/errors"
-	"github.com/seanflannery10/core/internal/api"
+	"github.com/seanflannery10/core/internal/generated/api"
 )
 
 const (

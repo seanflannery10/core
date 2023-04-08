@@ -26,5 +26,5 @@ func main() {
 		os.Exit(exitError)
 	}
 
-	app.shutdown()
+	app.dbpool.Close()
 }

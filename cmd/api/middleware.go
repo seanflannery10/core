@@ -5,7 +5,7 @@ import (
 	"runtime/debug"
 
 	"github.com/ogen-go/ogen/middleware"
-	"github.com/seanflannery10/core/internal/logic"
+	"github.com/seanflannery10/core/internal/server/logic"
 	"golang.org/x/exp/slog"
 )
 

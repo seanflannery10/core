@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/go-faster/errors"
-	"github.com/seanflannery10/core/internal/api"
-	"github.com/seanflannery10/core/internal/data"
+	"github.com/seanflannery10/core/internal/generated/api"
+	"github.com/seanflannery10/core/internal/generated/data"
 	"golang.org/x/crypto/bcrypt"
 )
 

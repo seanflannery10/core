@@ -8,8 +8,8 @@ import (
 
 	"github.com/go-faster/errors"
 	"github.com/jackc/pgx/v5"
-	"github.com/seanflannery10/core/internal/api"
-	"github.com/seanflannery10/core/internal/data"
+	"github.com/seanflannery10/core/internal/generated/api"
+	"github.com/seanflannery10/core/internal/generated/data"
 )
 
 const (

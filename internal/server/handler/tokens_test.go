@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/go-faster/errors"
-	"github.com/seanflannery10/core/internal/api"
-	"github.com/seanflannery10/core/internal/logic"
+	"github.com/seanflannery10/core/internal/generated/api"
+	"github.com/seanflannery10/core/internal/server/logic"
 	"github.com/seanflannery10/core/internal/shared/utils"
 	"github.com/stretchr/testify/assert"
 )

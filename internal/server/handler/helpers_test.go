@@ -7,8 +7,8 @@ import (
 
 	"github.com/go-faster/errors"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/seanflannery10/core/internal/data"
-	"github.com/seanflannery10/core/internal/handler"
+	"github.com/seanflannery10/core/internal/generated/data"
+	"github.com/seanflannery10/core/internal/server/handler"
 	"github.com/seanflannery10/core/internal/shared/mailer"
 	"github.com/seanflannery10/core/internal/shared/utils"
 )

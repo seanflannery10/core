@@ -8,9 +8,9 @@ import (
 
 	"github.com/go-faster/errors"
 	"github.com/ogen-go/ogen/ogenerrors"
-	"github.com/seanflannery10/core/internal/api"
-	"github.com/seanflannery10/core/internal/handler"
-	"github.com/seanflannery10/core/internal/logic"
+	"github.com/seanflannery10/core/internal/generated/api"
+	"github.com/seanflannery10/core/internal/server/handler"
+	"github.com/seanflannery10/core/internal/server/logic"
 	"github.com/seanflannery10/core/internal/shared/pagination"
 	"github.com/stretchr/testify/assert"
 )

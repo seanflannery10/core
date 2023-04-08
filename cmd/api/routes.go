@@ -7,9 +7,9 @@ import (
 	"os"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/seanflannery10/core/internal/api"
-	"github.com/seanflannery10/core/internal/data"
-	"github.com/seanflannery10/core/internal/handler"
+	"github.com/seanflannery10/core/internal/generated/api"
+	"github.com/seanflannery10/core/internal/generated/data"
+	"github.com/seanflannery10/core/internal/server/handler"
 	"golang.org/x/exp/slog"
 )
 
